@@ -7,8 +7,10 @@ import {
   List,
   Picker,
   Section,
+  Text,
   VStack
 } from '@expo/ui/swift-ui';
+import { tag } from '@expo/ui/swift-ui/modifiers';
 
 export default function ViewOptions() {
   const viewOptions = useViewOptions();
@@ -19,22 +21,16 @@ export default function ViewOptions() {
       <VStack alignment="leading">
         <List>
           <Section title="Charts">
-
             {
-              mapStyles.map(({ id, name, style }) => {
-                const isSelected = viewOptions.mapStyleId === id;
-                const image = isSelected ? 'checkmark.circle.fill' : 'circle';
-                const color = undefined;
+              mapStyles.map(({ id, name }) => {
+                const image = viewOptions.mapStyleId === id ? 'checkmark.circle.fill' : 'circle';
                 return (
                   <Button
-                    variant="plain"
                     key={id}
                     systemImage={image}
-                    color={color}
+                    label={name}
                     onPress={() => viewOptions.set({ mapStyleId: id })}
-                  >
-                    {name}
-                  </Button>
+                  />
                 );
               })
             }
@@ -43,13 +39,15 @@ export default function ViewOptions() {
           <Section title="Prefered Units">
             <Picker
               label="Speed"
-              options={units.possibilities('speed').map((unit) => units.describe(unit).plural)}
-              selectedIndex={units.possibilities('speed').indexOf(units.speed)}
-              onOptionSelected={({ nativeEvent: { index } }) => {
-                units.set({ speed: units.possibilities('speed')[index] });
-              }}
-              variant="menu"
-            />
+              selection={units.speed}
+              onSelectionChange={(unit) => units.set({ speed: unit })}
+            >
+              {units.possibilities('speed').map((unit) => (
+                <Text key={unit} modifiers={[tag(unit)]}>
+                  {units.describe(unit).plural}
+                </Text>
+              ))}
+            </Picker>
           </Section>
         </List>
       </VStack>

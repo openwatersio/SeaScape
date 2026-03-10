@@ -8,11 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		15FF985FB9D3AEA17DDF5161 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA83F9D8D3583604F9E3B03 /* ExpoModulesProvider.swift */; };
-		38B482C37B509D2E98135158 /* libPods-SeaScape.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A3972C4E217B544ED9EFD0D6 /* libPods-SeaScape.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		873607F49D79A61F66951802 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E56F75652B3CB619854DED9D /* PrivacyInfo.xcprivacy */; };
+		9ABC9420AEA48826E800510B /* libPods-SeaScape.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F310303A6A14F7B3FB04E478 /* libPods-SeaScape.a */; };
+		AB6556FD800710F490AC9C98 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7981E806592B538E748103 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		E69712A9834E018D88F16CCF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7D0CA25A3D2D12CB80EF04A2 /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -20,16 +20,16 @@
 		13B07F961A680F5B00A75B9A /* SeaScape.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SeaScape.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SeaScape/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SeaScape/Info.plist; sourceTree = "<group>"; };
-		2FA83F9D8D3583604F9E3B03 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-SeaScape/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		86E30F47BCFC75173006286B /* Pods-SeaScape.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SeaScape.debug.xcconfig"; path = "Target Support Files/Pods-SeaScape/Pods-SeaScape.debug.xcconfig"; sourceTree = "<group>"; };
-		8E31ADCFC20FEA7877E91426 /* Pods-SeaScape.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SeaScape.release.xcconfig"; path = "Target Support Files/Pods-SeaScape/Pods-SeaScape.release.xcconfig"; sourceTree = "<group>"; };
-		A3972C4E217B544ED9EFD0D6 /* libPods-SeaScape.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SeaScape.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3E7981E806592B538E748103 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-SeaScape/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		4071B6A3B6BE4E29172B6BBA /* Pods-SeaScape.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SeaScape.debug.xcconfig"; path = "Target Support Files/Pods-SeaScape/Pods-SeaScape.debug.xcconfig"; sourceTree = "<group>"; };
+		7D0CA25A3D2D12CB80EF04A2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = SeaScape/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = SeaScape/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		E56F75652B3CB619854DED9D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = SeaScape/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C0720E059C675C8C3A02A67C /* Pods-SeaScape.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SeaScape.release.xcconfig"; path = "Target Support Files/Pods-SeaScape/Pods-SeaScape.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SeaScape/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* SeaScape-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SeaScape-Bridging-Header.h"; path = "SeaScape/SeaScape-Bridging-Header.h"; sourceTree = "<group>"; };
+		F310303A6A14F7B3FB04E478 /* libPods-SeaScape.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SeaScape.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,13 +37,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				38B482C37B509D2E98135158 /* libPods-SeaScape.a in Frameworks */,
+				9ABC9420AEA48826E800510B /* libPods-SeaScape.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C5E2843801AB2E03F55C8F5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				4071B6A3B6BE4E29172B6BBA /* Pods-SeaScape.debug.xcconfig */,
+				C0720E059C675C8C3A02A67C /* Pods-SeaScape.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* SeaScape */ = {
 			isa = PBXGroup;
 			children = (
@@ -53,34 +63,26 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				E56F75652B3CB619854DED9D /* PrivacyInfo.xcprivacy */,
+				7D0CA25A3D2D12CB80EF04A2 /* PrivacyInfo.xcprivacy */,
 			);
 			name = SeaScape;
-			sourceTree = "<group>";
-		};
-		15486BBDFA1CCBF80A511544 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				3776C2EAE77356B387F9D986 /* SeaScape */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				A3972C4E217B544ED9EFD0D6 /* libPods-SeaScape.a */,
+				F310303A6A14F7B3FB04E478 /* libPods-SeaScape.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3776C2EAE77356B387F9D986 /* SeaScape */ = {
+		7761FDB89E976C1943CB1196 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				2FA83F9D8D3583604F9E3B03 /* ExpoModulesProvider.swift */,
+				EC655EFF225E2F61822B17B4 /* SeaScape */,
 			);
-			name = SeaScape;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -97,8 +99,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				9186EE00826EBAD81A557E5A /* Pods */,
-				15486BBDFA1CCBF80A511544 /* ExpoModulesProviders */,
+				0C5E2843801AB2E03F55C8F5 /* Pods */,
+				7761FDB89E976C1943CB1196 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -113,16 +115,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9186EE00826EBAD81A557E5A /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				86E30F47BCFC75173006286B /* Pods-SeaScape.debug.xcconfig */,
-				8E31ADCFC20FEA7877E91426 /* Pods-SeaScape.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -130,6 +122,14 @@
 			);
 			name = Supporting;
 			path = SeaScape/Supporting;
+			sourceTree = "<group>";
+		};
+		EC655EFF225E2F61822B17B4 /* SeaScape */ = {
+			isa = PBXGroup;
+			children = (
+				3E7981E806592B538E748103 /* ExpoModulesProvider.swift */,
+			);
+			name = SeaScape;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,14 +140,15 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SeaScape" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				DFC68963FB4FF6527C048B27 /* [Expo] Configure project */,
+				831C2D3CB5094D7D7219ED0C /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				8773952577964D52B1DFB355 /* Remove signature files (Xcode workaround) */,
-				70640294D2082D99AD3E73E9 /* [CP] Embed Pods Frameworks */,
+				FCB0A011EF9E485C8A4EFE45 /* [Expo Dev Launcher] Strip Local Network Keys for Release */,
+				F3D88AFA2A2F495C9F9407ED /* Remove signature files (Xcode workaround) */,
+				45EF897F91CB0486541849D2 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -155,7 +156,7 @@
 			);
 			name = SeaScape;
 			packageProductDependencies = (
-				2AEF306C1942FE8BAC9263FD /* MapLibre */,
+				F189BE1998DC334166A9A35D /* MapLibre */,
 			);
 			productName = SeaScape;
 			productReference = 13B07F961A680F5B00A75B9A /* SeaScape.app */;
@@ -184,7 +185,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				40F581D15773DFA8D6BE2F65 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */,
+				CC630326E18B79D03F8FB604 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -203,7 +204,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				873607F49D79A61F66951802 /* PrivacyInfo.xcprivacy in Resources */,
+				E69712A9834E018D88F16CCF /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,7 +250,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		70640294D2082D99AD3E73E9 /* [CP] Embed Pods Frameworks */ = {
+		45EF897F91CB0486541849D2 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -258,13 +259,13 @@
 				"${PODS_ROOT}/Target Support Files/Pods-SeaScape/Pods-SeaScape-frameworks.sh",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermesvm.framework/hermesvm",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -307,21 +308,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SeaScape/Pods-SeaScape-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8773952577964D52B1DFB355 /* Remove signature files (Xcode workaround) */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Remove signature files (Xcode workaround)";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\n          echo \"Remove signature files (Xcode workaround)\";\n          rm -rf \"$CONFIGURATION_BUILD_DIR/MapLibre.xcframework-ios.signature\";\n        ";
-		};
-		DFC68963FB4FF6527C048B27 /* [Expo] Configure project */ = {
+		831C2D3CB5094D7D7219ED0C /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -345,6 +332,34 @@
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-SeaScape/expo-configure-project.sh\"\n";
 		};
+		F3D88AFA2A2F495C9F9407ED /* Remove signature files (Xcode workaround) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Remove signature files (Xcode workaround)";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\n          echo \"Remove signature files (Xcode workaround)\";\n          rm -rf \"$CONFIGURATION_BUILD_DIR/MapLibre.xcframework-ios.signature\";\n        ";
+		};
+		FCB0A011EF9E485C8A4EFE45 /* [Expo Dev Launcher] Strip Local Network Keys for Release */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo Dev Launcher] Strip Local Network Keys for Release";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Strip dev-launcher-specific local network permission keys from non-Debug builds\n# This only removes _expo._tcp Bonjour services and the dev-launcher usage description.\n# Other Bonjour services and custom descriptions are preserved for production use.\n\nif [ \"$CONFIGURATION\" != \"Debug\" ]; then\n  PLIST_PATH=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n  if [ -f \"$PLIST_PATH\" ]; then\n    # Check if NSBonjourServices exists\n    if /usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" >/dev/null 2>&1; then\n      # Get the count of services\n      COUNT=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n\n      # Remove _expo._tcp\n      for ((i=COUNT-1; i>=0; i--)); do\n        SERVICE=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n        if echo \"$SERVICE\" | grep -q \"_expo._tcp\"; then\n          /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || true\n        fi\n      done\n\n      # If the array is now empty, remove it entirely\n      REMAINING=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n      if [ \"$REMAINING\" -eq \"0\" ]; then\n        /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null || true\n      fi\n    fi\n\n    # Only delete the description if it matches the dev-launcher default text\n    DESC=$(/usr/libexec/PlistBuddy -c \"Print :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n    if echo \"$DESC\" | grep -q \"Expo Dev Launcher\"; then\n      /usr/libexec/PlistBuddy -c \"Delete :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || true\n    fi\n  fi\nfi\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -353,7 +368,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				15FF985FB9D3AEA17DDF5161 /* ExpoModulesProvider.swift in Sources */,
+				AB6556FD800710F490AC9C98 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,7 +377,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 86E30F47BCFC75173006286B /* Pods-SeaScape.debug.xcconfig */;
+			baseConfigurationReference = 4071B6A3B6BE4E29172B6BBA /* Pods-SeaScape.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -399,7 +414,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8E31ADCFC20FEA7877E91426 /* Pods-SeaScape.release.xcconfig */;
+			baseConfigurationReference = C0720E059C675C8C3A02A67C /* Pods-SeaScape.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -483,6 +498,8 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -538,6 +555,8 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
@@ -570,20 +589,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		40F581D15773DFA8D6BE2F65 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */ = {
+		CC630326E18B79D03F8FB604 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/maplibre/maplibre-gl-native-distribution";
 			requirement = {
 				kind = exactVersion;
-				version = 6.17.1;
+				version = 6.22.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2AEF306C1942FE8BAC9263FD /* MapLibre */ = {
+		F189BE1998DC334166A9A35D /* MapLibre */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 40F581D15773DFA8D6BE2F65 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */;
+			package = CC630326E18B79D03F8FB604 /* XCRemoteSwiftPackageReference "maplibre-gl-native-distribution" */;
 			productName = MapLibre;
 		};
 /* End XCSwiftPackageProductDependency section */
