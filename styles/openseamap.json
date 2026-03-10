@@ -1,9 +1,9 @@
 {
   "layers": [
     {
-      "id": "google-earth-hybrid",
+      "id": "openstreetmap",
       "type": "raster",
-      "source": "google-earth-hybrid",
+      "source": "openstreetmap",
       "paint": {
         "raster-opacity": 1
       }
@@ -22,6 +22,14 @@
       ],
       "tileSize": 256,
       "maxZoom": 22
+    },
+    "openstreetmap": {
+      "type": "raster",
+      "tiles": [
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+      ],
+      "tileSize": 256,
+      "maxZoom": 20
     },
     "google-earth-hybrid": {
       "type": "raster",
