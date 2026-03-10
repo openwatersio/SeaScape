@@ -17,7 +17,7 @@ interface Actions {
 }
 
 export const useNavigationState = create<State & Actions>()((set) => {
-  let setMooredTimeout: number | undefined = undefined;
+  let setMooredTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
   function setMoored() {
     set({ state: NavigationState.Moored });

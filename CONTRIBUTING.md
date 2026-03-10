@@ -24,7 +24,7 @@ npx expo run:ios           # or: npx expo run:android
 npm start                  # start Expo dev server
 npm run ios                # build and run on iOS
 npm run android            # build and run on Android
-npm test                   # run vitest
+npm test                   # run tests
 npm run lint               # run eslint
 ```
 
@@ -39,7 +39,7 @@ npm run lint               # run eslint
 | Navigation | expo-router (file-based routing)      |
 | State      | Zustand with AsyncStorage persistence |
 | Map Engine | MapLibre React Native v11             |
-| Testing    | Vitest                                |
+| Testing    | Jest                                  |
 | Linting    | ESLint (expo config)                  |
 
 ### Directory Structure
@@ -158,7 +158,8 @@ Use the `convert-units` library via `usePreferredUnits`. Internal data is always
 
 ## Testing
 
-- **Framework:** Vitest (configured in `vitest.config.ts`)
+Navigation software has safety implications — a wrong calculation or rendering bug can put people in danger. The testing approach prioritizes correctness of critical logic and the ability to reproduce real-world scenarios without requiring a boat.
+
 - **What to test:** Navigation math, unit conversions, API response parsing, state management logic
 - **What not to test:** Map rendering (native OpenGL), GPS accuracy, full E2E flows
 - **Fixtures:** Use saved API responses as JSON fixtures for deterministic tests

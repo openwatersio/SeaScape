@@ -55,12 +55,19 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: "22"
+          cache: "npm"
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🧹 Lint
         run: npm run lint
+
+      - name: 🔍 Typecheck
+        run: npx tsc --noEmit
+
+      - name: 🧪 Test
+        run: npm test
 
   build-and-deploy:
     needs: test

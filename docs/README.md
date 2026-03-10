@@ -474,7 +474,7 @@ Navigation software has safety implications — a wrong calculation or rendering
 
 ### Test Framework
 
-**Vitest** for unit and integration tests. Already in the project and well-suited to the TypeScript/React Native stack. Use `react-native-testing-library` for component tests.
+**Jest** for unit and integration tests. Use `react-native-testing-library` for component tests.
 
 ### What to Test
 
