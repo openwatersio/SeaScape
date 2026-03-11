@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
     paths-ignore:
       - "**.md"
       - "LICENSE"
@@ -10,42 +10,9 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      buildType:
-        type: choice
-        description: "Build type to run"
-        options:
-          - dev
-          - prod-apk
-          - ios-dev
-          - ios-prod
-          - all
-      platform:
-        type: choice
-        description: "Platform to build"
-        default: "all"
-        options:
-          - android
-          - ios
-          - all
-
-env:
-  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-  EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
-  EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
-  EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
-  NODE_OPTIONS: --openssl-legacy-provider
 
 jobs:
-  check-skip:
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    steps:
-      - name: Skip CI check
-        run: echo "Proceeding with workflow"
-
   test:
-    needs: check-skip
     runs-on: ubuntu-latest
     steps:
       - name: 🏗 Checkout repository
@@ -69,16 +36,9 @@ jobs:
       - name: 🧪 Test
         run: npm test
 
-  build-and-deploy:
+  build-android:
     needs: test
-    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || github.event_name == 'workflow_dispatch'
-    strategy:
-      matrix:
-        platform: [android]
-        include:
-          - platform: ios
-            runs-on: macos-latest
-    runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v6
@@ -87,118 +47,45 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "22"
+          cache: "npm"
+
+      - name: 🏗 Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
 
       - name: 📦 Install dependencies
-        run: |
-          npm install
-          npm i -g eas-cli@latest
+        run: npm ci
 
-      - name: 📱 Setup EAS build cache
+      - name: 🏗 Setup Gradle cache
         uses: actions/cache@v5
         with:
-          path: ~/.eas-build-local
-          key: ${{ runner.os }}-eas-build-local-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-eas-build-local-
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle*') }}
+          restore-keys: gradle-
 
-      - name: 🔄 Verify EAS CLI installation
+      - name: 📱 Build debug APK
         run: |
-          echo "EAS CLI version:"
-          eas --version
-
-      - name: 📋 Fix package.json main entry
-        run: |
-          # Check if jq is installed, if not install it
-          if ! command -v jq &> /dev/null; then
-            echo "Installing jq..."
-            sudo apt-get update && sudo apt-get install -y jq
-          fi
-
-          # Fix the main entry in package.json
-          if [ -f ./package.json ]; then
-            # Create a backup
-            cp package.json package.json.bak
-            # Update the package.json
-            jq '.main = "node_modules/expo/AppEntry.js"' package.json > package.json.tmp && mv package.json.tmp package.json
-            echo "Updated package.json main entry"
-            cat package.json | grep "main"
-          else
-            echo "package.json not found"
-            exit 1
-          fi
-
-      # - name: 📋 Update metro.config.js for SVG support
-      #   run: |
-      #     if [ -f ./metro.config.js ]; then
-      #       echo "Creating backup of metro.config.js"
-      #       cp ./metro.config.js ./metro.config.js.backup
-      #       echo "Updating metro.config.js to CommonJS format"
-      #       cat > ./metro.config.js << 'EOFMARKER'
-      #     /* eslint-disable @typescript-eslint/no-var-requires */
-      #     const { getDefaultConfig } = require('expo/metro-config');
-
-      #     const config = getDefaultConfig(__dirname);
-
-      #     const { transformer, resolver } = config;
-
-      #     config.transformer = {
-      #       ...transformer,
-      #       babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
-      #     };
-
-      #     config.resolver = {
-      #       ...resolver,
-      #       assetExts: resolver.assetExts.filter(ext => ext !== 'svg'),
-      #       sourceExts: [...resolver.sourceExts, 'svg'],
-      #     };
-
-      #     module.exports = config;
-      #     EOFMARKER
-      #       echo "metro.config.js updated to CommonJS format"
-      #     else
-      #       echo "metro.config.js not found"
-      #     fi
-
-      # - name: 📱 Build Development APK
-      #   if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'dev' || github.event_name == 'push' && (matrix.platform == 'android' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'android')
-      #   run: |
-      #     # Build with increased memory limit
-      #     export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-      #     eas build --platform android --profile development --local --non-interactive --output=./app-dev.apk
-      #   env:
-      #     NODE_ENV: development
-
-      # - name: 📱 Build Production APK
-      #   if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'prod-apk' || github.event_name == 'push' && (matrix.platform == 'android' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'android')
-      #   run: |
-      #     export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-      #     eas build --platform android --profile production-apk --local --non-interactive --output=./app-prod.apk
-      #   env:
-      #     NODE_ENV: production
-
-      - name: 📱 Build iOS Development
-        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-dev') && (matrix.platform == 'ios' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios')
-        run: |
-          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-          eas build --platform ios --profile development --local --non-interactive --output=./app-ios-dev.app
+          cd android
+          ./gradlew assembleDebug --no-daemon
         env:
-          NODE_ENV: development
+          NODE_OPTIONS: --max_old_space_size=4096
 
-      - name: 📱 Build iOS Production
-        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod') && (matrix.platform == 'ios' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios')
+      - name: 📱 Build release APK
         run: |
-          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-          eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
+          cd android
+          ./gradlew assembleRelease --no-daemon
         env:
-          NODE_ENV: production
+          NODE_OPTIONS: --max_old_space_size=4096
 
-      - name: 📦 Upload build artifacts to GitHub
+      - name: 📦 Upload APKs
         uses: actions/upload-artifact@v6
         with:
-          name: app-builds
+          name: android-apks
           path: |
-            ./app-dev.apk
-            ./app-prod.apk
-            ./app-ios-dev.app
-            ./app-ios-prod.ipa
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7
