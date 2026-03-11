@@ -11,12 +11,6 @@ on:
     branches: [main]
   workflow_dispatch:
 
-env:
-  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-  EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
-  EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
-  EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -42,16 +36,9 @@ jobs:
       - name: 🧪 Test
         run: npm test
 
-  build:
+  build-android:
     needs: test
-    strategy:
-      matrix:
-        include:
-          - platform: android
-            runs-on: ubuntu-latest
-          - platform: ios
-            runs-on: macos-latest
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ubuntu-latest
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v6
@@ -60,59 +47,45 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "22"
+          cache: "npm"
+
+      - name: 🏗 Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
 
       - name: 📦 Install dependencies
-        run: |
-          npm install
-          npm i -g eas-cli@latest
+        run: npm ci
 
-      - name: 📱 Setup EAS build cache
+      - name: 🏗 Setup Gradle cache
         uses: actions/cache@v5
         with:
-          path: ~/.eas-build-local
-          key: ${{ runner.os }}-eas-build-local-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-eas-build-local-
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties', 'android/**/*.gradle*') }}
+          restore-keys: gradle-
 
-      - name: 📱 Build Development APK
-        if: matrix.platform == 'android'
+      - name: 📱 Build debug APK
         run: |
-          export NODE_OPTIONS="--max_old_space_size=4096"
-          eas build --platform android --profile development --local --non-interactive --output=./app-dev.apk
+          cd android
+          ./gradlew assembleDebug --no-daemon
         env:
-          NODE_ENV: development
+          NODE_OPTIONS: --max_old_space_size=4096
 
-      - name: 📱 Build Production APK
-        if: matrix.platform == 'android'
+      - name: 📱 Build release APK
         run: |
-          export NODE_OPTIONS="--max_old_space_size=4096"
-          eas build --platform android --profile production-apk --local --non-interactive --output=./app-prod.apk
+          cd android
+          ./gradlew assembleRelease --no-daemon
         env:
-          NODE_ENV: production
+          NODE_OPTIONS: --max_old_space_size=4096
 
-      - name: 📱 Build iOS Development
-        if: matrix.platform == 'ios'
-        run: |
-          export NODE_OPTIONS="--max_old_space_size=4096"
-          eas build --platform ios --profile development --local --non-interactive --output=./app-ios-dev.app
-        env:
-          NODE_ENV: development
-
-      - name: 📱 Build iOS Production
-        if: matrix.platform == 'ios'
-        run: |
-          export NODE_OPTIONS="--max_old_space_size=4096"
-          eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
-        env:
-          NODE_ENV: production
-
-      - name: 📦 Upload build artifacts to GitHub
+      - name: 📦 Upload APKs
         uses: actions/upload-artifact@v6
         with:
-          name: app-builds-${{ matrix.platform }}
+          name: android-apks
           path: |
-            ./app-dev.apk
-            ./app-prod.apk
-            ./app-ios-dev.app
-            ./app-ios-prod.ipa
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 7

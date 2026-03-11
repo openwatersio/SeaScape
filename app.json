@@ -9,7 +9,6 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.SeaScape",
       "appleTeamId": "RYHA8UZK6Y",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Permission is necessary to display user location"
@@ -20,7 +19,10 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.SeaScape"
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
