@@ -8,10 +8,10 @@ beforeEach(() => {
 
 describe('useCameraState', () => {
   it('has correct initial state', () => {
-    const { followUserLocation, zoom, bounds } = useCameraState.getState();
+    const { followUserLocation, zoom, center } = useCameraState.getState();
     expect(followUserLocation).toBe(true);
     expect(zoom).toBeUndefined();
-    expect(bounds).toBeUndefined();
+    expect(center).toBeUndefined();
   });
 
   describe('setFollowUserLocation', () => {
@@ -54,18 +54,18 @@ describe('useCameraState', () => {
   });
 
   describe('didChange', () => {
-    it('updates zoom and bounds when userInteraction is true', () => {
-      const bounds = { ne: [1, 2], sw: [3, 4] } as any;
-      useCameraState.getState().didChange({ userInteraction: true, zoom: 12, bounds } as any);
+    it('updates zoom and center when userInteraction is true', () => {
+      const center = [-122.4, 37.8] as any;
+      useCameraState.getState().didChange({ userInteraction: true, zoom: 12, center } as any);
       expect(useCameraState.getState().zoom).toBe(12);
-      expect(useCameraState.getState().bounds).toBe(bounds);
+      expect(useCameraState.getState().center).toBe(center);
     });
 
     it('does not update state when userInteraction is false', () => {
-      const bounds = { ne: [1, 2], sw: [3, 4] } as any;
-      useCameraState.getState().didChange({ userInteraction: false, zoom: 12, bounds } as any);
+      const center = [-122.4, 37.8] as any;
+      useCameraState.getState().didChange({ userInteraction: false, zoom: 12, center } as any);
       expect(useCameraState.getState().zoom).toBeUndefined();
-      expect(useCameraState.getState().bounds).toBeUndefined();
+      expect(useCameraState.getState().center).toBeUndefined();
     });
   });
 
