@@ -8,10 +8,12 @@ beforeEach(() => {
 
 describe('useCameraState', () => {
   it('has correct initial state', () => {
-    const { followUserLocation, zoom, center } = useCameraState.getState();
+    const { followUserLocation, zoom, center, orientationMode, bearing } = useCameraState.getState();
     expect(followUserLocation).toBe(true);
     expect(zoom).toBeUndefined();
     expect(center).toBeUndefined();
+    expect(orientationMode).toBe("north");
+    expect(bearing).toBe(0);
   });
 
   describe('setFollowUserLocation', () => {
@@ -24,6 +26,14 @@ describe('useCameraState', () => {
       useCameraState.setState({ followUserLocation: false });
       useCameraState.getState().setFollowUserLocation(true);
       expect(useCameraState.getState().followUserLocation).toBe(true);
+    });
+
+    it('resets orientation to north when follow is disabled', () => {
+      useCameraState.setState({ followUserLocation: true, orientationMode: "course", bearing: 45 });
+      useCameraState.getState().setFollowUserLocation(false);
+      expect(useCameraState.getState().followUserLocation).toBe(false);
+      expect(useCameraState.getState().orientationMode).toBe("north");
+      expect(useCameraState.getState().bearing).toBe(0);
     });
   });
 
@@ -53,19 +63,43 @@ describe('useCameraState', () => {
     });
   });
 
-  describe('didChange', () => {
-    it('updates zoom and center when userInteraction is true', () => {
-      const center = [-122.4, 37.8] as any;
-      useCameraState.getState().didChange({ userInteraction: true, zoom: 12, center } as any);
-      expect(useCameraState.getState().zoom).toBe(12);
-      expect(useCameraState.getState().center).toBe(center);
+  describe('cycleTrackingMode', () => {
+    it('enables follow when not following', () => {
+      useCameraState.setState({ followUserLocation: false, orientationMode: "north" });
+      useCameraState.getState().cycleTrackingMode();
+      expect(useCameraState.getState().followUserLocation).toBe(true);
+      expect(useCameraState.getState().orientationMode).toBe("north");
     });
 
-    it('does not update state when userInteraction is false', () => {
+    it('switches to course-up when following north-up', () => {
+      useCameraState.setState({ followUserLocation: true, orientationMode: "north" });
+      useCameraState.getState().cycleTrackingMode();
+      expect(useCameraState.getState().orientationMode).toBe("course");
+    });
+
+    it('switches to north-up and resets bearing when following course-up', () => {
+      useCameraState.setState({ followUserLocation: true, orientationMode: "course", bearing: 45 });
+      useCameraState.getState().cycleTrackingMode();
+      expect(useCameraState.getState().orientationMode).toBe("north");
+      expect(useCameraState.getState().bearing).toBe(0);
+    });
+  });
+
+  describe('didChange', () => {
+    it('updates zoom, center, and bearing when userInteraction is true', () => {
       const center = [-122.4, 37.8] as any;
-      useCameraState.getState().didChange({ userInteraction: false, zoom: 12, center } as any);
+      useCameraState.getState().didChange({ userInteraction: true, zoom: 12, center, bearing: 90 } as any);
+      expect(useCameraState.getState().zoom).toBe(12);
+      expect(useCameraState.getState().center).toBe(center);
+      expect(useCameraState.getState().bearing).toBe(90);
+    });
+
+    it('only updates bearing when userInteraction is false', () => {
+      const center = [-122.4, 37.8] as any;
+      useCameraState.getState().didChange({ userInteraction: false, zoom: 12, center, bearing: 90 } as any);
       expect(useCameraState.getState().zoom).toBeUndefined();
       expect(useCameraState.getState().center).toBeUndefined();
+      expect(useCameraState.getState().bearing).toBe(90);
     });
   });
 

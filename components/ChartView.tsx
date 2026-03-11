@@ -8,10 +8,16 @@ import SpeedOverGround from "./SpeedOverGround";
 import ViewOptionsButton from "./ViewOptionsButton";
 import ZoomAndScale from "./ZoomAndScale";
 
+function trackingMode(follow: boolean, orientationMode: string) {
+  if (!follow) return undefined;
+  return orientationMode === "course" ? "course" : "default";
+}
+
 export default function ChartView() {
   const viewOptions = useViewOptions();
   const cameraState = useCameraState();
   const mapStyle = mapStyles.find(style => style.id === viewOptions.mapStyleId)?.style || mapStyles[0].style;
+  const isNorth = cameraState.orientationMode === "north";
 
   return <>
     <Map
@@ -20,29 +26,32 @@ export default function ChartView() {
       touchRotate={false}
       touchPitch={false}
       attribution={false}
+      compass={false}
+      compassPosition={{ top: -2000, right: -2000 }}
+      onRegionIsChanging={(e) => cameraState.set({ bearing: e.nativeEvent.bearing })}
       onRegionDidChange={(e) => cameraState.didChange(e.nativeEvent)}
     >
       <Camera
-        trackUserLocation={cameraState.followUserLocation ? "default" : undefined}
+        trackUserLocation={trackingMode(cameraState.followUserLocation, cameraState.orientationMode)}
         zoom={cameraState.zoom}
         center={cameraState.center}
         easing="ease"
         duration={1000}
-        bearing={0}
+        bearing={isNorth ? 0 : undefined}
         pitch={0}
         onTrackUserLocationChange={(e) => {
-          cameraState.set({ followUserLocation: e.nativeEvent.trackUserLocation !== null });
+          cameraState.setFollowUserLocation(e.nativeEvent.trackUserLocation !== null);
         }}
       />
-      <UserLocation />
+      <UserLocation heading />
     </Map>
-    <SafeAreaView style={{ position: "absolute", top: 0, right: 20, zIndex: 1 }}>
+    <SafeAreaView style={{ position: "absolute", top: 0, right: 16, zIndex: 1, gap: 16 }}>
       <ZoomAndScale />
     </SafeAreaView>
-    <SafeAreaView style={{ position: "absolute", bottom: 0, left: 20, zIndex: 1 }}>
+    <SafeAreaView style={{ position: "absolute", bottom: 0, left: 16, zIndex: 1 }}>
       <ViewOptionsButton />
     </SafeAreaView>
-    <SafeAreaView style={{ position: "absolute", bottom: 0, right: 20, zIndex: 1 }}>
+    <SafeAreaView style={{ position: "absolute", bottom: 0, right: 16, zIndex: 1 }}>
       <CurrentLocationButton />
     </SafeAreaView>
     <SafeAreaView style={{ position: "absolute", top: 0, left: 90, right: 90, zIndex: 1, alignItems: "center" }}>

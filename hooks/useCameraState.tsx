@@ -3,16 +3,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+export type OrientationMode = "north" | "course";
+
 interface State {
   followUserLocation: boolean
   zoom?: number
   center?: LngLat
+  orientationMode: OrientationMode
+  bearing: number
 }
 
 interface Actions {
   setFollowUserLocation: (follow: boolean) => void
   zoomIn(): void
   zoomOut(): void
+  cycleTrackingMode(): void
   set(newState: Partial<State>): void
   didChange(payload: ViewStateChangeEvent): void
 }
@@ -23,8 +28,13 @@ export const useCameraState = create<State & Actions>()(
       center: undefined,
       zoom: undefined,
       followUserLocation: true,
+      orientationMode: "north",
+      bearing: 0,
       setFollowUserLocation: (follow: boolean) => {
-        set(() => ({ followUserLocation: follow }))
+        set(() => follow
+          ? { followUserLocation: true }
+          : { followUserLocation: false, orientationMode: "north" as OrientationMode, bearing: 0 }
+        )
       },
       zoomIn() {
         set((state) => ({ zoom: (state.zoom ?? 0) + 1 }))
@@ -32,12 +42,26 @@ export const useCameraState = create<State & Actions>()(
       zoomOut() {
         set((state) => ({ zoom: (state.zoom ?? 0) - 1 }))
       },
+      cycleTrackingMode() {
+        set((state) => {
+          if (!state.followUserLocation) {
+            return { followUserLocation: true };
+          }
+          if (state.orientationMode === "north") {
+            return { orientationMode: "course" as OrientationMode };
+          }
+          return { orientationMode: "north" as OrientationMode, bearing: 0 };
+        })
+      },
       didChange(e: ViewStateChangeEvent) {
         if (e.userInteraction) {
           set({
             zoom: e.zoom,
             center: e.center,
+            bearing: e.bearing,
           });
+        } else {
+          set({ bearing: e.bearing });
         }
       },
       set(newState: Partial<State>) {
