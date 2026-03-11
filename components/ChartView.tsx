@@ -25,7 +25,7 @@ export default function ChartView() {
       <Camera
         trackUserLocation={cameraState.followUserLocation ? "default" : undefined}
         zoom={cameraState.zoom}
-        bounds={cameraState.bounds}
+        center={cameraState.center}
         easing="ease"
         duration={1000}
         bearing={0}
