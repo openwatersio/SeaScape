@@ -22,7 +22,6 @@ export default function OverlayButton({ icon, ...props }: OverlyButtonProps) {
 const styles = StyleSheet.create({
   overlay: {
     borderRadius: 100,
-    overflow: 'hidden',
   },
   button: {
     padding: 12,

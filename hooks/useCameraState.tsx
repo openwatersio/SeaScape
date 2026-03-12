@@ -1,4 +1,4 @@
-import type { LngLat, ViewStateChangeEvent } from '@maplibre/maplibre-react-native';
+import type { LngLat, LngLatBounds, ViewStateChangeEvent } from '@maplibre/maplibre-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -9,6 +9,7 @@ interface State {
   followUserLocation: boolean
   zoom?: number
   center?: LngLat
+  bounds?: LngLatBounds
   orientationMode: OrientationMode
   bearing: number
 }
@@ -26,6 +27,7 @@ export const useCameraState = create<State & Actions>()(
   persist(
     (set) => ({
       center: undefined,
+      bounds: undefined,
       zoom: undefined,
       followUserLocation: true,
       orientationMode: "north",
@@ -58,10 +60,11 @@ export const useCameraState = create<State & Actions>()(
           set({
             zoom: e.zoom,
             center: e.center,
+            bounds: e.bounds,
             bearing: e.bearing,
           });
         } else {
-          set({ bearing: e.bearing });
+          set({ bearing: e.bearing, bounds: e.bounds });
         }
       },
       set(newState: Partial<State>) {

@@ -26,13 +26,28 @@ export default function ViewOptions() {
 
       <Text style={styles.sectionTitle}>Preferred Units</Text>
       <Text style={styles.label}>Speed</Text>
-      {units.possibilities("speed").map((unit) => {
+      {units.speedUnits().map((unit) => {
         const selected = units.speed === unit;
         return (
           <TouchableOpacity
             key={unit}
             style={styles.row}
             onPress={() => units.set({ speed: unit })}
+          >
+            <Text style={styles.rowText}>{units.describe(unit).plural}</Text>
+            {selected && <Text style={styles.checkmark}>✓</Text>}
+          </TouchableOpacity>
+        );
+      })}
+
+      <Text style={styles.label}>Distance</Text>
+      {units.distanceUnits().map((unit) => {
+        const selected = units.distance === unit;
+        return (
+          <TouchableOpacity
+            key={unit}
+            style={styles.row}
+            onPress={() => units.set({ distance: unit })}
           >
             <Text style={styles.rowText}>{units.describe(unit).plural}</Text>
             {selected && <Text style={styles.checkmark}>✓</Text>}

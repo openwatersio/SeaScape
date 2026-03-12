@@ -5,16 +5,19 @@ import { OpaqueColorValue, ViewStyle, type StyleProp, type TextStyle } from 'rea
 
 // Map MaterialIcons names to SymbolView names.
 // See Symbols app for names: https://developer.apple.com/sf-symbols/
-const MAPPING: Partial<Record<ComponentProps<typeof MaterialIcons>['name'], SymbolViewProps['name']>> = {
+export const ICON_MAPPING: Partial<Record<ComponentProps<typeof MaterialIcons>['name'], SymbolViewProps['name']>> = {
   'layers': 'square.3.layers.3d',
   'my-location': 'location.fill',
   'location-searching': 'location',
   'zoom-in': 'plus',
   'zoom-out': 'minus',
+  'fiber-manual-record': 'record.circle',
+  'stop': 'stop.circle',
+  'route': 'point.bottomleft.forward.to.arrow.triangle.scurvepath',
 };
 
 export type IconSymbolProps = {
-  name: keyof typeof MAPPING;
+  name: keyof typeof ICON_MAPPING;
   size?: number;
   color?: string | OpaqueColorValue;
   style?: StyleProp<ViewStyle> | StyleProp<TextStyle>;
@@ -33,7 +36,7 @@ export function IconSymbol({
       weight={weight}
       tintColor={color}
       resizeMode="scaleAspectFit"
-      name={MAPPING[name]!}
+      name={ICON_MAPPING[name]!}
       style={[
         {
           width: size,

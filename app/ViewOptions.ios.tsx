@@ -42,7 +42,18 @@ export default function ViewOptions() {
               selection={units.speed}
               onSelectionChange={(unit) => units.set({ speed: unit })}
             >
-              {units.possibilities('speed').map((unit) => (
+              {units.speedUnits().map((unit) => (
+                <Text key={unit} modifiers={[tag(unit)]}>
+                  {units.describe(unit).plural}
+                </Text>
+              ))}
+            </Picker>
+            <Picker
+              label="Distance"
+              selection={units.distance}
+              onSelectionChange={(unit) => units.set({ distance: unit })}
+            >
+              {units.distanceUnits().map((unit) => (
                 <Text key={unit} modifiers={[tag(unit)]}>
                   {units.describe(unit).plural}
                 </Text>

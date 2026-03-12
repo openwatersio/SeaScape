@@ -28,7 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>seascape</string>
-				<string>com.anonymous.SeaScape</string>
+				<string>io.openwaters.seascape</string>
 			</array>
 		</dict>
 		<dict>
@@ -69,6 +69,11 @@
 	</array>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -1,0 +1,59 @@
+import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from "react-native";
+import { IconSymbol, type IconSymbolProps } from "./IconSymbol";
+
+const colors = {
+  tint: "#007AFF",
+  destructive: "#e53e3e",
+  filledForeground: "#ffffff",
+};
+
+export type ButtonProps = {
+  label: string;
+  onPress?: () => void;
+  role?: "default" | "cancel" | "destructive";
+  systemImage?: IconSymbolProps["name"];
+  variant?: "default" | "bordered";
+  color?: string;
+  style?: StyleProp<ViewStyle>;
+};
+
+export default function Button({ label, onPress, systemImage, role, variant = "default", color, style: containerStyle }: ButtonProps) {
+  const tint = color ?? (role === "destructive" ? colors.destructive : colors.tint);
+  const foreground = variant === "bordered" ? colors.filledForeground : tint;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.button,
+        variant === "bordered" && { backgroundColor: tint },
+        pressed && styles.pressed,
+        containerStyle,
+      ]}
+    >
+      {systemImage && <IconSymbol name={systemImage} size={18} color={foreground} />}
+      <Text style={[styles.label, { color: foreground }]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 100,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  pressed: {
+    opacity: 0.7,
+  },
+  label: {
+    fontSize: 17,
+    fontWeight: "600",
+  },
+});

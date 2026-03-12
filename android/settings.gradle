@@ -1,9 +1,4 @@
 pluginManagement {
-  // Override foojay-resolver-convention to 1.0.0 to fix Gradle 9 incompatibility.
-  // See: https://github.com/facebook/react-native/issues/55781
-  plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention").version("1.0.0")
-  }
   def reactNativeGradlePlugin = new File(
     providers.exec {
       workingDir(rootDir)

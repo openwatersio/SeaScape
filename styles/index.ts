@@ -6,6 +6,12 @@ import type { StyleSpecification } from "@maplibre/maplibre-react-native";
 
 export default [
   {
+    id: "vectorcharts",
+    name: "VectorCharts",
+    style:
+      "https://api.vectorcharts.com/api/v1/styles/base.json?token=7756d6ccad1c4656937e539bd3744dcd",
+  },
+  {
     id: "noaa-ecdis",
     name: "NOAA (ECDIS)",
     style: noaaEcdis as unknown as StyleSpecification,

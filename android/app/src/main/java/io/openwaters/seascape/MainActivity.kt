@@ -1,4 +1,4 @@
-package com.anonymous.SeaScape
+package io.openwaters.seascape
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

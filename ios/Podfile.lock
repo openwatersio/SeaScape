@@ -239,12 +239,19 @@ PODS:
   - ExpoRouter (55.0.4):
     - ExpoModulesCore
     - RNScreens
+  - ExpoSharing (55.0.11):
+    - ExpoModulesCore
   - ExpoSplashScreen (55.0.10):
+    - ExpoModulesCore
+  - ExpoSQLite (55.0.10):
     - ExpoModulesCore
   - ExpoSymbols (55.0.5):
     - ExpoModulesCore
   - ExpoSystemUI (55.0.9):
     - ExpoModulesCore
+  - ExpoTaskManager (55.0.9):
+    - ExpoModulesCore
+    - UMAppLoader
   - ExpoUI (55.0.1):
     - ExpoModulesCore
     - React-RCTFabric
@@ -2410,6 +2417,7 @@ PODS:
   - SDWebImageWebPCoder (0.14.6):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
+  - UMAppLoader (55.0.2)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2436,9 +2444,12 @@ DEPENDENCIES:
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoModulesJSI (from `../node_modules/expo-modules-core`)
   - ExpoRouter (from `../node_modules/expo-router/ios`)
+  - ExpoSharing (from `../node_modules/expo-sharing/ios`)
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
+  - ExpoSQLite (from `../node_modules/expo-sqlite/ios`)
   - ExpoSymbols (from `../node_modules/expo-symbols/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
+  - ExpoTaskManager (from `../node_modules/expo-task-manager/ios`)
   - "ExpoUI (from `../node_modules/@expo/ui/ios`)"
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
@@ -2523,6 +2534,7 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
+  - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2582,12 +2594,18 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-modules-core"
   ExpoRouter:
     :path: "../node_modules/expo-router/ios"
+  ExpoSharing:
+    :path: "../node_modules/expo-sharing/ios"
   ExpoSplashScreen:
     :path: "../node_modules/expo-splash-screen/ios"
+  ExpoSQLite:
+    :path: "../node_modules/expo-sqlite/ios"
   ExpoSymbols:
     :path: "../node_modules/expo-symbols/ios"
   ExpoSystemUI:
     :path: "../node_modules/expo-system-ui/ios"
+  ExpoTaskManager:
+    :path: "../node_modules/expo-task-manager/ios"
   ExpoUI:
     :path: "../node_modules/@expo/ui/ios"
   ExpoWebBrowser:
@@ -2755,6 +2773,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNWorklets:
     :path: "../node_modules/react-native-worklets"
+  UMAppLoader:
+    :path: "../node_modules/unimodules-app-loader/ios"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2782,9 +2802,12 @@ SPEC CHECKSUMS:
   ExpoModulesCore: a57a0a1e39caa9ad5f76c8477b831ee32fbeddfc
   ExpoModulesJSI: a554588f3260ee3c44a3e7f4a8151c2b9ffdb024
   ExpoRouter: 6b8875b84c8eef1359039c5b703c8ed18f536825
+  ExpoSharing: 5f1435af23bcf740c63b1d322400d1e26bf77393
   ExpoSplashScreen: 6452aefb424acc76347d62482caef9b4e613e59e
+  ExpoSQLite: 77506d3d056c57118280d1e2a2d76cc06e4926b3
   ExpoSymbols: 3d67a96643245a5d933ce7fbf535f95eb541f617
   ExpoSystemUI: ae936ff8f78ca3d6c13884704beb7705fe26d136
+  ExpoTaskManager: 6038b80fbe63915383dcf57fa0156b23e2615fab
   ExpoUI: db65f9a5eed67fc6b4789c4ca384cd22220fb359
   ExpoWebBrowser: f13a6e46e44049bbb8ce49ff8aaa4d819c87d1fe
   EXUpdatesInterface: d48f288b92900bd95a27c6cf92a7b9aff826d49a
@@ -2875,6 +2898,7 @@ SPEC CHECKSUMS:
   SDWebImageAVIFCoder: 00310d246aab3232ce77f1d8f0076f8c4b021d90
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
+  UMAppLoader: 71b50bcc31d86495e52c0b4cd17e2708bf297be3
   Yoga: dd994d8c85dca5cc9b10f5df8c01f9ef1d0da191
 
 PODFILE CHECKSUM: 53010978b35bc272525ed81beb816aaed9f0503d

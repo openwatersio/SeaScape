@@ -11,11 +11,15 @@ describe('usePreferredUnits', () => {
     expect(usePreferredUnits.getState().speed).toBe('knot');
   });
 
+  it('defaults to nautical miles', () => {
+    expect(usePreferredUnits.getState().distance).toBe('nm');
+  });
+
   describe('toSpeed', () => {
     it('converts m/s to knots', () => {
       const result = usePreferredUnits.getState().toSpeed(1);
       expect(result.value).toBe('1.9'); // 1 m/s ≈ 1.944 knots
-      expect(result.abbr).toBe('knot');
+      expect(result.abbr).toBe('kn');
     });
 
     it('converts zero correctly', () => {
@@ -36,20 +40,64 @@ describe('usePreferredUnits', () => {
     });
   });
 
-  describe('possibilities', () => {
-    it('returns available speed units including knot', () => {
-      const units = usePreferredUnits.getState().possibilities('speed');
+  describe('speedUnits', () => {
+    it('returns available speed units', () => {
+      const units = usePreferredUnits.getState().speedUnits();
       expect(units).toContain('knot');
       expect(units).toContain('km/h');
-      expect(units).toContain('m/s');
+      expect(units).toContain('mph');
+      expect(units).toHaveLength(3);
+    });
+  });
+
+  describe('toDistance', () => {
+    it('converts meters to nautical miles by default', () => {
+      const result = usePreferredUnits.getState().toDistance(1852);
+      expect(result.value).toBe('1.0');
+      expect(result.abbr).toBe('nm');
+    });
+
+    it('converts meters to km when preferred', () => {
+      usePreferredUnits.getState().set({ distance: 'km' });
+      const result = usePreferredUnits.getState().toDistance(1000);
+      expect(result.value).toBe('1.0');
+      expect(result.abbr).toBe('km');
+    });
+
+    it('converts meters to miles when preferred', () => {
+      usePreferredUnits.getState().set({ distance: 'mi' });
+      const result = usePreferredUnits.getState().toDistance(1609.344);
+      expect(result.value).toBe('1.0');
+      expect(result.abbr).toBe('mi');
+    });
+
+    it('respects the decimals option', () => {
+      const result = usePreferredUnits.getState().toDistance(1000, { decimals: 2 });
+      expect(result.value).toBe('0.54');
+    });
+  });
+
+  describe('distanceUnits', () => {
+    it('returns nm, mi, and km', () => {
+      const units = usePreferredUnits.getState().distanceUnits();
+      expect(units).toContain('nm');
+      expect(units).toContain('mi');
+      expect(units).toContain('km');
+      expect(units).toHaveLength(3);
     });
   });
 
   describe('describe', () => {
     it('returns description for knot', () => {
       const desc = usePreferredUnits.getState().describe('knot');
-      expect(desc.abbr).toBe('knot');
-      expect(desc.singular).toBeTruthy();
+      expect(desc.abbr).toBe('kn');
+      expect(desc.singular).toBe('Knot');
+    });
+
+    it('returns description for nm', () => {
+      const desc = usePreferredUnits.getState().describe('nm');
+      expect(desc.abbr).toBe('nm');
+      expect(desc.plural).toBe('Nautical Miles');
     });
   });
 });
