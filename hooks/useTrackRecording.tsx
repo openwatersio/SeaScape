@@ -16,12 +16,16 @@ import {
 const MIN_TRACK_DURATION_MS = 60_000; // 1 minute
 const MIN_TRACK_DISTANCE_M = 200; // 200 meters
 
+export type SpeedSample = { speed: number; timestamp: number };
+
 type State = {
   isRecording: boolean;
   activeTrackId: number | null;
   pointCount: number;
   distance: number;
   startedAt: string | null;
+  maxSpeed: number;
+  speedSamples: SpeedSample[];
 };
 
 type Actions = {
@@ -41,6 +45,8 @@ export const useTrackRecording = create<State & Actions>()(
       pointCount: 0,
       distance: 0,
       startedAt: null,
+      maxSpeed: 0,
+      speedSamples: [],
 
       start: async () => {
         const granted = await requestPermissions();
@@ -55,12 +61,18 @@ export const useTrackRecording = create<State & Actions>()(
           pointCount: 0,
           distance: 0,
           startedAt: new Date().toISOString(),
+          maxSpeed: 0,
+          speedSamples: [],
         });
 
-        removePointListener = addPointRecordedListener((_lat, _lon, segmentDistance) => {
+        removePointListener = addPointRecordedListener((_lat, _lon, segmentDistance, speed, timestamp) => {
           set((state) => ({
             pointCount: state.pointCount + 1,
             distance: state.distance + segmentDistance,
+            maxSpeed: speed != null ? Math.max(state.maxSpeed, speed) : state.maxSpeed,
+            speedSamples: speed != null
+              ? [...state.speedSamples, { speed, timestamp }]
+              : state.speedSamples,
           }));
         });
 
@@ -72,10 +84,14 @@ export const useTrackRecording = create<State & Actions>()(
         const { isRecording, activeTrackId } = get();
         if (!isRecording || !activeTrackId) return;
 
-        removePointListener = addPointRecordedListener((_lat, _lon, segmentDistance) => {
+        removePointListener = addPointRecordedListener((_lat, _lon, segmentDistance, speed, timestamp) => {
           set((state) => ({
             pointCount: state.pointCount + 1,
             distance: state.distance + segmentDistance,
+            maxSpeed: speed != null ? Math.max(state.maxSpeed, speed) : state.maxSpeed,
+            speedSamples: speed != null
+              ? [...state.speedSamples, { speed, timestamp }]
+              : state.speedSamples,
           }));
         });
 
@@ -112,12 +128,18 @@ export const useTrackRecording = create<State & Actions>()(
           pointCount: 0,
           distance: 0,
           startedAt: null,
+          maxSpeed: 0,
+          speedSamples: [],
         });
       },
     }),
     {
       name: "track-recording",
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => {
+        const { speedSamples: _, ...rest } = state;
+        return rest;
+      },
       onRehydrateStorage: () => (state) => {
         if (state?.isRecording) {
           state.resume();

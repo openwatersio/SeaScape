@@ -9,9 +9,9 @@ Ship a usable chart viewer with basic navigation. Enough to replace a paper char
 ### Must Have
 
 - [x] **Map display with nautical charts** — Render vector tiles via MapLibre GL with nautical chart styling (OpenSeaMap or similar open data source) ([#23](https://github.com/openwatersio/SeaScape/issues/23))
-- [ ] **NOAA charts** — Add NOAA nautical charts as a built-in chart source ([#8](https://github.com/openwatersio/SeaScape/issues/8))
-- [ ] **Real-time GPS position** — Show user's position, heading, and speed on the chart ([#6](https://github.com/openwatersio/SeaScape/issues/6))
-- [ ] **Zoom, pan, rotate** — Standard map interactions; north-up and course-up modes
+- [x] **NOAA charts** — Add NOAA nautical charts as a built-in chart source ([#8](https://github.com/openwatersio/SeaScape/issues/8))
+- [x] **Real-time GPS position** — Show user's position, heading, and speed on the chart ([#6](https://github.com/openwatersio/SeaScape/issues/6))
+- [x] **Zoom, pan, rotate** — Standard map interactions; north-up and course-up modes
 - [ ] **Offline chart storage** — Download chart regions for use without connectivity ([#7](https://github.com/openwatersio/SeaScape/issues/7))
 - [ ] **Basic waypoints** — Drop pins, name them, navigate to them with bearing/distance ([#15](https://github.com/openwatersio/SeaScape/issues/15))
 - [ ] **Route creation** — Create multi-leg routes by placing waypoints on the chart ([#16](https://github.com/openwatersio/SeaScape/issues/16))

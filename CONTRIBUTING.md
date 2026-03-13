@@ -50,7 +50,7 @@ app/                 Expo Router screens (file-based routing)
   index.tsx          Main screen (renders ChartView)
   ViewOptions.tsx    Modal for chart/unit selection
 components/          React components
-  ui/                Shared UI primitives (OverlayButton, IconSymbol)
+  ui/                Shared, platform-abstracted UI primitives (Button, BottomSheet, OverlayButton)
   ChartView.tsx      Main map view (orchestrates all overlays)
 hooks/               Zustand stores and custom hooks
 styles/              Map style configs (JSON) and style index
@@ -111,9 +111,32 @@ Existing stores:
 
 - **PascalCase** filenames for components
 - **camelCase** with `use` prefix for hooks
-- Overlay buttons extend `OverlayButton` from `components/ui/`
+- Extract small reusable components where possible. Example: `OverlayButton` in `components/ui/` for consistent styling of all map overlay buttons
+- Prefer small, focused components. If a component grows beyond 100 lines, consider breaking it up.
 - Map overlays use `SafeAreaView` with absolute positioning at screen corners
 - The chart is always full-screen; all UI is overlay
+- Platform-dependent components should be generic and live in `components/ui/` (e.g. `BottomSheet`, `Button`), then used by cross-platform components (e.g. `TrackSheet`) that contain the actual content and logic. This keeps platform-specific code isolated and reusable and limits duplication in app-specific features.
+
+#### Native UI (`@expo/ui`)
+
+The app uses `@expo/ui` for platform-native components (SwiftUI on iOS, Jetpack Compose on Android). **Only `components/ui/` and `app/` screen files may import from `@expo/ui` directly.** All other components use the abstractions in `components/ui/`.
+
+**Three-tier component strategy:**
+
+1. **Native-first** — Use `@expo/ui` components for standard UI (buttons, forms, pickers, sheets). These automatically look and feel native on each platform.
+2. **Bridge with `RNHostView`** — When React Native views (e.g. `Pressable`, custom layouts) must live inside a native container (e.g. a bottom sheet), wrap them in `RNHostView` from `@expo/ui`. Without this bridge, RN touch handlers won't receive events inside native containers.
+3. **Pure RN** — For views that exist only in the RN tree (map overlays, HUD), use standard React Native components.
+
+**Platform-specific files** use the `.ios.tsx` / `.tsx` (default) pattern:
+
+```
+components/ui/Button.ios.tsx    ← wraps @expo/ui SwiftUI Button
+components/ui/Button.tsx        ← RN Pressable fallback (Android + web)
+components/ui/BottomSheet.ios.tsx ← wraps @expo/ui SwiftUI BottomSheet + RNHostView
+components/ui/BottomSheet.tsx     ← wraps @expo/ui Jetpack Compose ModalBottomSheet + RNHostView
+```
+
+Consumers import the generic path (`@/components/ui/Button`) and the bundler resolves the platform file.
 
 #### Map Styles
 
@@ -133,7 +156,7 @@ export default [
 
 #### Unit Conversions
 
-Use the `convert-units` library via `usePreferredUnits`. Internal data is always in SI/metric units; conversion happens at the display layer only.
+Use `usePreferredUnits` for all unit conversions. Internal data is always in SI/metric units (meters, meters/second); conversion happens at the display layer only via `toSpeed()` and `toDistance()`.
 
 ### Naming Conventions
 
@@ -155,6 +178,8 @@ Use the `convert-units` library via `usePreferredUnits`. Internal data is always
 - Use `Partial<State>` for setter methods
 - Use type guards (`'href' in props`) for polymorphic components
 - Use `fontVariant: ['tabular-nums']` for any dynamically changing numeric display
+- Avoid `as` casts where possible; prefer proper type definitions
+- Avoid `any` type; if necessary, isolate it to a single utility function
 
 ## Testing
 

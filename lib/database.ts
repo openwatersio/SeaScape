@@ -146,3 +146,22 @@ export async function renameTrack(
   const db = await getDatabase();
   await db.runAsync("UPDATE tracks SET name = ? WHERE id = ?", name, trackId);
 }
+
+export type SpeedStats = {
+  avgSpeed: number;
+  maxSpeed: number;
+};
+
+export async function getAllTimeSpeedStats(): Promise<SpeedStats> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ avg_speed: number; max_speed: number }>(
+    `SELECT COALESCE(AVG(speed), 0) as avg_speed, COALESCE(MAX(speed), 0) as max_speed
+     FROM track_points tp
+     JOIN tracks t ON tp.track_id = t.id
+     WHERE tp.speed IS NOT NULL AND t.ended_at IS NOT NULL`,
+  );
+  return {
+    avgSpeed: row?.avg_speed ?? 0,
+    maxSpeed: row?.max_speed ?? 0,
+  };
+}

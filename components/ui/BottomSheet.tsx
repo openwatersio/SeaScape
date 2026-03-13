@@ -6,6 +6,8 @@ import { View, type LayoutChangeEvent } from "react-native";
 type BottomSheetProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onExpandedChange?: (expanded: boolean) => void;
+  compactHeight?: number;
   children: React.ReactNode;
 };
 

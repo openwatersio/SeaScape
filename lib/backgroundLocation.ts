@@ -19,6 +19,8 @@ type PointRecordedListener = (
   lat: number,
   lon: number,
   segmentDistance: number,
+  speed: number | null,
+  timestamp: number,
 ) => void;
 
 const pointRecordedListeners = new Set<PointRecordedListener>();
@@ -36,9 +38,11 @@ function notifyPointRecorded(
   lat: number,
   lon: number,
   segmentDistance: number,
+  speed: number | null,
+  timestamp: number,
 ) {
   for (const cb of pointRecordedListeners) {
-    cb(lat, lon, segmentDistance);
+    cb(lat, lon, segmentDistance, speed, timestamp);
   }
 }
 
@@ -87,7 +91,7 @@ function processLocation(
     timestamp: new Date(timestamp).toISOString(),
   });
 
-  notifyPointRecorded(coords.latitude, coords.longitude, segmentDistance);
+  notifyPointRecorded(coords.latitude, coords.longitude, segmentDistance, coords.speed, timestamp);
 }
 
 // Register the background task — must be called at module scope (top level)

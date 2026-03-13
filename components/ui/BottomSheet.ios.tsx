@@ -5,42 +5,86 @@ import {
   presentationBackgroundInteraction,
   presentationDetents,
   presentationDragIndicator,
+  type PresentationDetent,
 } from "@expo/ui/swift-ui/modifiers";
-import { useEffect, useRef } from "react";
-import { View, type LayoutChangeEvent } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Dimensions, View } from "react-native";
 
 type BottomSheetProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onExpandedChange?: (expanded: boolean) => void;
+  compactHeight?: number;
   children: React.ReactNode;
 };
 
-export default function BottomSheet({ isOpen, onOpenChange, children }: BottomSheetProps) {
+const SCREEN_HEIGHT = Dimensions.get("window").height;
+
+function detentToHeight(detent: PresentationDetent): number {
+  if (typeof detent === "object" && "height" in detent) return detent.height;
+  if (typeof detent === "object" && "fraction" in detent) return SCREEN_HEIGHT * detent.fraction;
+  if (detent === "medium") return SCREEN_HEIGHT * 0.5;
+  if (detent === "large") return SCREEN_HEIGHT;
+  return 0;
+}
+
+export default function BottomSheet({ isOpen, onOpenChange, onExpandedChange, compactHeight, children }: BottomSheetProps) {
   const setHeight = useBottomSheetStore((s) => s.setHeight);
-  const measuredHeight = useRef(0);
+  const [selectedDetent, setSelectedDetent] = useState<PresentationDetent>("medium");
 
-  const onLayout = (e: LayoutChangeEvent) => {
-    measuredHeight.current = e.nativeEvent.layout.height;
-    if (isOpen) setHeight(measuredHeight.current);
-  };
+  const compactDetent = useMemo<PresentationDetent | null>(
+    () => compactHeight ? { height: compactHeight } : null,
+    [compactHeight],
+  );
 
+  const detentList = useMemo<PresentationDetent[]>(
+    () => compactDetent ? [compactDetent, "medium", "large"] : ["medium", "large"],
+    [compactDetent],
+  );
+
+  // Update map control offset when detent changes
   useEffect(() => {
-    setHeight(isOpen ? measuredHeight.current : 0);
-  }, [isOpen, setHeight]);
+    if (!isOpen) {
+      setHeight(0);
+      return;
+    }
+    setHeight(detentToHeight(selectedDetent));
+  }, [isOpen, selectedDetent, setHeight]);
+
+  // Reset to compact when sheet opens
+  useEffect(() => {
+    if (isOpen && compactDetent) {
+      setSelectedDetent(compactDetent);
+      onExpandedChange?.(false);
+    }
+  }, [isOpen, compactDetent, onExpandedChange]);
+
+  const handleDetentChange = useCallback((detent: PresentationDetent) => {
+    setSelectedDetent(detent);
+    const isCompact = typeof detent === "object" && "height" in detent;
+    onExpandedChange?.(!isCompact);
+  }, [onExpandedChange]);
 
   return (
     <Host>
-      <ExpoBottomSheet isPresented={isOpen} onIsPresentedChange={onOpenChange} fitToContents>
+      <ExpoBottomSheet isPresented={isOpen} onIsPresentedChange={onOpenChange}>
         <Group
           modifiers={[
-            presentationDetents([{ fraction: 0.25 }, "medium"]),
+            presentationDetents(detentList, {
+              selection: selectedDetent,
+              onSelectionChange: handleDetentChange,
+            }),
             presentationDragIndicator("visible"),
-            presentationBackgroundInteraction("enabled"),
+            presentationBackgroundInteraction(
+              compactDetent
+                ? { type: "enabledUpThrough", detent: compactDetent }
+                : "enabled"
+            ),
             interactiveDismissDisabled(),
           ]}
         >
-          <RNHostView matchContents>
-            <View onLayout={onLayout}>{children}</View>
+          <RNHostView>
+            <View>{children}</View>
           </RNHostView>
         </Group>
       </ExpoBottomSheet>
