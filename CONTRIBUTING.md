@@ -7,15 +7,14 @@ SeaScape is a modern, open source, mobile-first marine navigation app built with
 ### Prerequisites
 
 - Node.js 20+
-- iOS: Xcode 16+
-- Android: Android Studio with NDK
+- Xcode 16+
 
 ### Setup
 
 ```sh
 npm install
 npx expo prebuild          # generate native projects
-npx expo run:ios           # or: npx expo run:android
+npx expo run:ios
 ```
 
 ### Development Commands
@@ -23,7 +22,6 @@ npx expo run:ios           # or: npx expo run:android
 ```sh
 npm start                  # start Expo dev server
 npm run ios                # build and run on iOS
-npm run android            # build and run on Android
 npm test                   # run tests
 npm run lint               # run eslint
 ```
@@ -119,24 +117,13 @@ Existing stores:
 
 #### Native UI (`@expo/ui`)
 
-The app uses `@expo/ui` for platform-native components (SwiftUI on iOS, Jetpack Compose on Android). **Only `components/ui/` and `app/` screen files may import from `@expo/ui` directly.** All other components use the abstractions in `components/ui/`.
+The app uses `@expo/ui` for platform-native components (SwiftUI on iOS)..
 
 **Three-tier component strategy:**
 
 1. **Native-first** — Use `@expo/ui` components for standard UI (buttons, forms, pickers, sheets). These automatically look and feel native on each platform.
 2. **Bridge with `RNHostView`** — When React Native views (e.g. `Pressable`, custom layouts) must live inside a native container (e.g. a bottom sheet), wrap them in `RNHostView` from `@expo/ui`. Without this bridge, RN touch handlers won't receive events inside native containers.
 3. **Pure RN** — For views that exist only in the RN tree (map overlays, HUD), use standard React Native components.
-
-**Platform-specific files** use the `.ios.tsx` / `.tsx` (default) pattern:
-
-```
-components/ui/Button.ios.tsx    ← wraps @expo/ui SwiftUI Button
-components/ui/Button.tsx        ← RN Pressable fallback (Android + web)
-components/ui/BottomSheet.ios.tsx ← wraps @expo/ui SwiftUI BottomSheet + RNHostView
-components/ui/BottomSheet.tsx     ← wraps @expo/ui Jetpack Compose ModalBottomSheet + RNHostView
-```
-
-Consumers import the generic path (`@/components/ui/Button`) and the bundler resolves the platform file.
 
 For examples of how to use `@expo/ui`, see:
 
@@ -156,7 +143,7 @@ export default [
 
 #### Icons
 
-`IconSymbol` maps Material Icons names to SF Symbols on iOS with a fallback. Add new icons to the `MAPPING` constant in `components/ui/IconSymbol.tsx`.
+Use `SymbolView` from `expo-symbols` directly with SF Symbol names (e.g. `"location.fill"`, `"plus"`, `"record.circle"`). Browse available symbols in Apple's [SF Symbols](https://developer.apple.com/sf-symbols/) app.
 
 #### Unit Conversions
 

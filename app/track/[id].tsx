@@ -1,6 +1,6 @@
 import SpeedChart from "@/components/SpeedChart";
 import Button from "@/components/ui/Button";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { SymbolView } from "expo-symbols";
 import { usePreferredUnits } from "@/hooks/usePreferredUnits";
 import { useSheetReporter } from "@/hooks/useSheetPosition";
 import useTheme from "@/hooks/useTheme";
@@ -132,7 +132,7 @@ export default function TrackScreen() {
     <View ref={sheetRef} onLayout={onSheetLayout} style={styles.container}>
       {/* Compact section — always visible */}
       <View style={styles.compact} onLayout={onCompactLayout}>
-        <IconSymbol name="route" color={isActiveRecording ? theme.danger : theme.primary} />
+        <SymbolView name="point.bottomleft.forward.to.arrow.triangle.scurvepath" size={24} tintColor={isActiveRecording ? theme.danger : theme.primary} />
         <View style={styles.stat}>
           <Text style={[styles.label, { color: theme.textSecondary }]} numberOfLines={1}>Time</Text>
           <Text style={[styles.value, { color: theme.textPrimary }]} numberOfLines={1}>{formatElapsed(trackStartedAt, trackEndedAt)}</Text>
@@ -150,7 +150,7 @@ export default function TrackScreen() {
               onPress={confirmStop}
               role="destructive"
               variant="bordered"
-              systemImage="stop"
+              systemImage="stop.circle"
             />
           )}
         </View>
@@ -185,7 +185,7 @@ export default function TrackScreen() {
           <Button
             label="Export GPX"
             onPress={handleExport}
-            systemImage="share"
+            systemImage="square.and.arrow.up"
           />
         </View>
       </View>

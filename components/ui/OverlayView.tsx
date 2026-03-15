@@ -2,10 +2,9 @@ import {
   GlassView,
   isLiquidGlassAvailable,
 } from "expo-glass-effect";
-import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
-const liquidGlass =
-  Platform.OS === "ios" && isLiquidGlassAvailable();
+const liquidGlass = isLiquidGlassAvailable();
 
 type OverlayViewProps = {
   style?: StyleProp<ViewStyle>;
@@ -34,6 +33,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
   },
 });

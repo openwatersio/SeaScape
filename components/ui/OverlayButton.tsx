@@ -1,11 +1,11 @@
 import { Link, LinkProps } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
-import { IconSymbol, type IconSymbolProps } from './IconSymbol';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import OverlayView from './OverlayView';
 
 export type OverlyButtonProps = {
-  icon: IconSymbolProps['name'];
-  iconStyle?: IconSymbolProps['style'];
+  icon: SymbolViewProps['name'];
+  iconStyle?: StyleProp<ViewStyle>;
 } & (LinkProps | React.ComponentProps<typeof Pressable>);
 
 export default function OverlayButton({ icon, iconStyle, ...props }: OverlyButtonProps) {
@@ -14,7 +14,7 @@ export default function OverlayButton({ icon, iconStyle, ...props }: OverlyButto
   return (
     <OverlayView style={styles.overlay}>
       <Wrapper {...props as any} style={styles.button}>
-        <IconSymbol name={icon} style={iconStyle} />
+        <SymbolView name={icon} size={24} style={iconStyle} />
       </Wrapper>
     </OverlayView>
   );

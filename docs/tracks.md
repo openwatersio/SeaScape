@@ -45,7 +45,6 @@ On stop, tracks are silently deleted if:
 - Foreground uses `expo-location` `watchPositionAsync` for real-time UI updates
 - Both foreground and background run simultaneously during recording
 - iOS: blue bar indicator via `showsBackgroundLocationIndicator`
-- Android: foreground service notification
 
 ## Track Display (`components/TrackOverlay.tsx`)
 

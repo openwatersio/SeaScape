@@ -1,6 +1,7 @@
 import { useTrackRecording } from "@/hooks/useTrackRecording";
 import useTheme from "@/hooks/useTheme";
 import { router, usePathname } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import { useEffect } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import Animated, {
@@ -9,7 +10,6 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-import { IconSymbol } from "./ui/IconSymbol";
 import OverlayView from "./ui/OverlayView";
 
 export default function TrackRecordButton() {
@@ -59,7 +59,7 @@ export default function TrackRecordButton() {
         style={styles.button}
       >
         <Animated.View style={isRecording ? pulseStyle : undefined}>
-          <IconSymbol name="fiber-manual-record" color={theme.danger} />
+          <SymbolView name="record.circle" size={24} tintColor={theme.danger} />
         </Animated.View>
       </Pressable>
     </OverlayView>

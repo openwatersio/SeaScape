@@ -1,7 +1,7 @@
 import { useCameraState } from "@/hooks/useCameraState";
 import { useMapView } from "@/hooks/useMapView";
+import { SymbolView } from "expo-symbols";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { IconSymbol } from "./ui/IconSymbol";
 import OverlayView from "./ui/OverlayView";
 
 const SIZE = 24;
@@ -30,8 +30,9 @@ export default function CurrentLocationButton() {
         {isCourseUp ? (
           <CompassDial bearing={bearing} />
         ) : (
-          <IconSymbol
-            name={followUserLocation ? "my-location" : "location-searching"}
+          <SymbolView
+            name={followUserLocation ? "location.fill" : "location"}
+            size={24}
           />
         )}
       </Pressable>

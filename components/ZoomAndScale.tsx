@@ -1,8 +1,8 @@
 import { useCameraRef } from "@/hooks/useCameraRef";
 import useTheme from "@/hooks/useTheme";
 import { useMapView } from "@/hooks/useMapView";
+import { SymbolView } from "expo-symbols";
 import { Pressable, StyleSheet, View } from "react-native";
-import { IconSymbol } from './ui/IconSymbol';
 import OverlayView from './ui/OverlayView';
 
 export default function ZoomAndScale() {
@@ -13,11 +13,11 @@ export default function ZoomAndScale() {
   return (
     <OverlayView style={styles.group}>
       <Pressable onPress={() => cameraRef.current?.zoomTo(zoom + 1, { duration: 300 })} style={styles.button}>
-        <IconSymbol name="zoom-in" />
+        <SymbolView name="plus" size={24} />
       </Pressable>
       <View style={[styles.divider, { backgroundColor: theme.border }]} />
       <Pressable onPress={() => cameraRef.current?.zoomTo(zoom - 1, { duration: 300 })} style={styles.button}>
-        <IconSymbol name="zoom-out" />
+        <SymbolView name="minus" size={24} />
       </Pressable>
     </OverlayView>
   );

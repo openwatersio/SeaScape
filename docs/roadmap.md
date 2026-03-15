@@ -20,11 +20,11 @@ Ship a usable chart viewer with basic navigation. Enough to replace a paper char
 - [ ] **Settings & vessel profile** — Configure vessel name, draft, beam, LOA (used later for depth shading and routing)
 - [ ] **Map attribution** — Display proper attribution for chart data sources as required by tile providers ([#21](https://github.com/openwatersio/SeaScape/issues/21))
 - [ ] **Choose a license** — Select and apply an open-source license ([#12](https://github.com/openwatersio/SeaScape/issues/12))
-- [ ] **Android support** — Ship on Android in addition to iOS ([#10](https://github.com/openwatersio/SeaScape/issues/10))
 - [ ] **Safety disclaimer** — "Not for primary navigation" disclaimer in app store listing, first launch, and about screen. Research competitor language and legal requirements before finalizing.
 
 ### Should Have
 
+- [ ] **Android support** — Ship on Android in addition to iOS ([#10](https://github.com/openwatersio/SeaScape/issues/10))
 - [ ] **Chart layer toggling** — Show/hide depth contours, buoys, lights, land features independently
 - [ ] **Combine multiple chart layers** — Layer charts from multiple sources with configurable opacity ([#5](https://github.com/openwatersio/SeaScape/issues/5))
 - [ ] **Scale bar** — Display a distance scale indicator on the chart ([#37](https://github.com/openwatersio/SeaScape/issues/37))

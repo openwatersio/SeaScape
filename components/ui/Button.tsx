@@ -1,12 +1,12 @@
 import useTheme from "@/hooks/useTheme";
+import { SymbolView, type SymbolViewProps } from "expo-symbols";
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from "react-native";
-import { IconSymbol, type IconSymbolProps } from "./IconSymbol";
 
 export type ButtonProps = {
   label?: string;
   onPress?: () => void;
   role?: "default" | "cancel" | "destructive";
-  systemImage?: IconSymbolProps["name"];
+  systemImage?: SymbolViewProps["name"];
   variant?: "default" | "bordered";
   color?: string;
   style?: StyleProp<ViewStyle>;
@@ -28,7 +28,7 @@ export default function Button({ label, onPress, systemImage, role, variant = "d
         containerStyle,
       ]}
     >
-      {systemImage && <IconSymbol name={systemImage} size={18} color={foreground} />}
+      {systemImage && <SymbolView name={systemImage} size={18} tintColor={foreground} />}
       {label && <Text style={[styles.label, { color: foreground }]}>
         {label}
       </Text>}

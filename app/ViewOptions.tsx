@@ -1,108 +1,72 @@
-import { useSheetReporter } from "@/hooks/useSheetPosition";
 import { usePreferredUnits } from "@/hooks/usePreferredUnits";
-import useTheme from "@/hooks/useTheme";
+import { useSheetReporter } from "@/hooks/useSheetPosition";
 import { useViewOptions } from "@/hooks/useViewOptions";
 import mapStyles from "@/styles";
-import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  Button,
+  Host,
+  List,
+  Picker,
+  Section,
+  Text,
+  VStack
+} from '@expo/ui/swift-ui';
+import { tag } from '@expo/ui/swift-ui/modifiers';
+import { View } from "react-native";
 
 export default function ViewOptions() {
   const viewOptions = useViewOptions();
   const units = usePreferredUnits();
-  const theme = useTheme();
   const { onLayout: onSheetLayout } = useSheetReporter("viewOptions");
-  const styles = makeStyles(theme);
 
   return (
-    <ScrollView style={styles.container} onLayout={onSheetLayout}>
-      <Text style={styles.sectionTitle}>Charts</Text>
-      {mapStyles.map(({ id, name }) => {
-        const selected = viewOptions.mapStyleId === id;
-        return (
-          <TouchableOpacity
-            key={id}
-            style={styles.row}
-            onPress={() => viewOptions.set({ mapStyleId: id })}
-          >
-            <Text style={styles.rowText}>{name}</Text>
-            {selected && <Text style={styles.checkmark}>✓</Text>}
-          </TouchableOpacity>
-        );
-      })}
+    <View style={{ flex: 1 }} onLayout={onSheetLayout}>
+      <Host style={{ flex: 1 }}>
+        <VStack alignment="leading">
+          <List>
+            <Section title="Charts">
+              {
+                mapStyles.map(({ id, name }) => {
+                  const image = viewOptions.mapStyleId === id ? 'checkmark.circle.fill' : 'circle';
+                  return (
+                    <Button
+                      key={id}
+                      systemImage={image}
+                      label={name}
+                      onPress={() => viewOptions.set({ mapStyleId: id })}
+                    />
+                  );
+                })
+              }
+            </Section>
 
-      <Text style={styles.sectionTitle}>Preferred Units</Text>
-      <Text style={styles.label}>Speed</Text>
-      {units.speedUnits().map((unit) => {
-        const selected = units.speed === unit;
-        return (
-          <TouchableOpacity
-            key={unit}
-            style={styles.row}
-            onPress={() => units.set({ speed: unit })}
-          >
-            <Text style={styles.rowText}>{units.describe(unit).plural}</Text>
-            {selected && <Text style={styles.checkmark}>✓</Text>}
-          </TouchableOpacity>
-        );
-      })}
-
-      <Text style={styles.label}>Distance</Text>
-      {units.distanceUnits().map((unit) => {
-        const selected = units.distance === unit;
-        return (
-          <TouchableOpacity
-            key={unit}
-            style={styles.row}
-            onPress={() => units.set({ distance: unit })}
-          >
-            <Text style={styles.rowText}>{units.describe(unit).plural}</Text>
-            {selected && <Text style={styles.checkmark}>✓</Text>}
-          </TouchableOpacity>
-        );
-      })}
-    </ScrollView>
+            <Section title="Prefered Units">
+              <Picker
+                label="Speed"
+                selection={units.speed}
+                onSelectionChange={(unit) => units.set({ speed: unit })}
+              >
+                {units.speedUnits().map((unit) => (
+                  <Text key={unit} modifiers={[tag(unit)]}>
+                    {units.describe(unit).plural}
+                  </Text>
+                ))}
+              </Picker>
+              <Picker
+                label="Distance"
+                selection={units.distance}
+                onSelectionChange={(unit) => units.set({ distance: unit })}
+              >
+                {units.distanceUnits().map((unit) => (
+                  <Text key={unit} modifiers={[tag(unit)]}>
+                    {units.describe(unit).plural}
+                  </Text>
+                ))}
+              </Picker>
+            </Section>
+          </List>
+        </VStack>
+      </Host>
+    </View>
   );
-}
-
-function makeStyles(theme: ReturnType<typeof useTheme>) {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.surface,
-    },
-    sectionTitle: {
-      fontSize: 13,
-      fontWeight: "600",
-      color: theme.textSecondary,
-      textTransform: "uppercase",
-      letterSpacing: 0.5,
-      paddingHorizontal: 16,
-      paddingTop: 24,
-      paddingBottom: 8,
-    },
-    label: {
-      fontSize: 13,
-      color: theme.textSecondary,
-      paddingHorizontal: 16,
-      paddingBottom: 4,
-    },
-    row: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: theme.border,
-      backgroundColor: theme.surface,
-    },
-    rowText: {
-      fontSize: 16,
-      color: theme.textPrimary,
-    },
-    checkmark: {
-      fontSize: 16,
-      color: theme.primary,
-      fontWeight: "600",
-    },
-  });
 }
