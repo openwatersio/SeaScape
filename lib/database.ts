@@ -1,8 +1,7 @@
 import { LocationObject } from "expo-location";
 import * as SQLite from "expo-sqlite";
 
-const DATABASE_NAME = "seascape.db";
-const DATABASE_VERSION = 4;
+const DATABASE_NAME = "app.db";
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -43,11 +42,7 @@ async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
 
       CREATE INDEX IF NOT EXISTS idx_track_points_track_id
         ON track_points(track_id);
-    `);
-  }
 
-  if (currentVersion < 4) {
-    await db.execAsync(`
       CREATE TABLE IF NOT EXISTS markers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
@@ -58,11 +53,9 @@ async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
         icon TEXT,
         created_at TEXT NOT NULL
       );
-    `);
-  }
 
-  if (currentVersion < DATABASE_VERSION) {
-    await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
+      PRAGMA user_version = 1;
+    `);
   }
 }
 

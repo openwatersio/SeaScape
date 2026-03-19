@@ -1,23 +1,21 @@
 {
   "expo": {
-    "name": "SeaScape",
-    "slug": "SeaScape",
+    "name": "Open Waters",
+    "slug": "openwaters",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "seascape",
+    "scheme": "openwaters",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "appleTeamId": "RYHA8UZK6Y",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Permission is necessary to display user location",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow SeaScape to record your track while the app is in the background.",
-        "UIBackgroundModes": [
-          "location"
-        ]
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Open Waters to record your track while the app is in the background.",
+        "UIBackgroundModes": ["location"]
       },
-      "bundleIdentifier": "io.openwaters.seascape"
+      "bundleIdentifier": "io.openwaters.mobile"
     },
     "plugins": [
       "expo-router",
@@ -55,12 +53,12 @@
     "experiments": {
       "typedRoutes": true
     },
-    "android": {
-      "permissions": [
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
-      ],
-      "package": "io.openwaters.seascape"
-    }
+"extra": {
+      "router": {},
+      "eas": {
+        "projectId": "fce58c39-edee-40b0-a1a6-c9e1713cd3f7"
+      }
+    },
+    "owner": "openwatersio"
   }
 }

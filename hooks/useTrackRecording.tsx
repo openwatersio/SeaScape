@@ -23,7 +23,7 @@ const LOCATION_OPTIONS = {
   timeInterval: 1000,
   showsBackgroundLocationIndicator: true, // iOS blue bar
   foregroundService: {
-    notificationTitle: "SeaScape",
+    notificationTitle: "Open Waters",
     notificationBody: "Recording track",
     notificationColor: "#e53e3e",
   },

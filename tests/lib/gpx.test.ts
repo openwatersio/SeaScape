@@ -39,7 +39,7 @@ describe("toGPX", () => {
 
     expect(gpx).toContain('<?xml version="1.0"');
     expect(gpx).toContain('version="1.1"');
-    expect(gpx).toContain("creator=\"SeaScape\"");
+    expect(gpx).toContain("creator=\"Open Waters\"");
     expect(gpx).toContain("<name>Morning sail</name>");
   });
 
