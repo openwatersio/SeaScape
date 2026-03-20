@@ -14,6 +14,7 @@ import AtoNLayer from "./AtoNLayer";
 import { MapControls } from "./MapControls";
 import MarkerOverlay from "./MarkerOverlay";
 import NavigationHUD from "./NavigationHUD";
+import RouteOverlay from "./RouteOverlay";
 import TrackOverlay from "./TrackOverlay";
 import { Annotation } from "./map/Annotation";
 import { NavigationCamera, handleRegionDidChange, handleRegionIsChanging } from "./map/NavigationCamera";
@@ -93,6 +94,7 @@ export default function ChartView() {
       <Fragment key={mapStyleId}>
         <TrackOverlay />
         <MarkerOverlay />
+        <RouteOverlay />
         <AISLayer />
         <AtoNLayer />
         <NavigationPuck />
