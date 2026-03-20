@@ -134,7 +134,7 @@ export default function MarkerList() {
                   <ContextMenu.Trigger>
                     <HStack
                       alignment="center"
-                      spacing={10}
+                      spacing={16}
                       modifiers={[
                         onTapGesture(() => {
                           router.push({ pathname: "/marker/[id]", params: { id: marker.id } });
@@ -144,9 +144,14 @@ export default function MarkerList() {
                     >
                       <RNHostView matchContents>
                         <View style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 16,
                           backgroundColor: marker.color ?? theme.primary,
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}>
-                          <AnnotationIcon name={marker.icon ?? "pin"} color={theme.textPrimary} size={22} />
+                          <AnnotationIcon name={marker.icon ?? "pin"} color="white" size={18} />
                         </View>
                       </RNHostView>
                       <VStack alignment="leading" spacing={2}>
