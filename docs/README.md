@@ -1,4 +1,4 @@
-# SeaScape
+# Open Waters
 
 A modern, open source, mobile-first, community driven, extensible marine navigation app.
 
@@ -11,7 +11,6 @@ A modern, open source, mobile-first, community driven, extensible marine navigat
   - [Target Audience](#target-audience)
   - [Competitive Analysis](#competitive-analysis)
 - [Product](#product)
-  - [Naming](#naming)
   - [Roadmap](#roadmap)
   - [Design Principles & UX](#design-principles--ux)
   - [Offline-First Architecture](#offline-first-architecture)
@@ -30,11 +29,11 @@ A modern, open source, mobile-first, community driven, extensible marine navigat
 
 ## Target Audience
 
-Any mariner inclined to reach for a phone or tablet is accustomed to living with modern apps and expects a polished experience. SeaScape aims to serve three distinct user segments, each with different needs, usage patterns, and value to the project:
+Any mariner inclined to reach for a phone or tablet is accustomed to living with modern apps and expects a polished experience. Open Waters aims to serve three distinct user segments, each with different needs, usage patterns, and value to the project:
 
 ### Cruisers
 
-Liveaboard and long-distance sailors who depend on their chart plotter every day for passage planning, anchoring, and coastal navigation. This is the founder's own segment and where SeaScape will have the deepest domain expertise.
+Liveaboard and long-distance sailors who depend on their chart plotter every day for passage planning, anchoring, and coastal navigation. This is the founder's own segment and where Open Waters will have the deepest domain expertise.
 
 - **Needs:** Offline charts (critical — often no connectivity), route planning, tides/currents, weather, integration with onboard instruments. These users push every feature to its limits.
 - **Usage:** Daily, for hours at a time. Often the primary navigation display at the helm.
@@ -56,7 +55,7 @@ Casual and weekend sailors on boats, typically smaller boats, typically coastal 
 
 Competitive sailors (club racing through offshore) who need real-time performance data, tactical weather routing, and instrument integration. This is where commercial revenue potential is highest.
 
-- **Needs:** Real-time instrument data (wind angle, VMG, laylines), weather routing optimized for speed, polars integration, start line tools, tactical overlays. Features SeaScape won't have in early versions.
+- **Needs:** Real-time instrument data (wind angle, VMG, laylines), weather routing optimized for speed, polars integration, start line tools, tactical overlays. Features Open Waters won't have in early versions.
 - **Usage:** Intense but periodic — race days, regattas, deliveries.
 - **Tech comfort:** Very high. Expect integration with existing racing instruments and software.
 - **Willingness to pay:** High. Already spending on Expedition, PredictWind, dedicated instruments. Will pay for premium features that provide competitive advantage.
@@ -71,21 +70,6 @@ See [competitive-analysis.md](competitive-analysis.md) for detailed analysis of 
 ---
 
 # Product
-
-## Naming
-
-"SeaScape" is a working title. The project lives under **Open Water Software, LLC** (openwaters.io), an umbrella for marine open source projects (tides, bathymetry, charts, etc.). The final name should ideally connect to that brand.
-
-### Candidates
-
-| Name            | App Store Conflicts                                                                                                                | Pros                                                                                      | Cons                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **Open Waters** | No app store conflicts. Non-app conflicts: OpenWater (software company, Inc. 5000), Open Water Foundation, open-waters (EPA tool). | Strongest brand tie-in to Open Water Software. Clean app store namespace.                 | Generic. Crowded non-app brand space.                                                 |
-| **Chartbook**   | None found. Aqua Map uses "Chartbooks" as a feature name.                                                                          | Self-explanatory — says exactly what it is. Evokes physical nautical chart books.         | No brand tie-in. Slightly old-fashioned.                                              |
-| **Open Helm**   | None found                                                                                                                         | Good brand bridge (Open Water → Open Helm). Communicates both open source and navigation. | "Open [X]" pattern is overused. Kubernetes "Helm" dominates tech search results.      |
-| **Pelorus**     | Pelorus (luxury travel itinerary app) on both iOS and Google Play                                                                  | Unique, genuinely nautical (a bearing compass), highly defensible trademark               | Most people won't know what it means. Name taken on both stores (different category). |
-
-**Decision:**: TBD
 
 ## Roadmap
 
@@ -263,7 +247,7 @@ RTL languages (Arabic, Hebrew) are a future concern. The app should avoid hardco
 
 - **Cross-platform from day one.** iOS, Android, and (via Expo) macOS/Windows are all reachable from a single codebase. This directly serves the target platform matrix (MUST: iOS/Android, SHOULD: macOS/Windows).
 - **Expo 54 + React Native 0.81** — Already in the project. Expo provides managed native modules for GPS (`expo-location`), haptics, file system, and more — reducing native boilerplate significantly.
-- **JavaScript/TypeScript ecosystem** — Signal K (the primary instrument integration target) is Node.js-based with JSON data models. Sharing types and parsing logic between SeaScape and Signal K is natural.
+- **JavaScript/TypeScript ecosystem** — Signal K (the primary instrument integration target) is Node.js-based with JSON data models. Sharing types and parsing logic between Open Waters and Signal K is natural.
 - **Large contributor pool.** React/JS is the most widely known frontend stack, lowering the barrier for open source contributors.
 
 ### Map Library: MapLibre Native
@@ -321,7 +305,7 @@ Existing projects doing this: [s57tiler](https://github.com/manimaul/s57tiler), 
 | **MBTiles**   | Single file        | No (SQLite)                       | No                        | Yes (mature)            |
 | **XYZ tiles** | Directory of files | Yes (or pre-downloaded)           | No                        | Yes                     |
 
-PMTiles is the recommended format for SeaScape because:
+PMTiles is the recommended format for Open Waters because:
 
 - Single file per region — simple to download and manage offline
 - No tile server needed — can be read directly from local storage or static CDN
@@ -460,8 +444,8 @@ These areas should have the highest test coverage and be explicitly called out i
 
 ### Why GPL v3
 
-- **Copyleft protection.** Modifications to SeaScape must be shared back. No one can fork the app, close the source, and compete with a proprietary version. This matters for a project where the core value is community trust and data openness.
-- **Aligned with the marine open source ecosystem.** OpenCPN uses GPLv2. Choosing GPL v3 keeps SeaScape in the same family and signals the same values to the cruising and open source communities.
+- **Copyleft protection.** Modifications to Open Waters must be shared back. No one can fork the app, close the source, and compete with a proprietary version. This matters for a project where the core value is community trust and data openness.
+- **Aligned with the marine open source ecosystem.** OpenCPN uses GPLv2. Choosing GPL v3 keeps Open Waters in the same family and signals the same values to the cruising and open source communities.
 - **Chart data is not affected.** GPL applies to source code, not content. Chart data sold through the Chart Store, weather data, tide predictions — none of this is subject to the GPL. The commercial Chart Store model works fine under GPL v3.
 - **Dependency compatibility.** All current dependencies (React Native, Expo, MapLibre, Zustand) use MIT or BSD licenses, which are forward-compatible with GPL v3. No conflicts.
 
@@ -481,11 +465,11 @@ The FSF's position is that GPL v3 is incompatible with Apple's App Store terms. 
 
 ### Plugin Implications
 
-Under GPL v3, plugins that run in-process and use SeaScape's internal APIs are generally considered derivative works and must be GPL-compatible. This is the same model OpenCPN uses (40+ plugins, all GPLv2+). If the plugin architecture later needs to support proprietary plugins, a plugin API exception (similar to WordPress's) could be added.
+Under GPL v3, plugins that run in-process and use Open Waters's internal APIs are generally considered derivative works and must be GPL-compatible. This is the same model OpenCPN uses (40+ plugins, all GPLv2+). If the plugin architecture later needs to support proprietary plugins, a plugin API exception (similar to WordPress's) could be added.
 
 ## Sustainability
 
-SeaScape needs a path to financial sustainability before v0.1 ships. The goal isn't profit — it's covering hosting costs, chart data licensing, and eventually enabling dedicated development time.
+Open Waters needs a path to financial sustainability before v0.1 ships. The goal isn't profit — it's covering hosting costs, chart data licensing, and eventually enabling dedicated development time.
 
 ### Revenue Tiers
 
@@ -506,8 +490,8 @@ SeaScape needs a path to financial sustainability before v0.1 ships. The goal is
 
 #### Tier 3: Add-on Store (from v0.3)
 
-- **Chart Store** — Revenue share from chart data subscriptions. Hydrographic offices (UKHO, LINZ, etc.) and third-party providers (MarineCharts.io) sell chart data through SeaScape's in-app marketplace. SeaScape takes a percentage (10-20%) to fund development. This is the highest-potential revenue source.
-- **Paid plugins/extensions** — Third-party developers can sell premium plugins (racing tools, advanced weather routing, specialized instrument dashboards) through an extension marketplace. SeaScape takes a percentage.
+- **Chart Store** — Revenue share from chart data subscriptions. Hydrographic offices (UKHO, LINZ, etc.) and third-party providers (MarineCharts.io) sell chart data through Open Waters's in-app marketplace. Open Waters takes a percentage (10-20%) to fund development. This is the highest-potential revenue source.
+- **Paid plugins/extensions** — Third-party developers can sell premium plugins (racing tools, advanced weather routing, specialized instrument dashboards) through an extension marketplace. Open Waters takes a percentage.
 - **Premium data services** — Enhanced weather data, high-resolution bathymetry, or real-time AIS feeds available as paid subscriptions.
 
 ### What's Free, What's Paid
@@ -526,9 +510,9 @@ SeaScape needs a path to financial sustainability before v0.1 ships. The goal is
 ### Precedents
 
 - **OpenCPN:** Free on desktop, paid on Google Play. Has sustained development for 15+ years but relies heavily on volunteer effort. Limited ability to fund full-time developers.
-- **Signal:** AGPL v3, funded by the Signal Foundation (non-profit). Free on all platforms. Not a revenue model SeaScape can replicate.
+- **Signal:** AGPL v3, funded by the Signal Foundation (non-profit). Free on all platforms. Not a revenue model Open Waters can replicate.
 - **Krita:** GPL v3, free on all platforms, but sells on Steam and Microsoft Store for convenience. Similar to the proposed paid App Store model.
-- **Blender:** GPL v2, funded by the Blender Foundation via corporate sponsors and the Development Fund. Relevant if SeaScape attracts corporate interest (marine hardware companies, charter companies).
+- **Blender:** GPL v2, funded by the Blender Foundation via corporate sponsors and the Development Fund. Relevant if Open Waters attracts corporate interest (marine hardware companies, charter companies).
 
 ### Priority
 

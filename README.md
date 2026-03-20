@@ -1,6 +1,6 @@
-# SeaScape
+# Open Waters App
 
-An experiment in building modern marine charts.  Currently alpha and not to be use for navigation.
+An experiment in building modern marine charts. Currently alpha and not to be use for navigation.
 
 ## Contributing
 

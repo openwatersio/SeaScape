@@ -1,6 +1,6 @@
 # Chart Sources
 
-This document catalogs available chart sources for integration into SeaScape, covering basemaps, nautical overlays, official hydrographic office charts, and commercial options.
+This document catalogs available chart sources for integration into Open Waters, covering basemaps, nautical overlays, official hydrographic office charts, and commercial options.
 
 ## Contents
 

@@ -70,7 +70,7 @@ A Raspberry Pi-based platform that integrates OpenCPN, Signal K, and other tools
 
 ### [Freeboard-SK](https://github.com/SignalK/freeboard-sk) — Signal K Web Chartplotter
 
-OpenLayers-based web chartplotter designed for Signal K servers. Displays routes, waypoints, alarms, and S-57 charts converted to vector tiles. The closest open source peer to what SeaScape aims to build, but web-only and tied to the Signal K server architecture.
+OpenLayers-based web chartplotter designed for Signal K servers. Displays routes, waypoints, alarms, and S-57 charts converted to vector tiles. The closest open source peer to what Open Waters aims to build, but web-only and tied to the Signal K server architecture.
 
 - **Platforms:** Web (any browser, typically on Raspberry Pi)
 
@@ -86,7 +86,7 @@ Hub/directory for open source marine projects including Maritime Data Server, Ma
 
 ### [SailFreeGPS](https://sailfreegps.com)
 
-Free navigation app created by an amateur sailor. Uses NOAA MBTiles for charts. Basic features: position, course, speed, waypoints, routes, anchor alarm. An indie project similar in spirit to SeaScape.
+Free navigation app created by an amateur sailor. Uses NOAA MBTiles for charts. Basic features: position, course, speed, waypoints, routes, anchor alarm. An indie project similar in spirit to Open Waters.
 
 - **Platforms:** iOS, Android
 
@@ -443,59 +443,59 @@ Web-based course planning with interactive nautical charts, weather radar, buoy 
 
 ## Pricing Comparison
 
-| App | Annual Price | Free Tier | Offline Charts | Best For |
-| --- | --- | --- | --- | --- |
-| **OpenCPN** | Free | Full | Yes | Budget desktop users |
-| **C-MAP** | ~$19 | Yes (no GPS) | Premium only | Navico hardware owners |
-| **TZ iBoat** | $19.99 (maps) | Yes | Yes | Fishing, premium iOS nav |
-| **Aqua Map** | ~$15-25 | Charts only | Yes | US coastal/ICW cruising |
-| **Navionics** | $49.99 | View only | Yes | General boating, fishing |
-| **Orca Plus** | €49 | Yes | Plus+ tier | European sailors |
-| **Wavve** | $60-70 | Trial only | Yes | Casual/social US boating |
-| **Savvy Navvy Essential** | $79.99 | US only | No | Sailing passage planning |
-| **Savvy Navvy Explore** | $144.99 | — | Yes | Serious cruising |
-| **Orca Smart Nav** | €149 | — | Yes | Hardware-integrated sailing |
-| **Savvy Navvy Elite** | $149.99 | — | Yes | Full-featured sailing |
+| App                       | Annual Price  | Free Tier    | Offline Charts | Best For                    |
+| ------------------------- | ------------- | ------------ | -------------- | --------------------------- |
+| **OpenCPN**               | Free          | Full         | Yes            | Budget desktop users        |
+| **C-MAP**                 | ~$19          | Yes (no GPS) | Premium only   | Navico hardware owners      |
+| **TZ iBoat**              | $19.99 (maps) | Yes          | Yes            | Fishing, premium iOS nav    |
+| **Aqua Map**              | ~$15-25       | Charts only  | Yes            | US coastal/ICW cruising     |
+| **Navionics**             | $49.99        | View only    | Yes            | General boating, fishing    |
+| **Orca Plus**             | €49           | Yes          | Plus+ tier     | European sailors            |
+| **Wavve**                 | $60-70        | Trial only   | Yes            | Casual/social US boating    |
+| **Savvy Navvy Essential** | $79.99        | US only      | No             | Sailing passage planning    |
+| **Savvy Navvy Explore**   | $144.99       | —            | Yes            | Serious cruising            |
+| **Orca Smart Nav**        | €149          | —            | Yes            | Hardware-integrated sailing |
+| **Savvy Navvy Elite**     | $149.99       | —            | Yes            | Full-featured sailing       |
 
 ---
 
 ## Feature Matrix
 
-| Feature | OpenCPN | AvNav | Navionics | C-MAP | Aqua Map | Savvy Navvy | TZ iBoat | iNavX | Orca | Wavve |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Vector charts** | S57/S63 | oeSENC | Yes | Yes | NOAA | UKHO/NOAA | TZ MAPS | Multi-provider | Yes | Yes |
-| **Raster charts** | BSB | GEMF/MBTiles | — | — | NOAA | — | Yes | Yes | — | — |
-| **Offline charts** | Yes | Yes | Yes | Premium | Yes | Explore+ | Yes | Yes | Plus+ | Yes |
-| **Smart routing** | — | — | Basic | Basic | Basic | Best-in-class | Basic | — | AI learning | Draft-aware |
-| **Waypoints/routes** | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| **AIS** | Yes | Yes | Wi-Fi receiver | Premium | Yes | Elite tier | Hardware | Wi-Fi | Smart tier | — |
-| **Weather overlay** | GRIB files | — | Yes | Yes | Premium | Yes | Yes | GRIB | Yes | Yes |
-| **Tides & currents** | Yes | — | Yes | Yes | Yes | Explore+ | Yes | Yes | — | Yes |
-| **Anchor alarm** | Yes | — | — | — | Yes | Elite | Yes | Yes | — | — |
-| **GPX import/export** | Yes | Yes | Yes | Yes | — | Yes | — | Yes | — | — |
-| **NMEA integration** | Yes | Yes | — | — | iOS only | — | Furuno | Yes | NMEA 2000 | — |
-| **Community/POIs** | — | — | ActiveCaptain | POIs | ActiveCaptain | Marinas | — | — | — | Social |
-| **Depth shading** | — | — | SonarChart | REVEAL | — | — | BathyVision | — | — | Draft-aware |
-| **Free tier** | Full | Full | Limited | Yes | Limited | Limited | Limited | Limited | Yes | Trial |
-| **iOS** | — | Browser | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| **Android** | — | Yes | Yes | Yes | Yes | Yes | Beta | Yes | Yes | Yes |
-| **Desktop** | Yes | Browser | — | PC | — | Web | — | — | macOS | — |
-| **Plugin/extension** | Yes (45+) | Yes | — | — | — | — | — | — | — | — |
+| Feature               | OpenCPN    | AvNav        | Navionics      | C-MAP   | Aqua Map      | Savvy Navvy   | TZ iBoat    | iNavX          | Orca        | Wavve       |
+| --------------------- | ---------- | ------------ | -------------- | ------- | ------------- | ------------- | ----------- | -------------- | ----------- | ----------- |
+| **Vector charts**     | S57/S63    | oeSENC       | Yes            | Yes     | NOAA          | UKHO/NOAA     | TZ MAPS     | Multi-provider | Yes         | Yes         |
+| **Raster charts**     | BSB        | GEMF/MBTiles | —              | —       | NOAA          | —             | Yes         | Yes            | —           | —           |
+| **Offline charts**    | Yes        | Yes          | Yes            | Premium | Yes           | Explore+      | Yes         | Yes            | Plus+       | Yes         |
+| **Smart routing**     | —          | —            | Basic          | Basic   | Basic         | Best-in-class | Basic       | —              | AI learning | Draft-aware |
+| **Waypoints/routes**  | Yes        | Yes          | Yes            | Yes     | Yes           | Yes           | Yes         | Yes            | Yes         | Yes         |
+| **AIS**               | Yes        | Yes          | Wi-Fi receiver | Premium | Yes           | Elite tier    | Hardware    | Wi-Fi          | Smart tier  | —           |
+| **Weather overlay**   | GRIB files | —            | Yes            | Yes     | Premium       | Yes           | Yes         | GRIB           | Yes         | Yes         |
+| **Tides & currents**  | Yes        | —            | Yes            | Yes     | Yes           | Explore+      | Yes         | Yes            | —           | Yes         |
+| **Anchor alarm**      | Yes        | —            | —              | —       | Yes           | Elite         | Yes         | Yes            | —           | —           |
+| **GPX import/export** | Yes        | Yes          | Yes            | Yes     | —             | Yes           | —           | Yes            | —           | —           |
+| **NMEA integration**  | Yes        | Yes          | —              | —       | iOS only      | —             | Furuno      | Yes            | NMEA 2000   | —           |
+| **Community/POIs**    | —          | —            | ActiveCaptain  | POIs    | ActiveCaptain | Marinas       | —           | —              | —           | Social      |
+| **Depth shading**     | —          | —            | SonarChart     | REVEAL  | —             | —             | BathyVision | —              | —           | Draft-aware |
+| **Free tier**         | Full       | Full         | Limited        | Yes     | Limited       | Limited       | Limited     | Limited        | Yes         | Trial       |
+| **iOS**               | —          | Browser      | Yes            | Yes     | Yes           | Yes           | Yes         | Yes            | Yes         | Yes         |
+| **Android**           | —          | Yes          | Yes            | Yes     | Yes           | Yes           | Beta        | Yes            | Yes         | Yes         |
+| **Desktop**           | Yes        | Browser      | —              | PC      | —             | Web           | —           | —              | macOS       | —           |
+| **Plugin/extension**  | Yes (45+)  | Yes          | —              | —       | —             | —             | —           | —              | —           | —           |
 
 ## External System Integration
 
 Most modern mobile-first apps (Savvy Navvy, C-MAP, Wavve) have **no direct instrument integration** — they rely solely on the phone's GPS and internet-sourced data. This is a significant gap.
 
-| App | NMEA 0183 | NMEA 2000 | Signal K | Bluetooth | Wi-Fi TCP/IP | Proprietary Hardware |
-| --- | --- | --- | --- | --- | --- | --- |
-| **OpenCPN** | Yes | Via plugin | Via plugin | — | Yes | — |
-| **AvNav** | Yes (multiplexer) | — | — | Yes | Yes (TCP) | — |
-| **iNavX** | Yes (via TCP/IP) | — | — | — | Yes | — |
-| **Orca** | — | Yes (via Core) | — | — | — | Orca Core, Orca Display |
-| **TZ iBoat** | — | — | — | — | Yes | Furuno radar, fish finder, AIS |
-| **Navionics** | — | — | — | — | AIS receiver | Garmin chartplotter sync |
-| **Aqua Map** | Yes (TCP/UDP) | — | iOS only | — | Yes | — |
-| **Signal K** | Yes | Yes | Native | Yes | Yes | — |
+| App           | NMEA 0183         | NMEA 2000      | Signal K   | Bluetooth | Wi-Fi TCP/IP | Proprietary Hardware           |
+| ------------- | ----------------- | -------------- | ---------- | --------- | ------------ | ------------------------------ |
+| **OpenCPN**   | Yes               | Via plugin     | Via plugin | —         | Yes          | —                              |
+| **AvNav**     | Yes (multiplexer) | —              | —          | Yes       | Yes (TCP)    | —                              |
+| **iNavX**     | Yes (via TCP/IP)  | —              | —          | —         | Yes          | —                              |
+| **Orca**      | —                 | Yes (via Core) | —          | —         | —            | Orca Core, Orca Display        |
+| **TZ iBoat**  | —                 | —              | —          | —         | Yes          | Furuno radar, fish finder, AIS |
+| **Navionics** | —                 | —              | —          | —         | AIS receiver | Garmin chartplotter sync       |
+| **Aqua Map**  | Yes (TCP/UDP)     | —              | iOS only   | —         | Yes          | —                              |
+| **Signal K**  | Yes               | Yes            | Native     | Yes       | Yes          | —                              |
 
 **Key observations:**
 
@@ -511,17 +511,17 @@ Most modern mobile-first apps (Savvy Navvy, C-MAP, Wavve) have **no direct instr
 
 ### Popularity Ranking
 
-| Tier | App | Evidence |
-| --- | --- | --- |
-| **Market leader** | Navionics | 1M+ downloads, ~46.8K Android reviews, ~9/10 cruisers use it |
-| **Major contenders** | Savvy Navvy | 2M+ downloads, 4.7/5 rating, fastest growing |
-| | TZ iBoat | 500K+ users, praised as most complete iOS app |
-| | C-MAP | 100K+ downloads, Navico hardware companion |
-| **Established niche** | Aqua Map | Top Navionics alternative on forums, budget favorite |
-| | Wavve | 4.7/5 rating, Apple "Apps We Love," casual boaters |
-| | Orca | 220K downloads, growing 6K/month, European sailors |
-| **Legacy/specialist** | iNavX | 100K+ downloads, since 2008, widely seen as dated |
-| | OpenCPN | Loyal desktop following, terrible mobile UX |
+| Tier                  | App         | Evidence                                                     |
+| --------------------- | ----------- | ------------------------------------------------------------ |
+| **Market leader**     | Navionics   | 1M+ downloads, ~46.8K Android reviews, ~9/10 cruisers use it |
+| **Major contenders**  | Savvy Navvy | 2M+ downloads, 4.7/5 rating, fastest growing                 |
+|                       | TZ iBoat    | 500K+ users, praised as most complete iOS app                |
+|                       | C-MAP       | 100K+ downloads, Navico hardware companion                   |
+| **Established niche** | Aqua Map    | Top Navionics alternative on forums, budget favorite         |
+|                       | Wavve       | 4.7/5 rating, Apple "Apps We Love," casual boaters           |
+|                       | Orca        | 220K downloads, growing 6K/month, European sailors           |
+| **Legacy/specialist** | iNavX       | 100K+ downloads, since 2008, widely seen as dated            |
+|                       | OpenCPN     | Loyal desktop following, terrible mobile UX                  |
 
 ### Top 5 User Complaints (Across All Apps)
 
@@ -549,27 +549,29 @@ Most modern mobile-first apps (Savvy Navvy, C-MAP, Wavve) have **no direct instr
 
 ### What Users Recommend by Use Case
 
-| Use Case | Winner | Why |
-| --- | --- | --- |
-| Budget US coastal/ICW | **Aqua Map** | $20/yr vs $80 Navionics. USACE surveys, offline, intuitive. |
-| Fishing | **Navionics** | SonarChart bathymetry is unmatched. Garmin integration. |
-| Casual / beginner | **Wavve** | Step-by-step guidance, beginner-friendly, Apple "Apps We Love." |
-| Sailing passage planning | **Savvy Navvy** | Auto-routing with polars, wind/tide integration, modern UX. |
-| Sailing with hardware | **Orca** | Free app + Core hardware. Real-time route adjustment. |
-| Serious offshore | **TZ iBoat** | Most complete feature set on iOS. Premium weather, GRIB. |
-| Powerboats + Navico HW | **C-MAP** | Same charts as Simrad/B&G/Lowrance. Companion sync. |
-| Budget / open source | **OpenCPN** | Free, uses free NOAA charts, highly configurable on desktop. |
-| World cruising | **Navionics** or **TZ iBoat** | Both offer worldwide chart coverage. |
+| Use Case                 | Winner                        | Why                                                             |
+| ------------------------ | ----------------------------- | --------------------------------------------------------------- |
+| Budget US coastal/ICW    | **Aqua Map**                  | $20/yr vs $80 Navionics. USACE surveys, offline, intuitive.     |
+| Fishing                  | **Navionics**                 | SonarChart bathymetry is unmatched. Garmin integration.         |
+| Casual / beginner        | **Wavve**                     | Step-by-step guidance, beginner-friendly, Apple "Apps We Love." |
+| Sailing passage planning | **Savvy Navvy**               | Auto-routing with polars, wind/tide integration, modern UX.     |
+| Sailing with hardware    | **Orca**                      | Free app + Core hardware. Real-time route adjustment.           |
+| Serious offshore         | **TZ iBoat**                  | Most complete feature set on iOS. Premium weather, GRIB.        |
+| Powerboats + Navico HW   | **C-MAP**                     | Same charts as Simrad/B&G/Lowrance. Companion sync.             |
+| Budget / open source     | **OpenCPN**                   | Free, uses free NOAA charts, highly configurable on desktop.    |
+| World cruising           | **Navionics** or **TZ iBoat** | Both offer worldwide chart coverage.                            |
 
 ### What Would Make Users Switch
 
 **Push factors (why users leave):**
+
 - Price increases without corresponding feature improvements (the #1 trigger)
 - Charts locked out due to subscription lapses while at sea
 - App instability — crashes, updates breaking functionality
 - Acquisition-driven degradation (Garmin → Navionics, Navico → C-MAP)
 
 **The "dream app" according to forum consensus:**
+
 - Sensible chart detail at every zoom level — not cluttered like Navionics, not oversimplified like Savvy Navvy
 - Wind, current, and tide data overlaid directly on the chart, animated over time
 - Smart routing accounting for weather, tides, depth, and boat performance
@@ -596,7 +598,7 @@ The first app to combine free/open-source chart data (S-57/S-100 from hydrograph
 
 ### UX Patterns Worth Adopting
 
-1. **Clean, modern chart rendering** — Savvy Navvy and Orca stand out with custom-designed charts that prioritize readability over information density. Traditional apps (OpenCPN, iNavX) feel dated by comparison. SeaScape should aim for the modern aesthetic.
+1. **Clean, modern chart rendering** — Savvy Navvy and Orca stand out with custom-designed charts that prioritize readability over information density. Traditional apps (OpenCPN, iNavX) feel dated by comparison. Open Waters should aim for the modern aesthetic.
 
 2. **Draft-aware depth display** — Wavve's approach of customizing charts to vessel draft with color-coded safe/shallow areas is highly intuitive. This personalizes the chart to the user's actual safety needs rather than showing raw depth numbers.
 
@@ -608,11 +610,11 @@ The first app to combine free/open-source chart data (S-57/S-100 from hydrograph
 
 ### Gaps in the Market
 
-1. **No open source mobile-first app** — OpenCPN is desktop-only. AvNav requires a server. Freeboard-SK is web-only. There is no quality open source app that runs natively on iOS/Android with a modern UX. This is SeaScape's primary opportunity.
+1. **No open source mobile-first app** — OpenCPN is desktop-only. AvNav requires a server. Freeboard-SK is web-only. There is no quality open source app that runs natively on iOS/Android with a modern UX. This is Open Waters's primary opportunity.
 
 2. **Extensibility on mobile** — OpenCPN's plugin system is powerful but desktop-bound. No mobile app offers extensibility. An open, extensible architecture on mobile would be unique.
 
-3. **Cross-platform parity** — Most apps are iOS+Android only. Orca added macOS. No single app provides a consistent experience across phone, tablet, and desktop. React Native/Expo positions SeaScape well here.
+3. **Cross-platform parity** — Most apps are iOS+Android only. Orca added macOS. No single app provides a consistent experience across phone, tablet, and desktop. React Native/Expo positions Open Waters well here.
 
 4. **Data portability and openness** — Commercial apps lock users into proprietary ecosystems. An app built on open standards (Signal K, S-57, GPX) with transparent data handling would appeal to the open source and cruising communities.
 
@@ -631,18 +633,18 @@ The first app to combine free/open-source chart data (S-57/S-100 from hydrograph
 
 ### Differentiators by Segment
 
-| Segment | Leader | Key Differentiator |
-| --- | --- | --- |
-| **Sailing** | Savvy Navvy | Weather+tide-aware routing, departure planner |
-| **Fishing** | TZ iBoat | BathyVision, catch logging, SST/chlorophyll |
-| **Social/casual** | Wavve | Draft-aware display, social features, beginner UX |
-| **Power users** | OpenCPN | Plugin system, NMEA integration, full data access |
-| **Hardware integration** | Orca | Purpose-built Core + Display hardware, NMEA 2000 |
-| **US coastal** | Aqua Map | Official NOAA charts, USCG data, Army Corps surveys |
-| **Nordics/Europe** | Skippo / SeaPilot | Regional chart licensing, local community |
-| **Offshore weather** | PredictWind | 10+ forecast models, satellite comms, 3D hull modeling |
-| **Racing** | Expedition / RaceQs | Professional polars + 3D replay / free tracking |
-| **Community data** | Navionics (ActiveCaptain) | 166K+ reviews, QuickDraw bathymetry |
+| Segment                  | Leader                    | Key Differentiator                                     |
+| ------------------------ | ------------------------- | ------------------------------------------------------ |
+| **Sailing**              | Savvy Navvy               | Weather+tide-aware routing, departure planner          |
+| **Fishing**              | TZ iBoat                  | BathyVision, catch logging, SST/chlorophyll            |
+| **Social/casual**        | Wavve                     | Draft-aware display, social features, beginner UX      |
+| **Power users**          | OpenCPN                   | Plugin system, NMEA integration, full data access      |
+| **Hardware integration** | Orca                      | Purpose-built Core + Display hardware, NMEA 2000       |
+| **US coastal**           | Aqua Map                  | Official NOAA charts, USCG data, Army Corps surveys    |
+| **Nordics/Europe**       | Skippo / SeaPilot         | Regional chart licensing, local community              |
+| **Offshore weather**     | PredictWind               | 10+ forecast models, satellite comms, 3D hull modeling |
+| **Racing**               | Expedition / RaceQs       | Professional polars + 3D replay / free tracking        |
+| **Community data**       | Navionics (ActiveCaptain) | 166K+ reviews, QuickDraw bathymetry                    |
 
 ### Technology Trends (2024-2026)
 
