@@ -77,6 +77,29 @@ export default function RootLayout() {
           headerLargeTitleEnabled: true,
           // headerRight: () => <CloseButton />,
         }} />
+        <Stack.Screen name="routes/index" options={{
+          presentation: "formSheet",
+          sheetAllowedDetents: [0.5, 1],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+          sheetExpandsWhenScrolledToEdge: true,
+          title: "Routes",
+          headerLargeTitleEnabled: true,
+        }} />
+        <Stack.Screen name="route/edit" options={{
+          presentation: "formSheet",
+          sheetLargestUndimmedDetentIndex: "last",
+          sheetAllowedDetents: [0.5],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+        }} />
+        <Stack.Screen name="route/navigate" options={{
+          presentation: "formSheet",
+          sheetLargestUndimmedDetentIndex: "last",
+          sheetAllowedDetents: [0.15, 0.4],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+        }} />
         <Stack.Screen name="markers/index" options={{
           presentation: "formSheet",
           sheetAllowedDetents: [0.5, 1],
