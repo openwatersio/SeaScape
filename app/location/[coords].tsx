@@ -5,7 +5,8 @@ import { addMarker } from "@/hooks/useMarkers";
 import { useNavigationState } from "@/hooks/useNavigationState";
 import { toDistance } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
-import { bearingDegrees, distanceMeters, formatBearing } from "@/lib/geo";
+import { formatBearing } from "@/lib/geo";
+import { getDistance, getGreatCircleBearing } from "geolib";
 import {
   Button,
   Host, HStack,
@@ -63,8 +64,8 @@ export default function LocationScreen() {
 
   const distBearing = useMemo(() => {
     if (!nav.coords?.latitude || !nav.coords?.longitude) return null;
-    const dist = distanceMeters(nav.coords.latitude, nav.coords.longitude, lat, lon);
-    const bearing = bearingDegrees(nav.coords.latitude, nav.coords.longitude, lat, lon);
+    const dist = getDistance(nav.coords, { latitude: lat, longitude: lon });
+    const bearing = getGreatCircleBearing(nav.coords, { latitude: lat, longitude: lon });
     return { dist, bearing };
   }, [lat, lon, nav.coords?.latitude, nav.coords?.longitude]);
 

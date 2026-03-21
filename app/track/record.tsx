@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
 
 export default function RecordScreen() {
-  const { track, isRecording, averageSpeed } = useTrackRecording();
+  const { track, isRecording, distance, averageSpeed } = useTrackRecording();
   const { onHostLayout } = useSheetDetents();
   const [, setTick] = useState(0);
 
@@ -39,7 +39,7 @@ export default function RecordScreen() {
     ]);
   }, [stop]);
 
-  const dist = toDistance(track?.distance ?? 0);
+  const dist = toDistance(distance);
   const avgSpd = toSpeed(averageSpeed);
 
   return (

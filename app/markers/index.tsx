@@ -5,7 +5,8 @@ import { useNavigationState } from "@/hooks/useNavigationState";
 import { toDistance } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
 import type { Marker } from "@/lib/database";
-import { bearingDegrees, distanceMeters, formatBearing } from "@/lib/geo";
+import { formatBearing } from "@/lib/geo";
+import { getDistance, getGreatCircleBearing } from "geolib";
 import {
   Button,
   ContextMenu,
@@ -59,7 +60,7 @@ export default function MarkerList() {
     const { latitude, longitude } = nav.coords;
     const map = new Map<number, number>();
     for (const m of markers) {
-      map.set(m.id, distanceMeters(latitude, longitude, m.latitude, m.longitude));
+      map.set(m.id, getDistance({ latitude, longitude }, m));
     }
     return map;
   }, [sort, markers, nav.coords]);
@@ -104,9 +105,9 @@ export default function MarkerList() {
   function getDistanceLabel(marker: Marker): string | null {
     if (!nav.coords) return null;
     const dist = proximityMap?.get(marker.id)
-      ?? distanceMeters(nav.coords.latitude, nav.coords.longitude, marker.latitude, marker.longitude);
+      ?? getDistance(nav.coords, marker);
     const formatted = toDistance(dist);
-    const bearing = bearingDegrees(nav.coords.latitude, nav.coords.longitude, marker.latitude, marker.longitude);
+    const bearing = getGreatCircleBearing(nav.coords, marker);
     return `${formatted.value} ${formatted.abbr} ${formatBearing(bearing)}`;
   }
 

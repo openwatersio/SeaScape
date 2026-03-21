@@ -31,6 +31,12 @@ export default function MainSheet() {
           <Section>
             <Button
               modifiers={[tint('primary')]}
+              systemImage="antenna.radiowaves.left.and.right"
+              label="Connections"
+              onPress={() => router.push("/connections")}
+            />
+            <Button
+              modifiers={[tint('primary')]}
               systemImage="gearshape"
               label="Settings"
               onPress={() => router.push("/settings")}

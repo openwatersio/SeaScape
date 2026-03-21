@@ -1,38 +1,61 @@
-import { getDistance, getGreatCircleBearing } from "geolib";
-
-/** Distance between two points in meters (Haversine) */
-export function distanceMeters(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
-  return getDistance(
-    { latitude: lat1, longitude: lon1 },
-    { latitude: lat2, longitude: lon2 },
-    0.01, // 1cm accuracy
-  );
-}
-
 /** Absolute angular difference in degrees (0–180) */
 export function headingDelta(h1: number, h2: number): number {
   const d = Math.abs(h1 - h2) % 360;
   return d > 180 ? 360 - d : d;
 }
 
-/** Great-circle bearing from point 1 to point 2 in degrees (0–360) */
-export function bearingDegrees(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
-  const bearing = getGreatCircleBearing(
-    { latitude: lat1, longitude: lon1 },
-    { latitude: lat2, longitude: lon2 },
+export type CPA = {
+  /** Distance at closest point of approach, in meters */
+  distance: number;
+  /** Time until closest point of approach, in seconds */
+  time: number;
+};
+
+export type Vessel = {
+  latitude: number;
+  longitude: number;
+  /** Speed over ground in m/s */
+  sog: number;
+  /** Course over ground in radians, true north */
+  cog: number;
+};
+
+/**
+ * Calculate Closest Point of Approach (CPA) between two vessels
+ * using linear approximation (flat earth, constant velocity).
+ *
+ * @returns CPA with distance (meters) and time (seconds), or null if
+ *          no relative motion or CPA is in the past
+ */
+export function calculateCPA(a: Vessel, b: Vessel): CPA | null {
+  // Velocity vectors (m/s, flat earth approximation)
+  const aVx = a.sog * Math.sin(a.cog);
+  const aVy = a.sog * Math.cos(a.cog);
+  const bVx = b.sog * Math.sin(b.cog);
+  const bVy = b.sog * Math.cos(b.cog);
+
+  // Relative position in meters (approximate)
+  const dx =
+    (b.longitude - a.longitude) *
+    111320 *
+    Math.cos((a.latitude * Math.PI) / 180);
+  const dy = (b.latitude - a.latitude) * 110540;
+
+  // Relative velocity
+  const dvx = bVx - aVx;
+  const dvy = bVy - aVy;
+
+  const dvSq = dvx * dvx + dvy * dvy;
+  if (dvSq < 0.001) return null; // No relative motion
+
+  const tcpa = -(dx * dvx + dy * dvy) / dvSq;
+  if (tcpa < 0) return null; // CPA is in the past
+
+  const cpaDist = Math.sqrt(
+    (dx + dvx * tcpa) ** 2 + (dy + dvy * tcpa) ** 2,
   );
-  // geolib already returns 0..360; normalize defensively
-  return ((bearing % 360) + 360) % 360;
+
+  return { distance: cpaDist, time: tcpa };
 }
 
 /** Format bearing as three-digit true bearing, e.g. "045°T" */

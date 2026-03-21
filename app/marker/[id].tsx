@@ -6,7 +6,8 @@ import { toDistance } from "@/hooks/usePreferredUnits";
 import { useSheetDetents } from "@/hooks/useSheetDetents";
 import useTheme from "@/hooks/useTheme";
 import { exportMarkerAsGPX } from "@/lib/exportTrack";
-import { bearingDegrees, distanceMeters, formatBearing } from "@/lib/geo";
+import { formatBearing } from "@/lib/geo";
+import { getDistance, getGreatCircleBearing } from "geolib";
 import {
   Button,
   Form,
@@ -59,8 +60,8 @@ export default function MarkerScreen() {
 
   const distBearing = useMemo(() => {
     if (!nav.coords || !marker) return null;
-    const dist = distanceMeters(nav.coords.latitude, nav.coords.longitude, marker.latitude, marker.longitude);
-    const bearing = bearingDegrees(nav.coords.latitude, nav.coords.longitude, marker.latitude, marker.longitude);
+    const dist = getDistance(nav.coords, marker);
+    const bearing = getGreatCircleBearing(nav.coords, marker);
     return { dist, bearing };
   }, [marker, nav.coords]);
 
