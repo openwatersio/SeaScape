@@ -1,5 +1,5 @@
 
-import { NavigationState, useNavigationState } from "@/hooks/useNavigationState";
+import { NavigationState, useNavigation } from "@/hooks/useNavigation";
 import { toSpeed } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
 import { useTrackRecording } from "@/hooks/useTrackRecording";
@@ -7,9 +7,9 @@ import { StyleSheet, Text, View } from "react-native";
 import OverlayView from "./ui/OverlayView";
 
 function SpeedOverGround() {
-  const nav = useNavigationState();
+  const nav = useNavigation();
   const theme = useTheme();
-  const { value, plural } = toSpeed(nav.coords?.speed ?? undefined);
+  const { value, plural } = toSpeed(nav.speed ?? undefined);
 
   return (
     <View style={styles.section}>
@@ -21,7 +21,7 @@ function SpeedOverGround() {
 }
 
 export default function HeadsUpDisplay() {
-  const nav = useNavigationState();
+  const nav = useNavigation();
   const { isRecording } = useTrackRecording();
 
   const visible = nav.state === NavigationState.Underway || isRecording;

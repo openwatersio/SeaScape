@@ -1,7 +1,7 @@
 import { AnnotationIcon } from "@/components/map/AnnotationIcon";
 import SheetView from "@/components/ui/SheetView";
 import { deleteMarker, loadMarkers, updateMarker, useMarkers } from "@/hooks/useMarkers";
-import { useNavigationState } from "@/hooks/useNavigationState";
+import { usePosition } from "@/hooks/useNavigation";
 import { toDistance } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
 import type { Marker } from "@/lib/database";
@@ -47,7 +47,7 @@ function formatCoords(lat: number, lon: number): string {
 export default function MarkerList() {
   const markers = useMarkers((s) => s.markers);
 
-  const nav = useNavigationState();
+  const position = usePosition();
   const theme = useTheme();
   const [sort, setSort] = useState<SortBy>("created");
 
@@ -56,14 +56,13 @@ export default function MarkerList() {
   }, []);
 
   const proximityMap = useMemo(() => {
-    if (sort !== "nearby" || !nav.coords) return null;
-    const { latitude, longitude } = nav.coords;
+    if (sort !== "nearby" || !position) return null;
     const map = new Map<number, number>();
     for (const m of markers) {
-      map.set(m.id, getDistance({ latitude, longitude }, m));
+      map.set(m.id, getDistance(position, m));
     }
     return map;
-  }, [sort, markers, nav.coords]);
+  }, [sort, markers, position]);
 
   const sortedMarkers = useMemo(() => {
     return [...markers].sort((a, b) => {
@@ -103,11 +102,11 @@ export default function MarkerList() {
   }
 
   function getDistanceLabel(marker: Marker): string | null {
-    if (!nav.coords) return null;
+    if (!position) return null;
     const dist = proximityMap?.get(marker.id)
-      ?? getDistance(nav.coords, marker);
+      ?? getDistance(position, marker);
     const formatted = toDistance(dist);
-    const bearing = getGreatCircleBearing(nav.coords, marker);
+    const bearing = getGreatCircleBearing(position, marker);
     return `${formatted.value} ${formatted.abbr} ${formatBearing(bearing)}`;
   }
 

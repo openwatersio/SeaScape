@@ -1,7 +1,7 @@
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
 import { useMarkers, deleteMarker } from "@/hooks/useMarkers";
-import { useNavigationState } from "@/hooks/useNavigationState";
+import { usePosition } from "@/hooks/useNavigation";
 import { toDistance } from "@/hooks/usePreferredUnits";
 import { useSheetDetents } from "@/hooks/useSheetDetents";
 import useTheme from "@/hooks/useTheme";
@@ -49,7 +49,7 @@ export default function MarkerScreen() {
 
   const marker = useMarkers((s) => s.markers.find((m) => m.id === markerId) ?? null);
 
-  const nav = useNavigationState();
+  const position = usePosition();
   const theme = useTheme();
   const headerHeight = useHeaderHeight();
   const { setDetentHeight } = useSheetDetents([0.4, 1]);
@@ -59,11 +59,11 @@ export default function MarkerScreen() {
   }, [headerHeight, setDetentHeight]);
 
   const distBearing = useMemo(() => {
-    if (!nav.coords || !marker) return null;
-    const dist = getDistance(nav.coords, marker);
-    const bearing = getGreatCircleBearing(nav.coords, marker);
+    if (!position || !marker) return null;
+    const dist = getDistance(position, marker);
+    const bearing = getGreatCircleBearing(position, marker);
     return { dist, bearing };
-  }, [marker, nav.coords]);
+  }, [marker, position]);
 
   const distFormatted = distBearing ? toDistance(distBearing.dist) : null;
   const bearingFormatted = distBearing ? formatBearing(distBearing.bearing) : null;

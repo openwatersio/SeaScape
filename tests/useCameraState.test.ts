@@ -1,18 +1,19 @@
-import { useCameraState, setFollowUserLocation, cycleTrackingMode, saveViewport } from '@/hooks/useCameraState';
+import { useCameraPosition, saveViewport } from '@/hooks/useCameraPosition';
+import { useCameraState, setFollowUserLocation, cycleTrackingMode } from '@/hooks/useCameraState';
 
 const initialState = useCameraState.getState();
+const initialPosition = useCameraPosition.getState();
 
 beforeEach(() => {
   useCameraState.setState(initialState, true);
+  useCameraPosition.setState(initialPosition, true);
 });
 
 describe('useCameraState', () => {
   it('has correct initial state', () => {
-    const { followUserLocation, trackingMode, lastZoom, lastCenter } = useCameraState.getState();
+    const { followUserLocation, trackingMode } = useCameraState.getState();
     expect(followUserLocation).toBe(true);
     expect(trackingMode).toBe("default");
-    expect(lastZoom).toBeUndefined();
-    expect(lastCenter).toBeUndefined();
   });
 
   describe('setFollowUserLocation', () => {
@@ -57,13 +58,21 @@ describe('useCameraState', () => {
       expect(useCameraState.getState().trackingMode).toBe("default");
     });
   });
+});
+
+describe('useCameraPosition', () => {
+  it('has correct initial state', () => {
+    const { center, zoom } = useCameraPosition.getState();
+    expect(center).toBeUndefined();
+    expect(zoom).toBeUndefined();
+  });
 
   describe('saveViewport', () => {
-    it('saves last center and zoom for persistence', () => {
+    it('saves center and zoom for persistence', () => {
       const center = [-122.4, 37.8] as [number, number];
       saveViewport(center, 12);
-      expect(useCameraState.getState().lastCenter).toEqual(center);
-      expect(useCameraState.getState().lastZoom).toBe(12);
+      expect(useCameraPosition.getState().center).toEqual(center);
+      expect(useCameraPosition.getState().zoom).toBe(12);
     });
   });
 });

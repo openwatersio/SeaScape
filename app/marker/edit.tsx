@@ -1,7 +1,7 @@
 import { AnnotationIcon, AnnotationIconName, ICONS } from "@/components/map/AnnotationIcon";
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
-import { useCameraView } from "@/hooks/useCameraView";
+import { flyTo } from "@/components/map/NavigationCamera";
 import { updateMarker, useMarkers } from "@/hooks/useMarkers";
 import useTheme from "@/hooks/useTheme";
 import {
@@ -43,7 +43,7 @@ export default function EditMarkerScreen() {
   useEffect(() => {
     if (!marker) return;
 
-    useCameraView.getState().cameraRef?.current?.flyTo({
+    flyTo({
       center: [marker.longitude, marker.latitude],
       duration: 600,
     });

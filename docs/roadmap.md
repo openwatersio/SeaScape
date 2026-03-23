@@ -13,10 +13,10 @@ Ship a usable chart viewer with basic navigation. Enough to replace a paper char
 - [x] **Real-time GPS position** — Show user's position, heading, and speed on the chart ([#6](https://github.com/openwatersio/SeaScape/issues/6))
 - [x] **Zoom, pan, rotate** — Standard map interactions; north-up and course-up modes
 - [ ] **Offline chart storage** — Download chart regions for use without connectivity ([#7](https://github.com/openwatersio/SeaScape/issues/7))
-- [ ] **Basic waypoints** — Drop pins, name them, navigate to them with bearing/distance ([#15](https://github.com/openwatersio/SeaScape/issues/15))
+- [x] **Basic waypoints** — Drop pins, name them, navigate to them with bearing/distance ([#15](https://github.com/openwatersio/SeaScape/issues/15))
 - [ ] **Route creation** — Create multi-leg routes by placing waypoints on the chart ([#16](https://github.com/openwatersio/SeaScape/issues/16))
 - [ ] **Route navigation** — Active guidance along a route with bearing, distance, and next waypoint info ([#17](https://github.com/openwatersio/SeaScape/issues/17))
-- [ ] **Track recording** — Record GPS track while underway; display on chart
+- [x] **Track recording** — Record GPS track while underway; display on chart
 - [ ] **Settings & vessel profile** — Configure vessel name, draft, beam, LOA (used later for depth shading and routing)
 - [ ] **Map attribution** — Display proper attribution for chart data sources as required by tile providers ([#21](https://github.com/openwatersio/SeaScape/issues/21))
 - [ ] **Choose a license** — Select and apply an open-source license ([#12](https://github.com/openwatersio/SeaScape/issues/12))

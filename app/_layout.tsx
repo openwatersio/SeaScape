@@ -1,5 +1,6 @@
 import CloseButton from "@/components/ui/CloseButton";
 import { connectAll, disconnectAll } from "@/hooks/useConnections";
+import "@/hooks/useNavigation"; // Register LocationManager listener at module scope
 import "@/hooks/useTrackRecording"; // Register background task at module scope
 import { LocationManager } from "@maplibre/maplibre-react-native";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";

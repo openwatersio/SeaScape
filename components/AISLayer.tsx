@@ -1,5 +1,6 @@
 import { type AISVessel, useAIS } from "@/hooks/useAIS";
 import { useSelection } from "@/hooks/useSelection";
+import { projectPosition } from "@/lib/geo";
 import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
 import { router } from "expo-router";
 import { useCallback, useMemo } from "react";
@@ -67,18 +68,6 @@ function vesselCOGrad(vessel: AISVessel): number | null {
 const COG_PROJECTION_SECONDS = 15 * 60; // 15 minutes
 const MIN_SOG_FOR_VECTOR = 0.25; // m/s (~0.5 knots) — skip stationary vessels
 
-/** Project a position forward along a bearing by a distance in meters */
-function projectPosition(
-  lat: number,
-  lon: number,
-  bearingRad: number,
-  distanceMeters: number,
-): [number, number] {
-  // Approximate flat-earth projection (accurate enough for short distances)
-  const dLat = (distanceMeters * Math.cos(bearingRad)) / 110540;
-  const dLon = (distanceMeters * Math.sin(bearingRad)) / (111320 * Math.cos((lat * Math.PI) / 180));
-  return [lon + dLon, lat + dLat];
-}
 
 function vesselShipType(vessel: AISVessel): number | undefined {
   const t = vessel.data["design.aisShipType"]?.value;

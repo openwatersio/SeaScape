@@ -1,7 +1,7 @@
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
 import { useAISVessel } from "@/hooks/useAIS";
-import { useNavigationState } from "@/hooks/useNavigationState";
+import { useNavigation } from "@/hooks/useNavigation";
 import { toDepth, toDistance, toSpeed } from "@/hooks/usePreferredUnits";
 import { useSheetDetents } from "@/hooks/useSheetDetents";
 import { calculateCPA, formatBearing } from "@/lib/geo";
@@ -90,7 +90,7 @@ function formatTimeAgo(timestamp: number): string {
 export default function VesselScreen() {
   const { mmsi } = useLocalSearchParams<{ mmsi: string }>();
   const vessel = useAISVessel(mmsi);
-  const nav = useNavigationState();
+  const nav = useNavigation();
   const headerHeight = useHeaderHeight();
   const { setDetentHeight } = useSheetDetents([0.3, 0.6, 1]);
 
@@ -129,23 +129,27 @@ export default function VesselScreen() {
     return () => clearInterval(id);
   }, []);
 
+  const ownPosition = nav.latitude !== null && nav.longitude !== null
+    ? { latitude: nav.latitude, longitude: nav.longitude }
+    : null;
+
   const { distance, bearing } = useMemo(() => {
     void tick;
-    if (!nav.coords || !position) return {};
+    if (!ownPosition || !position) return {};
     return {
-      distance: getDistance(nav.coords, position),
-      bearing: getGreatCircleBearing(nav.coords, position)
+      distance: getDistance(ownPosition, position),
+      bearing: getGreatCircleBearing(ownPosition, position)
     };
-  }, [nav.coords, position, tick]);
+  }, [ownPosition, position, tick]);
 
   const cpa = useMemo(() => {
     void tick;
-    if (!nav.coords || !position || sog === undefined || cog === undefined) return null;
+    if (!ownPosition || !position || sog === undefined || cog === undefined) return null;
     return calculateCPA(
-      { ...nav.coords, sog: nav.coords.speed ?? 0, cog: ((nav.coords.heading ?? 0) * Math.PI) / 180 },
+      { ...ownPosition, sog: nav.speed ?? 0, cog: nav.course ?? 0 },
       { ...position, sog, cog },
     );
-  }, [nav.coords, position, sog, cog, tick]);
+  }, [ownPosition, nav.speed, nav.course, position, sog, cog, tick]);
 
   function formatCPATime(seconds: number): string {
     if (seconds < 60) return `${Math.round(seconds)} sec`;

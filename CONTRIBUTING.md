@@ -139,7 +139,7 @@ Existing stores:
 - `useCameraView` — bearing, bounds, zoom, camera ref (not persisted)
 - `useViewOptions` — selected map style (key: `"view-options"`)
 - `usePreferredUnits` — speed/distance unit preference (key: `"preferred-units"`)
-- `useNavigationState` — GPS position, speed, moored/underway state (not persisted)
+- `useNavigation` — unified vessel position, speed, heading from device GPS or Signal K (not persisted)
 - `useTrackRecording` — recording state, active track (key: `"track-recording"`)
 - `useTracks` — track list from database (not persisted)
 - `useMarkers` — marker list from database (not persisted)

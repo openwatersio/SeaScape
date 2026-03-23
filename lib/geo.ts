@@ -1,3 +1,15 @@
+/** Project a position forward along a bearing by a distance in meters (flat-earth approximation) */
+export function projectPosition(
+  latitude: number,
+  longitude: number,
+  bearingRad: number,
+  distanceMeters: number,
+): [longitude: number, latitude: number] {
+  const dLat = (distanceMeters * Math.cos(bearingRad)) / 110540;
+  const dLon = (distanceMeters * Math.sin(bearingRad)) / (111320 * Math.cos((latitude * Math.PI) / 180));
+  return [longitude + dLon, latitude + dLat];
+}
+
 /** Absolute angular difference in degrees (0–180) */
 export function headingDelta(h1: number, h2: number): number {
   const d = Math.abs(h1 - h2) % 360;

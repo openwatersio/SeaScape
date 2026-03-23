@@ -1,5 +1,6 @@
 import { useAIS } from "@/hooks/useAIS";
 import { type DataPoint, useInstruments } from "@/hooks/useInstruments";
+import { updateFromSignalK } from "@/hooks/useNavigation";
 
 /** Signal K server endpoint discovery response */
 type SignalKDiscovery = {
@@ -99,7 +100,10 @@ function toDataPointValue(value: unknown): DataPoint["value"] {
       return value as { latitude: number; longitude: number };
     }
     // Signal K enum objects like {id: 36, name: "Sailing"} — extract the id
-    if ("id" in value && typeof (value as Record<string, unknown>).id === "number") {
+    if (
+      "id" in value &&
+      typeof (value as Record<string, unknown>).id === "number"
+    ) {
       return (value as Record<string, unknown>).id as number;
     }
     // Objects with a single numeric value like {overall: 18} — extract it
@@ -136,6 +140,7 @@ export function flushBuffers() {
     useInstruments.setState((s) => ({
       data: { ...s.data, ...selfUpdates },
     }));
+    updateFromSignalK();
   }
 
   if (Object.keys(aisUpdates).length > 0) {
@@ -169,7 +174,12 @@ export function stopFlushTimer() {
   flushBuffers();
 }
 
-function writeToBuffer(path: string, dataPoint: DataPoint, isSelf: boolean, context: string) {
+function writeToBuffer(
+  path: string,
+  dataPoint: DataPoint,
+  isSelf: boolean,
+  context: string,
+) {
   if (isSelf) {
     selfBuffer[path] = dataPoint;
   } else {
@@ -200,7 +210,9 @@ export function processDelta(
       // Empty path = top-level vessel properties (name, mmsi, etc.)
       // Expand into individual keyed entries
       if (path === "" && value && typeof value === "object") {
-        for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+        for (const [key, val] of Object.entries(
+          value as Record<string, unknown>,
+        )) {
           const dp: DataPoint = {
             value: toDataPointValue(val),
             timestamp,
@@ -316,16 +328,28 @@ export class SignalKClient {
           { path: "design.beam", period: 10000, policy: "fixed" },
           { path: "design.draft", period: 10000, policy: "fixed" },
           // Navigation
-          { path: "navigation.position", period: 5000, policy: "fixed" },
-          { path: "navigation.courseOverGroundTrue", period: 5000, policy: "fixed" },
-          { path: "navigation.speedOverGround", period: 5000, policy: "fixed" },
-          { path: "navigation.speedThroughWater", period: 5000, policy: "fixed" },
-          { path: "navigation.headingTrue", period: 5000, policy: "fixed" },
-          { path: "navigation.rateOfTurn", period: 5000, policy: "fixed" },
+          { path: "navigation.position", period: 1000, policy: "fixed" },
+          {
+            path: "navigation.courseOverGroundTrue",
+            period: 1000,
+            policy: "fixed",
+          },
+          { path: "navigation.speedOverGround", period: 1000, policy: "fixed" },
+          {
+            path: "navigation.speedThroughWater",
+            period: 1000,
+            policy: "fixed",
+          },
+          { path: "navigation.headingTrue", period: 1000, policy: "fixed" },
+          { path: "navigation.rateOfTurn", period: 1000, policy: "fixed" },
           { path: "navigation.destination", period: 30000, policy: "fixed" },
           { path: "navigation.state", period: 10000, policy: "fixed" },
           // Environment
-          { path: "environment.depth.belowKeel", period: 10000, policy: "fixed" },
+          {
+            path: "environment.depth.belowKeel",
+            period: 10000,
+            policy: "fixed",
+          },
           // Sensors
           { path: "sensors.ais.class", period: 30000, policy: "fixed" },
         ],

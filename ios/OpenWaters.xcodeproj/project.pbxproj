@@ -10,6 +10,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		6C80D691663608E49745261C /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485929F4E70858FB288FE0FC /* ExpoModulesProvider.swift */; };
+		7EC034A52F6E3F4800A43793 /* MapLibre in Frameworks */ = {isa = PBXBuildFile; productRef = 5926843054C3F92ECA11AB03 /* MapLibre */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		DE7D62ED83B317D68D439041 /* libPods-OpenWaters.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B15DFFAFE5A3CF3E0659BB2D /* libPods-OpenWaters.a */; };
 		E3B21BAFC1B97FBD48B64013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6ABE34FA140FF241FE5D8ABF /* PrivacyInfo.xcprivacy */; };
@@ -22,7 +23,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OpenWaters/Info.plist; sourceTree = "<group>"; };
 		2291298C565C43C5787BEC4B /* Pods-OpenWaters.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpenWaters.release.xcconfig"; path = "Target Support Files/Pods-OpenWaters/Pods-OpenWaters.release.xcconfig"; sourceTree = "<group>"; };
 		485929F4E70858FB288FE0FC /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-OpenWaters/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		6ABE34FA140FF241FE5D8ABF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = OpenWaters/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6ABE34FA140FF241FE5D8ABF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = OpenWaters/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = OpenWaters/SplashScreen.storyboard; sourceTree = "<group>"; };
 		B15DFFAFE5A3CF3E0659BB2D /* libPods-OpenWaters.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OpenWaters.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
@@ -37,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7EC034A52F6E3F4800A43793 /* MapLibre in Frameworks */,
 				DE7D62ED83B317D68D439041 /* libPods-OpenWaters.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -128,7 +130,6 @@
 				D8D2B87252AE8393C33041D8 /* Pods-OpenWaters.debug.xcconfig */,
 				2291298C565C43C5787BEC4B /* Pods-OpenWaters.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -406,7 +407,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = io.openwaters.mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = io.openwaters.app;
 				PRODUCT_NAME = OpenWaters;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenWaters/OpenWaters-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -438,7 +439,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = io.openwaters.mobile;
+				PRODUCT_BUNDLE_IDENTIFIER = io.openwaters.app;
 				PRODUCT_NAME = OpenWaters;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenWaters/OpenWaters-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
