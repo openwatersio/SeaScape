@@ -1,13 +1,13 @@
 import { useGlobalSearchParams, usePathname } from "expo-router";
-import { useMemo } from "react";
+import { router } from "expo-router";
+import { useCallback, useMemo } from "react";
 
-export type Selection =
-  | { type: "marker"; id: number }
-  | { type: "track"; id: number }
-  | { type: "location"; coords: [lng: number, lat: number] }
-  | { type: "vessel"; mmsi: string }
-  | { type: "aton"; id: string }
-  | null;
+export type FeatureType = "marker" | "track" | "vessel" | "aton" | "location";
+
+export type Selection = {
+  type: FeatureType;
+  id: string;
+} | null;
 
 /**
  * Derives the current map selection from expo-router state.
@@ -15,25 +15,34 @@ export type Selection =
  */
 export function useSelection(): Selection {
   const pathname = usePathname();
-  const params = useGlobalSearchParams<{ id?: string; coords?: string; mmsi?: string }>();
+  const params = useGlobalSearchParams<{ type?: string; id?: string }>();
 
   return useMemo(() => {
-    if (pathname.startsWith("/marker/") && params.id) {
-      return { type: "marker", id: Number(params.id) };
+    if (!pathname.startsWith("/feature/") || !params.type || !params.id) {
+      return null;
     }
-    if (pathname.startsWith("/track/") && params.id) {
-      return { type: "track", id: Number(params.id) };
-    }
-    if (pathname.startsWith("/location/") && params.coords) {
-      const [lng, lat] = params.coords.split(",").map(Number) as [number, number];
-      return { type: "location", coords: [lng, lat] };
-    }
-    if (pathname.startsWith("/vessel/") && params.mmsi) {
-      return { type: "vessel", mmsi: params.mmsi };
-    }
-    if (pathname.startsWith("/aton/") && params.id) {
-      return { type: "aton", id: params.id };
-    }
-    return null;
-  }, [pathname, params.id, params.coords, params.mmsi]);
+    return { type: params.type as FeatureType, id: params.id };
+  }, [pathname, params.type, params.id]);
+}
+
+/**
+ * Returns a function to navigate to a feature detail sheet.
+ * If a feature is already selected, swaps via setParams; otherwise navigates.
+ */
+export function useSelectionHandler() {
+  const selection = useSelection();
+
+  return useCallback(
+    (type: FeatureType, id: string) => {
+      if (selection) {
+        router.setParams({ type, id });
+      } else {
+        router.navigate({
+          pathname: "/feature/[type]/[id]",
+          params: { type, id },
+        });
+      }
+    },
+    [selection],
+  );
 }

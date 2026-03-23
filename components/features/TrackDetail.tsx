@@ -1,8 +1,6 @@
 import SheetHeader from "@/components/ui/SheetHeader";
-import SheetView from "@/components/ui/SheetView";
 import Stat from "@/components/ui/Stat";
 import { toDistance, toSpeed } from "@/hooks/usePreferredUnits";
-import { useSheetDetents } from "@/hooks/useSheetDetents";
 import useTheme from "@/hooks/useTheme";
 import { handleDelete, handleRename, trackDisplayName } from "@/hooks/useTracks";
 import { getTrack, getTrackPoints, TrackPoint, type Track } from "@/lib/database";
@@ -29,21 +27,13 @@ import {
   padding,
   tint
 } from "@expo/ui/swift-ui/modifiers";
-import { useHeaderHeight } from "@react-navigation/elements";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 
-export default function TrackScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+export default function TrackDetail({ id }: { id: string }) {
   const trackId = Number(id);
   const theme = useTheme();
-  const headerHeight = useHeaderHeight();
-  const { setDetentHeight } = useSheetDetents([0.5, 1]);
-
-  useEffect(() => {
-    setDetentHeight(headerHeight);
-  }, [headerHeight, setDetentHeight]);
 
   const [track, setTrack] = useState<Track | null>(null);
   const [points, setPoints] = useState<TrackPoint[]>([]);
@@ -96,7 +86,6 @@ export default function TrackScreen() {
     return points.filter(p => p.speed !== null).map((s, i) => ({ x: i, y: s.speed as number }));
   }, [points]);
 
-  // FIXME: this should be in useTracks or a similar hook
   const { avgSpeed, maxSpeed } = useMemo(() => {
     if (points.length < 2) return { avgSpeed: toSpeed(0), maxSpeed: toSpeed(0) };
     const speeds = points.map((s) => s.speed).filter(Boolean) as number[];
@@ -106,7 +95,7 @@ export default function TrackScreen() {
   }, [points]);
 
   return (
-    <SheetView id="track" style={{ flex: 1 }}>
+    <>
       <SheetHeader
         title={track ? trackDisplayName(track) : ""}
         subtitle={track?.started_at ? formatDate(track.started_at) : undefined}
@@ -178,6 +167,6 @@ export default function TrackScreen() {
           </Form>
         </ScrollView>
       </Host>
-    </SheetView>
+    </>
   );
 }

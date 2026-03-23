@@ -1,8 +1,8 @@
 import { type AISVessel, useAIS } from "@/hooks/useAIS";
+import { useSelectionHandler } from "@/hooks/useSelection";
 import { useSelection } from "@/hooks/useSelection";
 import { projectPosition } from "@/lib/geo";
 import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
-import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { NativeSyntheticEvent } from "react-native";
 
@@ -151,20 +151,17 @@ export default function AISLayer() {
   }, [vessels, tick]);
 
   const selection = useSelection();
+  const navigate = useSelectionHandler();
 
   const handlePress = useCallback((e: NativeSyntheticEvent<{ features: GeoJSON.Feature[] }>) => {
     const mmsi = e.nativeEvent.features?.[0]?.properties?.mmsi;
     if (mmsi) {
       e.stopPropagation();
-      if (selection?.type === "vessel") {
-        router.setParams({ mmsi });
-      } else {
-        router.navigate({ pathname: "/vessel/[mmsi]", params: { mmsi } });
-      }
+      navigate("vessel", mmsi);
     }
-  }, [selection]);
+  }, [navigate]);
 
-  const selectedMmsi = selection?.type === "vessel" ? selection.mmsi : "";
+  const selectedMmsi = selection?.type === "vessel" ? selection.id : "";
 
   return (
     <>

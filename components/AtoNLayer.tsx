@@ -1,7 +1,7 @@
 import { type AtoN, useAtoN } from "@/hooks/useAtoN";
+import { useSelectionHandler } from "@/hooks/useSelection";
 import { useSelection } from "@/hooks/useSelection";
 import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
-import { router } from "expo-router";
 import { useCallback, useMemo } from "react";
 import type { NativeSyntheticEvent } from "react-native";
 
@@ -80,18 +80,15 @@ export default function AtoNLayer() {
   }, [atons]);
 
   const selection = useSelection();
+  const navigate = useSelectionHandler();
 
   const handlePress = useCallback((e: NativeSyntheticEvent<{ features: GeoJSON.Feature[] }>) => {
     const id = e.nativeEvent.features?.[0]?.properties?.id;
     if (id) {
       e.stopPropagation();
-      if (selection?.type === "aton") {
-        router.setParams({ id });
-      } else {
-        router.navigate({ pathname: "/aton/[id]", params: { id } });
-      }
+      navigate("aton", id);
     }
-  }, [selection]);
+  }, [navigate]);
 
   const selectedId = selection?.type === "aton" ? selection.id : "";
 

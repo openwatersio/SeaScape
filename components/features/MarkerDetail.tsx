@@ -1,9 +1,7 @@
 import SheetHeader from "@/components/ui/SheetHeader";
-import SheetView from "@/components/ui/SheetView";
 import { deleteMarker, useMarkers } from "@/hooks/useMarkers";
 import { usePosition } from "@/hooks/useNavigation";
 import { toDistance } from "@/hooks/usePreferredUnits";
-import { useSheetDetents } from "@/hooks/useSheetDetents";
 import useTheme from "@/hooks/useTheme";
 import { exportMarkerAsGPX } from "@/lib/exportTrack";
 import { formatBearing } from "@/lib/geo";
@@ -25,14 +23,12 @@ import {
   labelStyle,
   monospacedDigit,
   offset,
-  padding,
   tint
 } from "@expo/ui/swift-ui/modifiers";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { CoordinateFormat } from "coordinate-format";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { getDistance, getGreatCircleBearing } from "geolib";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Alert } from "react-native";
 import { showLocation } from "react-native-map-link";
 
@@ -43,20 +39,13 @@ function formatCoords(lat: number, lon: number): [string, string] {
   return [latStr, lonStr];
 }
 
-export default function MarkerScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+export default function MarkerDetail({ id }: { id: string }) {
   const markerId = Number(id);
 
   const marker = useMarkers((s) => s.markers.find((m) => m.id === markerId) ?? null);
 
   const position = usePosition();
   const theme = useTheme();
-  const headerHeight = useHeaderHeight();
-  const { setDetentHeight } = useSheetDetents([0.4, 1]);
-
-  useEffect(() => {
-    setDetentHeight(headerHeight);
-  }, [headerHeight, setDetentHeight]);
 
   const distBearing = useMemo(() => {
     if (!position || !marker) return null;
@@ -101,7 +90,7 @@ export default function MarkerScreen() {
   }, [markerId, marker?.name]);
 
   return (
-    <SheetView id="marker" style={{ flex: 1 }}>
+    <>
       <SheetHeader
         title={marker?.name ?? "Marker"}
         subtitle={[latStr, lonStr,].join(", ")}
@@ -140,7 +129,7 @@ export default function MarkerScreen() {
       />
       <Host style={{ flex: 1 }}>
         <Form>
-          <Section modifiers={[padding({ horizontal: 20, vertical: 16 })]}>
+          <Section>
             {/* Distance & Bearing */}
             {distBearing && (
               <HStack spacing={6}>
@@ -172,6 +161,6 @@ export default function MarkerScreen() {
           </Section>
         </Form>
       </Host>
-    </SheetView>
+    </>
   );
 }

@@ -1,5 +1,4 @@
 import SheetHeader from "@/components/ui/SheetHeader";
-import SheetView from "@/components/ui/SheetView";
 import { mapRef } from "@/hooks/useMapRef";
 import { addMarker } from "@/hooks/useMarkers";
 import { usePosition } from "@/hooks/useNavigation";
@@ -31,7 +30,7 @@ import {
   tint
 } from "@expo/ui/swift-ui/modifiers";
 import { CoordinateFormat } from "coordinate-format";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { showLocation } from "react-native-map-link";
 
@@ -42,9 +41,8 @@ function formatCoords(lat: number, lon: number): [string, string] {
   return [latStr, lonStr];
 }
 
-export default function LocationScreen() {
-  const { coords } = useLocalSearchParams<{ coords: string }>();
-  const [lon, lat] = coords.split(",").map(Number) as [number, number];
+export default function LocationDetail({ id }: { id: string }) {
+  const [lon, lat] = id.split(",").map(Number) as [number, number];
   const [features, setFeatures] = useState<GeoJSON.Feature[]>([]);
   const position = usePosition();
   const theme = useTheme();
@@ -73,7 +71,7 @@ export default function LocationScreen() {
   const bearingFormatted = distBearing ? formatBearing(distBearing.bearing) : null;
 
   return (
-    <SheetView id="location" style={{ flex: 1 }}>
+    <>
       <SheetHeader
         title="Location"
         subtitle={[latStr, lonStr].join(", ")}
@@ -185,6 +183,6 @@ export default function LocationScreen() {
           </VStack>
         </ScrollView>
       </Host>
-    </SheetView>
+    </>
   );
 }

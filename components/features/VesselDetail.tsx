@@ -1,9 +1,7 @@
 import SheetHeader from "@/components/ui/SheetHeader";
-import SheetView from "@/components/ui/SheetView";
 import { useAISVessel } from "@/hooks/useAIS";
 import { useNavigation, usePosition } from "@/hooks/useNavigation";
 import { toDepth, toDistance, toSpeed } from "@/hooks/usePreferredUnits";
-import { useSheetDetents } from "@/hooks/useSheetDetents";
 import { calculateCPA, formatBearing } from "@/lib/geo";
 import {
   Form,
@@ -17,8 +15,6 @@ import {
   foregroundStyle,
   monospacedDigit,
 } from "@expo/ui/swift-ui/modifiers";
-import { useHeaderHeight } from "@react-navigation/elements";
-import { useLocalSearchParams } from "expo-router";
 import { getDistance, getGreatCircleBearing } from "geolib";
 import { useEffect, useMemo, useState } from "react";
 
@@ -53,8 +49,6 @@ function aisClass(mmsi: string): string {
   if (mmsi.length === 9 && mmsi.startsWith("97")) return "SAR Aircraft";
   if (mmsi.length === 9 && mmsi.startsWith("98")) return "AIS-SART";
   if (mmsi.length === 9 && mmsi.startsWith("99")) return "Shore Station";
-  // Class B typically uses MMSI starting with 2, 3, or national prefix
-  // Can't reliably distinguish A/B from MMSI alone — would need message type
   return "A/B";
 }
 
@@ -87,17 +81,11 @@ function formatTimeAgo(timestamp: number): string {
   return `${Math.floor(seconds / 3600)}h ago`;
 }
 
-export default function VesselScreen() {
-  const { mmsi } = useLocalSearchParams<{ mmsi: string }>();
+export default function VesselDetail({ id }: { id: string }) {
+  const mmsi = id;
   const vessel = useAISVessel(mmsi);
   const nav = useNavigation();
   const ownPosition = usePosition();
-  const headerHeight = useHeaderHeight();
-  const { setDetentHeight } = useSheetDetents([0.3, 0.6, 1]);
-
-  useEffect(() => {
-    setDetentHeight(headerHeight);
-  }, [headerHeight, setDetentHeight]);
 
   const data = vessel?.data;
   const position = data ? getPosition(data["navigation.position"]?.value) : null;
@@ -154,10 +142,8 @@ export default function VesselScreen() {
 
   if (!vessel) {
     return (
-      <SheetView id="vessel">
-        <SheetHeader
-          title={mmsi}
-        />
+      <>
+        <SheetHeader title={mmsi} />
         <Host style={{ flex: 1 }}>
           <Form>
             <Section>
@@ -165,12 +151,12 @@ export default function VesselScreen() {
             </Section>
           </Form>
         </Host>
-      </SheetView>
+      </>
     );
   }
 
   return (
-    <SheetView id="vessel">
+    <>
       <SheetHeader
         title={name ?? mmsi}
         subtitle={[
@@ -243,6 +229,6 @@ export default function VesselScreen() {
           </Section>
         </Form>
       </Host>
-    </SheetView>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import { useSelectionHandler } from "@/hooks/useSelection";
 import { mapRef } from "@/hooks/useMapRef";
 import { loadMarkers } from "@/hooks/useMarkers";
 import { useSelection } from "@/hooks/useSelection";
@@ -31,11 +32,14 @@ export default function ChartView() {
     loadMarkers();
   }, []);
 
-  const selectedCoords = selection?.type === "location" ? selection.coords : null;
+  const navigate = useSelectionHandler();
+  const selectedCoords = selection?.type === "location"
+    ? selection.id.split(",").map(Number) as [number, number]
+    : null;
 
   const handleDragEnd = useCallback(
     (e: { nativeEvent: { lngLat: [number, number] } }) =>
-      router.setParams({ coords: `${e.nativeEvent.lngLat[0]},${e.nativeEvent.lngLat[1]}` }),
+      router.setParams({ id: `${e.nativeEvent.lngLat[0]},${e.nativeEvent.lngLat[1]}` }),
     []
   );
 
@@ -53,15 +57,7 @@ export default function ChartView() {
       onRegionDidChange={handleRegionDidChange}
       onPress={(e) => {
         const { lngLat } = e.nativeEvent;
-        const coords = `${lngLat[0]},${lngLat[1]}`;
-        const href = { pathname: "/location/[coords]" as const, params: { coords } };
-        if (selection?.type === "location") {
-          router.setParams({ coords });
-        } else if (selection) {
-          router.replace(href);
-        } else {
-          router.navigate(href);
-        }
+        navigate("location", `${lngLat[0]},${lngLat[1]}`);
       }}
       logo={false}
     >

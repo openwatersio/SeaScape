@@ -56,7 +56,7 @@ function computeBounds(coords: Coord[]): LngLatBounds | null {
 function SelectedTrackOverlay() {
   const theme = useTheme();
   const selection = useSelection();
-  const selectedId = selection?.type === "track" ? selection.id : null;
+  const selectedId = selection?.type === "track" ? Number(selection.id) : null;
   const sheetHeight = useSheetStore((s) => {
     const entry = s.sheets["track"];
     return entry?.height ?? 0;

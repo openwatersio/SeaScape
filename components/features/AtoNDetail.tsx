@@ -1,9 +1,7 @@
 import SheetHeader from "@/components/ui/SheetHeader";
-import SheetView from "@/components/ui/SheetView";
 import { useAtoNById } from "@/hooks/useAtoN";
 import { usePosition } from "@/hooks/useNavigation";
 import { toDistance } from "@/hooks/usePreferredUnits";
-import { useSheetDetents } from "@/hooks/useSheetDetents";
 import { formatBearing } from "@/lib/geo";
 import {
   Form,
@@ -17,10 +15,8 @@ import {
   foregroundStyle,
   monospacedDigit,
 } from "@expo/ui/swift-ui/modifiers";
-import { useHeaderHeight } from "@react-navigation/elements";
-import { useLocalSearchParams } from "expo-router";
 import { getDistance, getGreatCircleBearing } from "geolib";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 type Position = { latitude: number; longitude: number };
 
@@ -91,16 +87,9 @@ function formatTimeAgo(timestamp: number): string {
   return `${Math.floor(seconds / 3600)}h ago`;
 }
 
-export default function AtoNScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+export default function AtoNDetail({ id }: { id: string }) {
   const aton = useAtoNById(id);
   const ownPosition = usePosition();
-  const headerHeight = useHeaderHeight();
-  const { setDetentHeight } = useSheetDetents([0.3, 0.6, 1]);
-
-  useEffect(() => {
-    setDetentHeight(headerHeight);
-  }, [headerHeight, setDetentHeight]);
 
   const data = aton?.data;
   const position = data ? getPosition(data["navigation.position"]?.value) : null;
@@ -122,7 +111,7 @@ export default function AtoNScreen() {
 
   if (!aton) {
     return (
-      <SheetView id="aton">
+      <>
         <SheetHeader title={id} />
         <Host style={{ flex: 1 }}>
           <Form>
@@ -131,12 +120,12 @@ export default function AtoNScreen() {
             </Section>
           </Form>
         </Host>
-      </SheetView>
+      </>
     );
   }
 
   return (
-    <SheetView id="aton">
+    <>
       <SheetHeader
         title={name ?? id}
         subtitle={[
@@ -180,6 +169,6 @@ export default function AtoNScreen() {
           </Section>
         </Form>
       </Host>
-    </SheetView>
+    </>
   );
 }

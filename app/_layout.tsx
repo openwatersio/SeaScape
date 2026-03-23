@@ -37,14 +37,6 @@ export default function RootLayout() {
           sheetGrabberVisible: true,
           headerShown: false,
         }} />
-        <Stack.Screen name="track/[id]" options={{
-          presentation: "formSheet",
-          sheetLargestUndimmedDetentIndex: "last",
-          // Updated dynamically,
-          sheetAllowedDetents: [0, 0.5],
-          sheetInitialDetentIndex: 1,
-          sheetGrabberVisible: true,
-        }} />
         <Stack.Screen name="charts" options={{
           presentation: "formSheet",
           sheetLargestUndimmedDetentIndex: "last",
@@ -61,10 +53,11 @@ export default function RootLayout() {
           title: "Settings",
           headerRight: () => <CloseButton />,
         }} />
-        <Stack.Screen name="location/[coords]" options={{
+        <Stack.Screen name="feature/[type]/[id]" options={{
           presentation: "formSheet",
           sheetLargestUndimmedDetentIndex: "last",
-          sheetAllowedDetents: [0.3, 0.5],
+          sheetAllowedDetents: [0, 0.3, 0.5, 1],
+          sheetInitialDetentIndex: 1,
           sheetGrabberVisible: true,
         }} />
         <Stack.Screen name="MainSheet" options={{
@@ -93,32 +86,10 @@ export default function RootLayout() {
           title: "Markers",
           headerLargeTitleEnabled: true,
         }} />
-        <Stack.Screen name="marker/[id]" options={{
-          presentation: "formSheet",
-          sheetLargestUndimmedDetentIndex: "last",
-          sheetAllowedDetents: [0.4, 1],
-          sheetInitialDetentIndex: 0,
-          sheetGrabberVisible: true,
-        }} />
         <Stack.Screen name="marker/edit" options={{
           presentation: "formSheet",
           sheetLargestUndimmedDetentIndex: "last",
           sheetAllowedDetents: [0.6],
-          sheetInitialDetentIndex: 0,
-          sheetGrabberVisible: true,
-        }} />
-        <Stack.Screen name="vessel/[mmsi]" options={{
-          presentation: "formSheet",
-          sheetLargestUndimmedDetentIndex: "last",
-          // Updated dynamically
-          sheetAllowedDetents: [0],
-          sheetInitialDetentIndex: 0,
-          sheetGrabberVisible: true,
-        }} />
-        <Stack.Screen name="aton/[id]" options={{
-          presentation: "formSheet",
-          sheetLargestUndimmedDetentIndex: "last",
-          sheetAllowedDetents: [0],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
         }} />

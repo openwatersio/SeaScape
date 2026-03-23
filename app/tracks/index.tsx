@@ -158,7 +158,7 @@ export default function TrackList() {
                           if (isActiveRecording) {
                             router.replace("/track/record");
                           } else {
-                            router.replace(`/track/${track.id}`);
+                            router.replace(`/feature/track/${track.id}`);
                           }
                         }),
                         padding({ vertical: 4 }),

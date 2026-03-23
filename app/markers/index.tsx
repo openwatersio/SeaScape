@@ -137,7 +137,7 @@ export default function MarkerList() {
                       spacing={16}
                       modifiers={[
                         onTapGesture(() => {
-                          router.push({ pathname: "/marker/[id]", params: { id: marker.id } });
+                          router.push({ pathname: "/feature/[type]/[id]", params: { type: "marker", id: String(marker.id) } });
                         }),
                         padding({ vertical: 4 }),
                       ]}
