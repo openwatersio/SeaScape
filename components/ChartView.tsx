@@ -7,7 +7,7 @@ import useTheme from "@/hooks/useTheme";
 import { mapStyles, useViewOptions } from "@/hooks/useViewOptions";
 import { Images, Map } from "@maplibre/maplibre-react-native";
 import { router } from "expo-router";
-import { useCallback, useEffect } from "react";
+import { Fragment, useCallback, useEffect } from "react";
 import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AISLayer from "./AISLayer";
@@ -91,11 +91,13 @@ export default function ChartView() {
         "aton-lighthouse": { source: require("@/assets/atons/png/lighthouse.png"), sdf: true },
         "aton-virtual": { source: require("@/assets/atons/png/virtual.png"), sdf: true },
       }} />
-      <TrackOverlay />
-      <MarkerOverlay />
-      <AISLayer />
-      <AtoNLayer />
-      <NavigationPuck />
+      <Fragment key={mapStyleId}>
+        <TrackOverlay />
+        <MarkerOverlay />
+        <AISLayer />
+        <AtoNLayer />
+        <NavigationPuck />
+      </Fragment>
     </Map>
     <SafeAreaView style={{ position: "absolute", top: 0, left: 16, right: 16, alignItems: "center" }}>
       <NavigationHUD />
