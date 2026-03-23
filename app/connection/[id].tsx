@@ -7,7 +7,7 @@ import {
   removeConnection,
   useConnection,
 } from "@/hooks/useConnections";
-import { useInstruments } from "@/hooks/useInstruments";
+import { useInstrumentData } from "@/hooks/useInstruments";
 import {
   Button,
   Form,
@@ -58,7 +58,7 @@ function timeAgo(timestamp: number): string {
 export default function ConnectionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const connection = useConnection(id);
-  const instrumentData = useInstruments((s) => s.data);
+  const instrumentData = useInstrumentData();
   const vesselCount = useAIS((s) => Object.keys(s.vessels).length);
 
   const valueMods = [font({ size: 15 }), monospacedDigit(), foregroundStyle("secondary")];

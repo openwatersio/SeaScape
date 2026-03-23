@@ -1,5 +1,5 @@
-import { useAIS } from "@/hooks/useAIS";
-import { useInstruments } from "@/hooks/useInstruments";
+import { flushAIS, useAIS } from "@/hooks/useAIS";
+import { getInstrumentData, resetInstrumentStore } from "@/hooks/useInstruments";
 import { type NMEATCPClientState, NMEATCPClient } from "@/lib/nmea-tcp";
 
 // Mock react-native-tcp-socket
@@ -20,11 +20,10 @@ jest.mock("react-native-tcp-socket", () => ({
 const SOURCE = "nmea.tcp.test";
 
 // Reset stores and mocks between tests
-const initialInstruments = useInstruments.getState();
 const initialAIS = useAIS.getState();
 
 beforeEach(() => {
-  useInstruments.setState(initialInstruments, true);
+  resetInstrumentStore();
   useAIS.setState(initialAIS, true);
   mockSocket.on.mockReset();
   mockSocket.setEncoding.mockReset();
@@ -84,7 +83,7 @@ describe("NMEATCPClient", () => {
     // Send a depth sentence with correct checksum
     emitData("$SDDBT,17.5,f,5.3,M,2.9,F*38\r\n");
 
-    const data = useInstruments.getState().data;
+    const data = getInstrumentData();
     expect(data["environment.depth.belowTransducer"]?.value).toBe(5.3);
     expect(data["environment.depth.belowTransducer"]?.source).toBe(SOURCE);
 
@@ -101,7 +100,7 @@ describe("NMEATCPClient", () => {
     emitData("M,2.9,F*38\r\n");
 
     expect(
-      useInstruments.getState().data["environment.depth.belowTransducer"]?.value,
+      getInstrumentData()["environment.depth.belowTransducer"]?.value,
     ).toBe(5.3);
 
     client.disconnect();
@@ -116,7 +115,7 @@ describe("NMEATCPClient", () => {
       "$SDDBT,17.5,f,5.3,M,2.9,F*38\r\n$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A\r\n",
     );
 
-    const data = useInstruments.getState().data;
+    const data = getInstrumentData();
     expect(data["environment.depth.belowTransducer"]?.value).toBe(5.3);
     expect(data["navigation.position"]).toBeDefined();
 
@@ -130,6 +129,8 @@ describe("NMEATCPClient", () => {
 
     // Type 1 AIS: MMSI 265557232
     emitData("!AIVDM,1,1,,B,13u@Dt002s000000000000000000,0*63\r\n");
+
+    flushAIS();
 
     const vessels = useAIS.getState().vessels;
     expect(vessels["265557232"]).toBeDefined();
@@ -178,13 +179,13 @@ describe("NMEATCPClient", () => {
     // Bad checksum — should be silently ignored
     emitData("$SDDBT,17.5,f,5.3,M,2.9,F*00\r\n");
     expect(
-      useInstruments.getState().data["environment.depth.belowTransducer"],
+      getInstrumentData()["environment.depth.belowTransducer"],
     ).toBeUndefined();
 
     // Good sentence after bad — should still work
     emitData("$SDDBT,17.5,f,5.3,M,2.9,F*38\r\n");
     expect(
-      useInstruments.getState().data["environment.depth.belowTransducer"]?.value,
+      getInstrumentData()["environment.depth.belowTransducer"]?.value,
     ).toBe(5.3);
 
     client.disconnect();
