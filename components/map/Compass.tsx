@@ -1,5 +1,6 @@
 import { cycleTrackingMode, useCameraState } from '@/hooks/useCameraState';
-import { resetNorth, useCameraView } from '@/hooks/useCameraView';
+import { resetNorth } from '@/components/map/NavigationCamera';
+import { useCameraView } from '@/hooks/useCameraView';
 import {
   Button,
   Image,

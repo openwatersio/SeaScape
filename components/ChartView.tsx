@@ -1,32 +1,30 @@
-import { useCameraState, saveViewport, setFollowUserLocation } from "@/hooks/useCameraState";
-import { setCameraRef, onRegionIsChanging, onRegionDidChange } from "@/hooks/useCameraView";
 import { mapRef } from "@/hooks/useMapRef";
 import { loadMarkers } from "@/hooks/useMarkers";
 import { useSelection } from "@/hooks/useSelection";
 import { useSheetOffset } from "@/hooks/useSheetPosition";
 import useTheme from "@/hooks/useTheme";
 import { mapStyles, useViewOptions } from "@/hooks/useViewOptions";
-import type { CameraRef } from "@maplibre/maplibre-react-native";
-import { Camera, Map, UserLocation } from "@maplibre/maplibre-react-native";
+import { Images, Map } from "@maplibre/maplibre-react-native";
 import { router } from "expo-router";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import HeadsUpDisplay from "./HeadsUpDisplay";
+import AISLayer from "./AISLayer";
 import { MapControls } from "./MapControls";
 import MarkerOverlay from "./MarkerOverlay";
+import NavigationHUD from "./NavigationHUD";
 import TrackOverlay from "./TrackOverlay";
 import { Annotation } from "./map/Annotation";
+import { NavigationCamera, handleRegionDidChange, handleRegionIsChanging } from "./map/NavigationCamera";
+import { NavigationPuck } from "./map/NavigationPuck";
 import TrackRecordButton from "./map/TrackRecordButton";
 
 export default function ChartView() {
   const mapStyleId = useViewOptions((s) => s.mapStyleId);
-  const trackingMode = useCameraState((s) => s.trackingMode);
   const selection = useSelection();
   const sheetOffset = useSheetOffset();
   const theme = useTheme();
   const mapStyle = mapStyles.find(style => style.id === mapStyleId)?.style || mapStyles[0].style;
-  const cameraRef = useRef<CameraRef>(null);
 
   useEffect(() => {
     loadMarkers();
@@ -40,10 +38,6 @@ export default function ChartView() {
     []
   );
 
-  useEffect(() => {
-    setCameraRef(cameraRef);
-  }, []);
-
   return <>
     <Map
       ref={mapRef}
@@ -54,14 +48,8 @@ export default function ChartView() {
       attribution={false}
       compass={false}
       compassPosition={{ top: -2000, right: -2000 }}
-      onRegionIsChanging={(e) => {
-        onRegionIsChanging(e.nativeEvent.bearing);
-      }}
-      onRegionDidChange={(e) => {
-        const { bearing, bounds, zoom, center } = e.nativeEvent;
-        onRegionDidChange(bearing, bounds, zoom);
-        saveViewport(center, zoom);
-      }}
+      onRegionIsChanging={handleRegionIsChanging}
+      onRegionDidChange={handleRegionDidChange}
       onPress={(e) => {
         const { lngLat } = e.nativeEvent;
         const coords = `${lngLat[0]},${lngLat[1]}`;
@@ -76,20 +64,7 @@ export default function ChartView() {
       }}
       logo={false}
     >
-      <Camera
-        ref={cameraRef}
-        initialViewState={{
-          zoom: useCameraState.getState().lastZoom,
-          center: useCameraState.getState().lastCenter,
-        }}
-        trackUserLocation={trackingMode}
-        easing="ease"
-        duration={300}
-        pitch={0}
-        onTrackUserLocationChange={(e) => {
-          setFollowUserLocation(e.nativeEvent.trackUserLocation !== null);
-        }}
-      />
+      <NavigationCamera />
       {selectedCoords && (
         <Annotation
           id="selected-location"
@@ -101,12 +76,26 @@ export default function ChartView() {
           onDragEnd={handleDragEnd}
         />
       )}
-      <UserLocation heading />
+      <Images images={{
+        "vessel-default": { source: require("@/assets/vessels/png/default.png"), sdf: true },
+        "vessel-unknown": { source: require("@/assets/vessels/png/unknown.png"), sdf: true },
+        "vessel-cargo": { source: require("@/assets/vessels/png/cargo.png"), sdf: true },
+        "vessel-tanker": { source: require("@/assets/vessels/png/tanker.png"), sdf: true },
+        "vessel-passenger": { source: require("@/assets/vessels/png/passenger.png"), sdf: true },
+        "vessel-sailing": { source: require("@/assets/vessels/png/sailing.png"), sdf: true },
+        "vessel-pleasure": { source: require("@/assets/vessels/png/pleasure.png"), sdf: true },
+        "vessel-highspeed": { source: require("@/assets/vessels/png/highspeed.png"), sdf: true },
+        "vessel-fishing": { source: require("@/assets/vessels/png/fishing.png"), sdf: true },
+        "vessel-tug": { source: require("@/assets/vessels/png/tug.png"), sdf: true },
+        "nav-puck": { source: require("@/assets/vessels/png/puck.png"), sdf: true },
+      }} />
       <TrackOverlay />
       <MarkerOverlay />
+      <AISLayer />
+      <NavigationPuck />
     </Map>
     <SafeAreaView style={{ position: "absolute", top: 0, left: 16, right: 16, alignItems: "center" }}>
-      <HeadsUpDisplay />
+      <NavigationHUD />
     </SafeAreaView>
     <Animated.View style={[{ position: "absolute", bottom: 0, left: 0, right: 0 }, sheetOffset]}>
       <SafeAreaView style={{ position: "absolute", bottom: 0, right: 16, gap: 16 }}>

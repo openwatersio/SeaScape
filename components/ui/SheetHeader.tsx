@@ -23,7 +23,7 @@ export default function SheetHeader({ title, subtitle, headerLeft, headerRight }
             {title}
           </Text>
           {subtitle != null && (
-            <Text numberOfLines={1} style={{ color: theme.textSecondary, fontSize: 13 }}>
+            <Text numberOfLines={1} style={{ color: theme.textSecondary, fontSize: 15 }}>
               {subtitle}
             </Text>
           )}

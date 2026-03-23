@@ -1,5 +1,4 @@
-import { setFollowUserLocation } from "@/hooks/useCameraState";
-import { useCameraView } from "@/hooks/useCameraView";
+import { fitBounds } from "@/components/map/NavigationCamera";
 import { useSelection } from "@/hooks/useSelection";
 import { useSheetStore } from "@/hooks/useSheetPosition";
 import useTheme from "@/hooks/useTheme";
@@ -62,7 +61,6 @@ function SelectedTrackOverlay() {
     const entry = s.sheets["track"];
     return entry?.height ?? 0;
   });
-  const cameraRef = useCameraView((s) => s.cameraRef);
   const [coords, setCoords] = useState<Coord[]>([]);
   const insets = useSafeAreaInsets();
 
@@ -82,13 +80,11 @@ function SelectedTrackOverlay() {
     if (coords.length === 0) return;
     const trackBounds = computeBounds(coords);
     if (!trackBounds) return;
-    console.log("Fitting camera to track bounds:", { trackBounds, sheetHeight });
-    setFollowUserLocation(false);
-    cameraRef?.current?.fitBounds(trackBounds, {
+    fitBounds(trackBounds, {
       padding: { top: insets.top + 16, right: 16, bottom: 16 + sheetHeight, left: 16 },
       duration: 300,
     });
-  }, [coords, sheetHeight, cameraRef, insets]);
+  }, [coords, sheetHeight, insets]);
 
   if (!selectedId) return null;
 

@@ -1,4 +1,4 @@
-import { useCameraView, onRegionIsChanging, onRegionDidChange, zoomIn, zoomOut } from '@/hooks/useCameraView';
+import { useCameraView, onRegionIsChanging, onRegionDidChange } from '@/hooks/useCameraView';
 
 const initialState = useCameraView.getState();
 
@@ -8,11 +8,10 @@ beforeEach(() => {
 
 describe('useCameraView', () => {
   it('has correct initial state', () => {
-    const { bearing, bounds, zoom, cameraRef } = useCameraView.getState();
+    const { bearing, bounds, zoom } = useCameraView.getState();
     expect(bearing).toBe(0);
     expect(bounds).toBeUndefined();
     expect(zoom).toBe(0);
-    expect(cameraRef).toBeNull();
   });
 
   describe('onRegionIsChanging', () => {
@@ -31,26 +30,6 @@ describe('useCameraView', () => {
       expect(useCameraView.getState().bearing).toBe(90);
       expect(useCameraView.getState().bounds).toEqual(bounds);
       expect(useCameraView.getState().zoom).toBe(12);
-    });
-  });
-
-  describe('zoomIn', () => {
-    it('calls zoomTo with zoom + 1', () => {
-      const mockZoomTo = jest.fn();
-      const cameraRef = { current: { zoomTo: mockZoomTo } };
-      useCameraView.setState({ cameraRef: cameraRef as any, zoom: 10 });
-      zoomIn();
-      expect(mockZoomTo).toHaveBeenCalledWith(11, { duration: 300 });
-    });
-  });
-
-  describe('zoomOut', () => {
-    it('calls zoomTo with zoom - 1', () => {
-      const mockZoomTo = jest.fn();
-      const cameraRef = { current: { zoomTo: mockZoomTo } };
-      useCameraView.setState({ cameraRef: cameraRef as any, zoom: 10 });
-      zoomOut();
-      expect(mockZoomTo).toHaveBeenCalledWith(9, { duration: 300 });
     });
   });
 });

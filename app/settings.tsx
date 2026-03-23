@@ -1,11 +1,13 @@
 import SheetView from "@/components/ui/SheetView";
-import { describeUnit, getDistanceUnits, getSpeedUnits, setPreferredUnits, usePreferredUnits } from "@/hooks/usePreferredUnits";
+import { describeUnit, getDepthUnits, getDistanceUnits, getSpeedUnits, getTemperatureUnits, setPreferredUnits, usePreferredUnits } from "@/hooks/usePreferredUnits";
 import { Host, List, Picker, Section, Text, VStack } from "@expo/ui/swift-ui";
 import { tag } from "@expo/ui/swift-ui/modifiers";
 
 export default function Settings() {
   const speed = usePreferredUnits((s) => s.speed);
   const distance = usePreferredUnits((s) => s.distance);
+  const depth = usePreferredUnits((s) => s.depth);
+  const temperature = usePreferredUnits((s) => s.temperature);
 
   return (
     <SheetView id="settings">
@@ -30,6 +32,28 @@ export default function Settings() {
                 onSelectionChange={(unit) => setPreferredUnits({ distance: unit })}
               >
                 {getDistanceUnits().map((unit) => (
+                  <Text key={unit} modifiers={[tag(unit)]}>
+                    {describeUnit(unit).plural}
+                  </Text>
+                ))}
+              </Picker>
+              <Picker
+                label="Depth"
+                selection={depth}
+                onSelectionChange={(unit) => setPreferredUnits({ depth: unit })}
+              >
+                {getDepthUnits().map((unit) => (
+                  <Text key={unit} modifiers={[tag(unit)]}>
+                    {describeUnit(unit).plural}
+                  </Text>
+                ))}
+              </Picker>
+              <Picker
+                label="Temperature"
+                selection={temperature}
+                onSelectionChange={(unit) => setPreferredUnits({ temperature: unit })}
+              >
+                {getTemperatureUnits().map((unit) => (
                   <Text key={unit} modifiers={[tag(unit)]}>
                     {describeUnit(unit).plural}
                   </Text>

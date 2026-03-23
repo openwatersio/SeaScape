@@ -2,10 +2,11 @@ import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
 import { mapRef } from "@/hooks/useMapRef";
 import { addMarker } from "@/hooks/useMarkers";
-import { useNavigationState } from "@/hooks/useNavigationState";
+import { usePosition } from "@/hooks/useNavigation";
 import { toDistance } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
-import { bearingDegrees, distanceMeters, formatBearing } from "@/lib/geo";
+import { formatBearing } from "@/lib/geo";
+import { getDistance, getGreatCircleBearing } from "geolib";
 import {
   Button,
   Host, HStack,
@@ -45,7 +46,7 @@ export default function LocationScreen() {
   const { coords } = useLocalSearchParams<{ coords: string }>();
   const [lon, lat] = coords.split(",").map(Number) as [number, number];
   const [features, setFeatures] = useState<GeoJSON.Feature[]>([]);
-  const nav = useNavigationState();
+  const position = usePosition();
   const theme = useTheme();
 
   useEffect(() => {
@@ -62,11 +63,11 @@ export default function LocationScreen() {
   );
 
   const distBearing = useMemo(() => {
-    if (!nav.coords?.latitude || !nav.coords?.longitude) return null;
-    const dist = distanceMeters(nav.coords.latitude, nav.coords.longitude, lat, lon);
-    const bearing = bearingDegrees(nav.coords.latitude, nav.coords.longitude, lat, lon);
+    if (!position) return null;
+    const dist = getDistance(position, { latitude: lat, longitude: lon });
+    const bearing = getGreatCircleBearing(position, { latitude: lat, longitude: lon });
     return { dist, bearing };
-  }, [lat, lon, nav.coords?.latitude, nav.coords?.longitude]);
+  }, [lat, lon, position]);
 
   const distFormatted = distBearing ? toDistance(distBearing.dist) : null;
   const bearingFormatted = distBearing ? formatBearing(distBearing.bearing) : null;

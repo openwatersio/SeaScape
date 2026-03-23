@@ -1,4 +1,4 @@
-import type { LngLat } from "@maplibre/maplibre-react-native";
+import { resetNorth } from "@/components/map/NavigationCamera";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -6,8 +6,6 @@ import { createJSONStorage, persist } from "zustand/middleware";
 interface State {
   followUserLocation: boolean;
   trackingMode: undefined | "default" | "course";
-  lastCenter?: LngLat;
-  lastZoom?: number;
 }
 
 export const useCameraState = create<State>()(
@@ -15,25 +13,10 @@ export const useCameraState = create<State>()(
     (): State => ({
       followUserLocation: true,
       trackingMode: "default",
-      lastCenter: undefined,
-      lastZoom: undefined,
     }),
     {
       name: "camera",
-      version: 2,
       storage: createJSONStorage(() => AsyncStorage),
-      migrate(persisted: unknown, version: number) {
-        const state = persisted as Record<string, unknown>;
-        if (version < 2) {
-          return {
-            trackingMode: state.trackingMode,
-            followUserLocation: state.followUserLocation ?? true,
-            lastCenter: state.center,
-            lastZoom: state.zoom,
-          } as State;
-        }
-        return state as unknown as State;
-      },
     }
   )
 )
@@ -54,10 +37,8 @@ export function cycleTrackingMode() {
     if (state.followUserLocation && state.trackingMode === "default") {
       return { trackingMode: "course" as const };
     }
+    resetNorth();
     return { followUserLocation: true, trackingMode: "default" as const };
   });
 }
 
-export function saveViewport(center: LngLat, zoom: number) {
-  useCameraState.setState({ lastCenter: center, lastZoom: zoom });
-}

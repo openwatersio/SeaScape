@@ -1,4 +1,4 @@
-import { zoomIn, zoomOut } from '@/hooks/useCameraView';
+import { zoomIn, zoomOut } from '@/components/map/NavigationCamera';
 import { Button, Divider, VStack } from '@expo/ui/swift-ui';
 import {
   frame,

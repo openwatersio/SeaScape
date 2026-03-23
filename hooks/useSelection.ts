@@ -5,6 +5,7 @@ export type Selection =
   | { type: "marker"; id: number }
   | { type: "track"; id: number }
   | { type: "location"; coords: [lng: number, lat: number] }
+  | { type: "vessel"; mmsi: string }
   | null;
 
 /**
@@ -13,7 +14,7 @@ export type Selection =
  */
 export function useSelection(): Selection {
   const pathname = usePathname();
-  const params = useGlobalSearchParams<{ id?: string; coords?: string }>();
+  const params = useGlobalSearchParams<{ id?: string; coords?: string; mmsi?: string }>();
 
   return useMemo(() => {
     if (pathname.startsWith("/marker/") && params.id) {
@@ -26,6 +27,9 @@ export function useSelection(): Selection {
       const [lng, lat] = params.coords.split(",").map(Number) as [number, number];
       return { type: "location", coords: [lng, lat] };
     }
+    if (pathname.startsWith("/vessel/") && params.mmsi) {
+      return { type: "vessel", mmsi: params.mmsi };
+    }
     return null;
-  }, [pathname, params.id, params.coords]);
+  }, [pathname, params.id, params.coords, params.mmsi]);
 }

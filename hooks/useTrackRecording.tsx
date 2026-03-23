@@ -136,14 +136,14 @@ export async function stop() {
   stopForegroundTracking();
   await stopBackgroundTracking();
 
-  const { track } = useTrackRecording.getState();
+  const { track, distance } = useTrackRecording.getState();
 
   if (track) {
     const durationMs = Date.now() - new Date(track.started_at).getTime();
     if (durationMs < MIN_TRACK_DURATION_MS) {
       await deleteTrack(track.id);
     } else {
-      await endTrack(track.id, track.distance);
+      await endTrack(track.id, distance);
     }
   }
 

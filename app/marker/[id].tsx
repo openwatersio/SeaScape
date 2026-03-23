@@ -1,12 +1,12 @@
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
-import { useMarkers, deleteMarker } from "@/hooks/useMarkers";
-import { useNavigationState } from "@/hooks/useNavigationState";
+import { deleteMarker, useMarkers } from "@/hooks/useMarkers";
+import { usePosition } from "@/hooks/useNavigation";
 import { toDistance } from "@/hooks/usePreferredUnits";
 import { useSheetDetents } from "@/hooks/useSheetDetents";
 import useTheme from "@/hooks/useTheme";
 import { exportMarkerAsGPX } from "@/lib/exportTrack";
-import { bearingDegrees, distanceMeters, formatBearing } from "@/lib/geo";
+import { formatBearing } from "@/lib/geo";
 import {
   Button,
   Form,
@@ -31,6 +31,7 @@ import {
 import { useHeaderHeight } from "@react-navigation/elements";
 import { CoordinateFormat } from "coordinate-format";
 import { router, useLocalSearchParams } from "expo-router";
+import { getDistance, getGreatCircleBearing } from "geolib";
 import { useCallback, useEffect, useMemo } from "react";
 import { Alert } from "react-native";
 import { showLocation } from "react-native-map-link";
@@ -48,7 +49,7 @@ export default function MarkerScreen() {
 
   const marker = useMarkers((s) => s.markers.find((m) => m.id === markerId) ?? null);
 
-  const nav = useNavigationState();
+  const position = usePosition();
   const theme = useTheme();
   const headerHeight = useHeaderHeight();
   const { setDetentHeight } = useSheetDetents([0.4, 1]);
@@ -58,11 +59,11 @@ export default function MarkerScreen() {
   }, [headerHeight, setDetentHeight]);
 
   const distBearing = useMemo(() => {
-    if (!nav.coords || !marker) return null;
-    const dist = distanceMeters(nav.coords.latitude, nav.coords.longitude, marker.latitude, marker.longitude);
-    const bearing = bearingDegrees(nav.coords.latitude, nav.coords.longitude, marker.latitude, marker.longitude);
+    if (!position || !marker) return null;
+    const dist = getDistance(position, marker);
+    const bearing = getGreatCircleBearing(position, marker);
     return { dist, bearing };
-  }, [marker, nav.coords]);
+  }, [marker, position]);
 
   const distFormatted = distBearing ? toDistance(distBearing.dist) : null;
   const bearingFormatted = distBearing ? formatBearing(distBearing.bearing) : null;
@@ -97,7 +98,7 @@ export default function MarkerScreen() {
         },
       ],
     );
-  }, [markerId, marker?.name, deleteMarker]);
+  }, [markerId, marker?.name]);
 
   return (
     <SheetView id="marker" style={{ flex: 1 }}>

@@ -4,6 +4,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 export type SpeedUnit = 'knot' | 'mph' | 'km/h';
 export type DistanceUnit = 'nm' | 'mi' | 'km';
+export type DepthUnit = 'm' | 'ft' | 'fathom';
+export type TemperatureUnit = 'C' | 'F';
 
 interface UnitInfo {
   abbr: string;
@@ -23,16 +25,31 @@ const distanceUnitDefs: Record<DistanceUnit, UnitInfo & { fromMeters: number }> 
   'km': { abbr: 'km', singular: 'Kilometer', plural: 'Kilometers', fromMeters: 0.001 },
 };
 
+const depthUnitDefs: Record<DepthUnit, UnitInfo & { fromMeters: number }> = {
+  'm': { abbr: 'm', singular: 'Meter', plural: 'Meters', fromMeters: 1 },
+  'ft': { abbr: 'ft', singular: 'Foot', plural: 'Feet', fromMeters: 3.28084 },
+  'fathom': { abbr: 'fm', singular: 'Fathom', plural: 'Fathoms', fromMeters: 1 / 1.8288 },
+};
+
+const temperatureUnitDefs: Record<TemperatureUnit, UnitInfo> = {
+  'C': { abbr: '°C', singular: 'Celsius', plural: 'Celsius' },
+  'F': { abbr: '°F', singular: 'Fahrenheit', plural: 'Fahrenheit' },
+};
+
 interface State {
   speed: SpeedUnit;
   distance: DistanceUnit;
+  depth: DepthUnit;
+  temperature: TemperatureUnit;
 }
 
 export const usePreferredUnits = create<State>()(
   persist(
-    () => ({
-      speed: 'knot' as SpeedUnit,
-      distance: 'nm' as DistanceUnit,
+    (): State => ({
+      speed: 'knot',
+      distance: 'nm',
+      depth: 'm',
+      temperature: 'C',
     }),
     {
       name: "preferred-units",
@@ -63,8 +80,19 @@ export function getDistanceUnits(): DistanceUnit[] {
   return Object.keys(distanceUnitDefs) as DistanceUnit[];
 }
 
-export function describeUnit(unit: SpeedUnit | DistanceUnit): UnitInfo {
-  return speedUnits[unit as SpeedUnit] ?? distanceUnitDefs[unit as DistanceUnit];
+export function getDepthUnits(): DepthUnit[] {
+  return Object.keys(depthUnitDefs) as DepthUnit[];
+}
+
+export function getTemperatureUnits(): TemperatureUnit[] {
+  return Object.keys(temperatureUnitDefs) as TemperatureUnit[];
+}
+
+export function describeUnit(unit: SpeedUnit | DistanceUnit | DepthUnit | TemperatureUnit): UnitInfo {
+  return speedUnits[unit as SpeedUnit]
+    ?? distanceUnitDefs[unit as DistanceUnit]
+    ?? depthUnitDefs[unit as DepthUnit]
+    ?? temperatureUnitDefs[unit as TemperatureUnit];
 }
 
 export function toSpeed(measure: number | undefined, { decimals = 1 } = {}): { value: string } & UnitInfo {
@@ -77,4 +105,19 @@ export function toDistance(meters: number | undefined, { decimals = 1 } = {}): {
   const def = distanceUnitDefs[usePreferredUnits.getState().distance];
   const value = ((meters ?? 0) * def.fromMeters).toFixed(decimals);
   return { value, ...def };
+}
+
+export function toDepth(meters: number | undefined, { decimals = 1 } = {}): { value: string } & UnitInfo {
+  const def = depthUnitDefs[usePreferredUnits.getState().depth];
+  const value = ((meters ?? 0) * def.fromMeters).toFixed(decimals);
+  return { value, ...def };
+}
+
+/** Convert Kelvin to preferred temperature unit */
+export function toTemperature(kelvin: number | undefined, { decimals = 1 } = {}): { value: string } & UnitInfo {
+  const unit = usePreferredUnits.getState().temperature;
+  const def = temperatureUnitDefs[unit];
+  const celsius = (kelvin ?? 273.15) - 273.15;
+  const converted = unit === 'F' ? celsius * 9 / 5 + 32 : celsius;
+  return { value: converted.toFixed(decimals), ...def };
 }

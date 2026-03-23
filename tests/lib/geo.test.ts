@@ -1,23 +1,4 @@
-import { bearingDegrees, distanceMeters, formatBearing, headingDelta } from "@/lib/geo";
-
-describe("distanceMeters", () => {
-  it("returns 0 for the same point", () => {
-    expect(distanceMeters(47.6, -122.3, 47.6, -122.3)).toBe(0);
-  });
-
-  it("computes known distance (Seattle to Portland ~233km)", () => {
-    const d = distanceMeters(47.6062, -122.3321, 45.5152, -122.6784);
-    expect(d).toBeGreaterThan(232_000);
-    expect(d).toBeLessThan(235_000);
-  });
-
-  it("computes short distance accurately", () => {
-    // ~111m per degree of latitude at equator
-    const d = distanceMeters(0, 0, 0.001, 0);
-    expect(d).toBeGreaterThan(110);
-    expect(d).toBeLessThan(112);
-  });
-});
+import { calculateCPA, formatBearing, headingDelta } from "@/lib/geo";
 
 describe("headingDelta", () => {
   it("returns 0 for equal headings", () => {
@@ -37,33 +18,71 @@ describe("headingDelta", () => {
   });
 });
 
-describe("bearingDegrees", () => {
-  it("returns ~0 for due north", () => {
-    // Point directly north: same longitude, higher latitude
-    const b = bearingDegrees(47.0, -122.0, 48.0, -122.0);
-    expect(b).toBeCloseTo(0, 0);
+describe("calculateCPA", () => {
+  const DEG = Math.PI / 180;
+
+  it("returns null when both vessels are stationary", () => {
+    expect(calculateCPA(
+      { latitude: 47.6, longitude: -122.3, sog: 0, cog: 0 },
+      { latitude: 47.61, longitude: -122.3, sog: 0, cog: 0 },
+    )).toBeNull();
   });
 
-  it("returns ~90 for due east at equator", () => {
-    const b = bearingDegrees(0, 0, 0, 1);
-    expect(b).toBeCloseTo(90, 0);
+  it("returns null when CPA is in the past (vessels diverging)", () => {
+    const result = calculateCPA(
+      { latitude: 47.6, longitude: -122.3, sog: 5, cog: 0 },
+      { latitude: 47.65, longitude: -122.3, sog: 10, cog: 0 },
+    );
+    expect(result).toBeNull();
   });
 
-  it("returns ~180 for due south", () => {
-    const b = bearingDegrees(48.0, -122.0, 47.0, -122.0);
-    expect(b).toBeCloseTo(180, 0);
+  it("calculates CPA for head-on vessels", () => {
+    const result = calculateCPA(
+      { latitude: 47.0, longitude: -122.0, sog: 5, cog: 0 },
+      { latitude: 47.1, longitude: -122.0, sog: 5, cog: 180 * DEG },
+    );
+    expect(result).not.toBeNull();
+    expect(result!.distance).toBeLessThan(100);
+    expect(result!.time).toBeGreaterThan(0);
   });
 
-  it("returns ~270 for due west at equator", () => {
-    const b = bearingDegrees(0, 1, 0, 0);
-    expect(b).toBeCloseTo(270, 0);
+  it("calculates CPA for crossing vessels", () => {
+    const result = calculateCPA(
+      { latitude: 47.0, longitude: -122.0, sog: 5, cog: 0 },
+      { latitude: 47.05, longitude: -121.95, sog: 5, cog: 270 * DEG },
+    );
+    expect(result).not.toBeNull();
+    expect(result!.distance).toBeGreaterThan(0);
+    expect(result!.time).toBeGreaterThan(0);
   });
 
-  it("returns known bearing (Seattle to Portland ~187°)", () => {
-    // Portland is south-southwest of Seattle
-    const b = bearingDegrees(47.6062, -122.3321, 45.5152, -122.6784);
-    expect(b).toBeGreaterThan(183);
-    expect(b).toBeLessThan(190);
+  it("calculates reasonable TCPA for known scenario", () => {
+    // Two vessels ~5.5km apart, closing at ~10 m/s combined
+    const result = calculateCPA(
+      { latitude: 47.0, longitude: -122.0, sog: 5, cog: 0 },
+      { latitude: 47.05, longitude: -122.0, sog: 5, cog: 180 * DEG },
+    );
+    expect(result).not.toBeNull();
+    expect(result!.time).toBeGreaterThan(400);
+    expect(result!.time).toBeLessThan(700);
+  });
+
+  it("returns null for parallel vessels with same speed", () => {
+    const result = calculateCPA(
+      { latitude: 47.0, longitude: -122.0, sog: 5, cog: 0 },
+      { latitude: 47.0, longitude: -121.99, sog: 5, cog: 0 },
+    );
+    expect(result).toBeNull();
+  });
+
+  it("handles one stationary vessel", () => {
+    const result = calculateCPA(
+      { latitude: 47.0, longitude: -122.0, sog: 5, cog: 0 },
+      { latitude: 47.05, longitude: -122.001, sog: 0, cog: 0 },
+    );
+    expect(result).not.toBeNull();
+    expect(result!.time).toBeGreaterThan(0);
+    expect(result!.distance).toBeLessThan(200);
   });
 });
 

@@ -18,10 +18,11 @@ export default function useTheme(colorScheme: "light" | "dark" = (useColorScheme
     buttonBackgroundActive: isDark ? "#30d158" : "#22c55e",
     border: isDark ? "#38383a" : "#e2e8f0",
     borderActive: isDark ? "#30d158" : "#16a34a",
-    shadowColor: isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.1)",
+    shadowColor: isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.3)",
     glowColor: isDark ? "rgba(48, 209, 88, 0.4)" : "rgba(34, 197, 94, 0.3)",
     primaryGlow: isDark ? "rgba(0, 122, 255, 0.4)" : "rgba(0, 102, 204, 0.3)",
     // Semi-transparent card/panel backgrounds that float above map content
     surfaceElevated: isDark ? "rgba(44, 44, 46, 0.9)" : "rgba(255, 255, 255, 0.85)",
+    userLocation: isDark ? "#ff453a" : "#ef4444",
   };
 };
