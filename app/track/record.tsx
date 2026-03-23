@@ -37,7 +37,7 @@ export default function RecordScreen() {
       },
       { text: "Cancel", style: "cancel" },
     ]);
-  }, [stop]);
+  }, []);
 
   const dist = toDistance(distance);
   const avgSpd = toSpeed(averageSpeed);

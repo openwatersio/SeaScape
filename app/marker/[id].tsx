@@ -1,13 +1,12 @@
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
-import { useMarkers, deleteMarker } from "@/hooks/useMarkers";
+import { deleteMarker, useMarkers } from "@/hooks/useMarkers";
 import { usePosition } from "@/hooks/useNavigation";
 import { toDistance } from "@/hooks/usePreferredUnits";
 import { useSheetDetents } from "@/hooks/useSheetDetents";
 import useTheme from "@/hooks/useTheme";
 import { exportMarkerAsGPX } from "@/lib/exportTrack";
 import { formatBearing } from "@/lib/geo";
-import { getDistance, getGreatCircleBearing } from "geolib";
 import {
   Button,
   Form,
@@ -32,6 +31,7 @@ import {
 import { useHeaderHeight } from "@react-navigation/elements";
 import { CoordinateFormat } from "coordinate-format";
 import { router, useLocalSearchParams } from "expo-router";
+import { getDistance, getGreatCircleBearing } from "geolib";
 import { useCallback, useEffect, useMemo } from "react";
 import { Alert } from "react-native";
 import { showLocation } from "react-native-map-link";
@@ -98,7 +98,7 @@ export default function MarkerScreen() {
         },
       ],
     );
-  }, [markerId, marker?.name, deleteMarker]);
+  }, [markerId, marker?.name]);
 
   return (
     <SheetView id="marker" style={{ flex: 1 }}>

@@ -69,7 +69,7 @@ export default function TrackScreen() {
       "plain-text",
       track?.name || "",
     );
-  }, [trackId, track?.name, handleRename]);
+  }, [trackId, track?.name]);
 
   const confirmDelete = useCallback(() => {
     Alert.alert(
@@ -87,7 +87,7 @@ export default function TrackScreen() {
         },
       ],
     );
-  }, [trackId, track?.name, handleDelete]);
+  }, [trackId, track?.name]);
 
   const dist = toDistance(track?.distance ?? 0);
 

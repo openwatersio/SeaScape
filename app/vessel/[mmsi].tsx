@@ -1,7 +1,7 @@
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
 import { useAISVessel } from "@/hooks/useAIS";
-import { useNavigation } from "@/hooks/useNavigation";
+import { useNavigation, usePosition } from "@/hooks/useNavigation";
 import { toDepth, toDistance, toSpeed } from "@/hooks/usePreferredUnits";
 import { useSheetDetents } from "@/hooks/useSheetDetents";
 import { calculateCPA, formatBearing } from "@/lib/geo";
@@ -91,6 +91,7 @@ export default function VesselScreen() {
   const { mmsi } = useLocalSearchParams<{ mmsi: string }>();
   const vessel = useAISVessel(mmsi);
   const nav = useNavigation();
+  const ownPosition = usePosition();
   const headerHeight = useHeaderHeight();
   const { setDetentHeight } = useSheetDetents([0.3, 0.6, 1]);
 
@@ -129,9 +130,6 @@ export default function VesselScreen() {
     return () => clearInterval(id);
   }, []);
 
-  const ownPosition = nav.latitude !== null && nav.longitude !== null
-    ? { latitude: nav.latitude, longitude: nav.longitude }
-    : null;
 
   const { distance, bearing } = useMemo(() => {
     void tick;
