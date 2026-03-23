@@ -41,20 +41,50 @@ type State = {
 
 const MIN_TRACK_DURATION_MS = 60_000;
 
+// ~39 knots — filters both impossibly fast reported speeds and position jumps
+const MAX_SPEED_MS = 20;
+// Reject fixes with poor GPS accuracy
+const MAX_ACCURACY_METERS = 50;
+
+async function recordLocation(location: LocationObject) {
+  const { track, lastLocation } = useTrackRecording.getState();
+
+  // This should never happen since we only subscribe when recording, but just in case:
+  if (!track) {
+    console.warn("Received location update while no track is active.");
+    stop();
+    return
+  }
+
+  const { coords } = location;
+  if (coords.accuracy !== null && coords.accuracy > MAX_ACCURACY_METERS) return;
+  if (coords.speed !== null && coords.speed > MAX_SPEED_MS) return;
+
+  const segmentDistance = lastLocation ? getDistance(lastLocation.coords, coords) : 0;
+  if (lastLocation) {
+    const elapsedMs = location.timestamp - lastLocation.timestamp;
+    if (elapsedMs > 0 && (segmentDistance / elapsedMs) * 1000 > MAX_SPEED_MS) return;
+  }
+
+  await insertTrackPoint(track.id, location);
+
+  useTrackRecording.setState(({ distance, pointCount, maxSpeed, averageSpeed }) => {
+    return {
+      lastLocation: location,
+      distance: distance + segmentDistance,
+      pointCount: pointCount + 1,
+      maxSpeed: Math.max(maxSpeed, coords.speed ?? 0),
+      averageSpeed: coords.speed != null
+        ? (averageSpeed * pointCount + coords.speed) / (pointCount + 1)
+        : averageSpeed,
+    };
+  });
+}
+
 let stopForegroundSubscription: (() => void) | null = null;
 
 function startForegroundTracking() {
-  stopForegroundSubscription = subscribeToLocationUpdate((location) => {
-    const { track } = useTrackRecording.getState();
-    if (!track) {
-      console.warn("Received location update while no track is active.");
-      stopForegroundTracking();
-      return;
-    }
-
-    insertTrackPoint(track.id, location);
-    onLocationUpdate(location);
-  });
+  stopForegroundSubscription = subscribeToLocationUpdate(recordLocation);
 }
 
 function stopForegroundTracking() {
@@ -62,26 +92,6 @@ function stopForegroundTracking() {
     stopForegroundSubscription();
     stopForegroundSubscription = null;
   }
-}
-
-function onLocationUpdate(location: LocationObject) {
-  useTrackRecording.setState((state) => {
-    // This should never happen since we only subscribe when recording, but just in case:
-    if (!state.track) throw new Error("Received point when track is not recording.");
-
-    const { coords } = location;
-    const segmentDistance = state.lastLocation ? getDistance(state.lastLocation?.coords, coords) : 0;
-
-    return {
-      lastLocation: location,
-      distance: state.distance + segmentDistance,
-      pointCount: state.pointCount + 1,
-      maxSpeed: Math.max(state.maxSpeed, coords.speed ?? 0),
-      averageSpeed: coords.speed != null
-        ? (state.averageSpeed * state.pointCount + coords.speed) / (state.pointCount + 1)
-        : state.averageSpeed,
-    };
-  });
 }
 
 export const useTrackRecording = create<State>()(
@@ -107,19 +117,25 @@ export const useTrackRecording = create<State>()(
   ),
 );
 
+function resetState(track: Track | null = null) {
+  useTrackRecording.setState({
+    isRecording: track !== null,
+    track,
+    distance: 0,
+    pointCount: 0,
+    maxSpeed: 0,
+    averageSpeed: 0,
+    lastLocation: null,
+  });
+}
+
 export async function start() {
   const granted = await requestPermissions();
   if (!granted) return;
 
   const track = await startTrack();
 
-  useTrackRecording.setState({
-    track,
-    isRecording: true,
-    pointCount: 0,
-    maxSpeed: 0,
-    averageSpeed: 0,
-  });
+  resetState(track);
 
   startForegroundTracking();
   await startBackgroundTracking();
@@ -147,13 +163,7 @@ export async function stop() {
     }
   }
 
-  useTrackRecording.setState({
-    isRecording: false,
-    track: null,
-    pointCount: 0,
-    maxSpeed: 0,
-    averageSpeed: 0,
-  });
+  resetState();
 }
 
 export async function requestPermissions(): Promise<boolean> {
@@ -184,7 +194,7 @@ defineTask<{ locations: LocationObject[] }>(
     }
 
     for (const location of locations) {
-      insertTrackPoint(track.id, location);
+      await recordLocation(location);
     }
   },
 );
