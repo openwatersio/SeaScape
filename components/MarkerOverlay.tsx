@@ -1,8 +1,7 @@
 import { Annotation } from "@/components/map/Annotation";
 import { useCameraView } from "@/hooks/useCameraView";
-import { useSelectionHandler } from "@/hooks/useSelection";
 import { updateMarker, useMarkers } from "@/hooks/useMarkers";
-import { useSelection } from "@/hooks/useSelection";
+import { useSelection, useSelectionHandler } from "@/hooks/useSelection";
 import useTheme from "@/hooks/useTheme";
 import type { LngLatBounds } from "@maplibre/maplibre-react-native";
 import type { SFSymbol } from "expo-symbols";

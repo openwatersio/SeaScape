@@ -1,6 +1,5 @@
 import { type AtoN, useAtoN } from "@/hooks/useAtoN";
-import { useSelectionHandler } from "@/hooks/useSelection";
-import { useSelection } from "@/hooks/useSelection";
+import { useSelection, useSelectionHandler } from "@/hooks/useSelection";
 import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
 import { useCallback, useMemo } from "react";
 import type { NativeSyntheticEvent } from "react-native";

@@ -1,7 +1,6 @@
-import { useSelectionHandler } from "@/hooks/useSelection";
 import { mapRef } from "@/hooks/useMapRef";
 import { loadMarkers } from "@/hooks/useMarkers";
-import { useSelection } from "@/hooks/useSelection";
+import { useSelection, useSelectionHandler } from "@/hooks/useSelection";
 import { useSheetOffset } from "@/hooks/useSheetPosition";
 import useTheme from "@/hooks/useTheme";
 import { mapStyles, useViewOptions } from "@/hooks/useViewOptions";

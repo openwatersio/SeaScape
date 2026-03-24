@@ -1,6 +1,5 @@
 import { type AISVessel, useAIS } from "@/hooks/useAIS";
-import { useSelectionHandler } from "@/hooks/useSelection";
-import { useSelection } from "@/hooks/useSelection";
+import { useSelection, useSelectionHandler } from "@/hooks/useSelection";
 import { projectPosition } from "@/lib/geo";
 import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
