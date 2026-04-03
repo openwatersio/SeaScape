@@ -1,3 +1,5 @@
+import { getDistance } from "geolib";
+
 /** Project a position forward along a bearing by a distance in meters (flat-earth approximation) */
 export function projectPosition(
   latitude: number,
@@ -68,6 +70,42 @@ export function calculateCPA(a: Vessel, b: Vessel): CPA | null {
   );
 
   return { distance: cpaDist, time: tcpa };
+}
+
+/**
+ * Find the index of the leg segment closest to a point.
+ * Returns the index to insert at (i.e. after points[index-1], before points[index]),
+ * or null if no leg is within the threshold.
+ */
+export function findNearestLegIndex(
+  latitude: number,
+  longitude: number,
+  points: { latitude: number; longitude: number }[],
+  thresholdMeters: number,
+): number | null {
+  if (points.length < 2) return null;
+
+  let bestDist = Infinity;
+  let bestIndex: number | null = null;
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    const dx = b.longitude - a.longitude;
+    const dy = b.latitude - a.latitude;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) continue;
+    const t = Math.max(0, Math.min(1, ((longitude - a.longitude) * dx + (latitude - a.latitude) * dy) / lenSq));
+    const projLatitude = a.latitude + t * dy;
+    const projLongitude = a.longitude + t * dx;
+    const dist = getDistance({ latitude, longitude }, { latitude: projLatitude, longitude: projLongitude });
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestIndex = i + 1;
+    }
+  }
+
+  return bestDist <= thresholdMeters ? bestIndex : null;
 }
 
 /** Format bearing as three-digit true bearing, e.g. "045°T" */

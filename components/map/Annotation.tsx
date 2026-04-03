@@ -35,7 +35,6 @@ export function Annotation({
   ...props
 }: AnnotationProps) {
   const theme = useTheme();
-  const isDragging = useRef(false);
   const prevSelected = useRef(selected);
 
   // Entrance animation
@@ -96,14 +95,12 @@ export function Annotation({
     <ViewAnnotation
       anchor="bottom"
       onDragStart={(e) => {
-        isDragging.current = true;
         dragLift.value = withSpring(-10, { damping: 12, stiffness: 300 });
         dragScale.value = withSpring(1.15, { damping: 12, stiffness: 300 });
         onDragStart?.(e);
       }}
       onDrag={(e) => onDrag?.(e)}
       onDragEnd={(e) => {
-        isDragging.current = false;
         dragLift.value = withSpring(0, { damping: 30, stiffness: 350 });
         dragScale.value = withSpring(1, { damping: 30, stiffness: 350 });
         onDragEnd?.(e);
