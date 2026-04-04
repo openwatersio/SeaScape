@@ -52,9 +52,8 @@ export default function MarkerOverlay() {
             onPress={isSelected ? undefined : () => {
               navigate("marker", String(marker.id));
             }}
-            onDragEnd={(e) => {
-              const [lng, lat] = e.nativeEvent.lngLat;
-              updateMarker(marker.id, { latitude: lat, longitude: lng });
+            onDragEnd={([longitude, latitude]) => {
+              updateMarker(marker.id, { latitude, longitude });
             }}
           />
         );

@@ -13,8 +13,8 @@ export default function SelectedLocationAnnotation() {
     : null;
 
   const handleDragEnd = useCallback(
-    (e: { nativeEvent: { lngLat: [number, number] } }) =>
-      router.setParams({ id: e.nativeEvent.lngLat.join(',') }),
+    (lngLat: [number, number]) =>
+      router.setParams({ id: lngLat.join(',') }),
     []
   );
 

@@ -298,7 +298,7 @@ function WaypointAnnotation({
         selected={selected}
         draggable={draggable}
         onPress={onPress}
-        onDragEnd={onDragEnd ? (e) => onDragEnd(e.nativeEvent.lngLat) : undefined}
+        onDragEnd={onDragEnd}
       />
       {selected && onRemove && (
         <ViewAnnotation
