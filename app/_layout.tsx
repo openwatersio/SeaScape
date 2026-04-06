@@ -1,4 +1,3 @@
-import CloseButton from "@/components/ui/CloseButton";
 import { connectAll, disconnectAll } from "@/hooks/useConnections";
 import "@/hooks/useNavigation"; // Register LocationManager listener at module scope
 import "@/hooks/useTrackRecording"; // Register background task at module scope
@@ -43,7 +42,6 @@ export default function RootLayout() {
           sheetAllowedDetents: [0.5, 1],
           sheetGrabberVisible: true,
           title: "Charts",
-          headerRight: () => <CloseButton />,
         }} />
         <Stack.Screen name="settings" options={{
           presentation: "formSheet",
@@ -51,7 +49,6 @@ export default function RootLayout() {
           sheetAllowedDetents: [0.5, 1],
           sheetGrabberVisible: true,
           title: "Settings",
-          headerRight: () => <CloseButton />,
         }} />
         <Stack.Screen name="feature/[type]/[id]" options={{
           presentation: "formSheet",
@@ -60,22 +57,20 @@ export default function RootLayout() {
           sheetInitialDetentIndex: 1,
           sheetGrabberVisible: true,
         }} />
-        <Stack.Screen name="MainSheet" options={{
+        <Stack.Screen name="menu" options={{
           presentation: "formSheet",
           sheetLargestUndimmedDetentIndex: "last",
           sheetAllowedDetents: [0.5],
           sheetGrabberVisible: true,
           headerShown: false,
         }} />
-        <Stack.Screen name="tracks" options={{
+        <Stack.Screen name="tracks/index" options={{
           presentation: "formSheet",
           sheetAllowedDetents: [0.5, 1],
           sheetInitialDetentIndex: 0,
           sheetGrabberVisible: true,
           sheetExpandsWhenScrolledToEdge: true,
           title: "Tracks",
-          headerLargeTitleEnabled: true,
-          // headerRight: () => <CloseButton />,
         }} />
         <Stack.Screen name="routes/index" options={{
           presentation: "formSheet",
@@ -106,7 +101,6 @@ export default function RootLayout() {
           sheetGrabberVisible: true,
           sheetExpandsWhenScrolledToEdge: true,
           title: "Markers",
-          headerLargeTitleEnabled: true,
         }} />
         <Stack.Screen name="marker/edit" options={{
           presentation: "formSheet",
@@ -128,7 +122,6 @@ export default function RootLayout() {
           sheetAllowedDetents: [1],
           sheetGrabberVisible: true,
           title: "Connections",
-          headerRight: () => <CloseButton />,
         }} />
       </Stack>
     </ThemeProvider>

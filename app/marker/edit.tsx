@@ -1,22 +1,21 @@
 import { AnnotationIcon, AnnotationIconName, ICONS } from "@/components/map/AnnotationIcon";
+import { flyTo } from "@/components/map/NavigationCamera";
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
-import { flyTo } from "@/components/map/NavigationCamera";
 import { updateMarker, useMarkers } from "@/hooks/useMarkers";
 import useTheme from "@/hooks/useTheme";
 import {
-  Button,
   ColorPicker,
   Form,
   Host,
   RNHostView,
   Section,
   Text,
-  TextField,
+  TextField
 } from "@expo/ui/swift-ui";
-import { font, foregroundStyle, labelStyle, tint } from "@expo/ui/swift-ui/modifiers";
+import { font, foregroundStyle } from "@expo/ui/swift-ui/modifiers";
 import { CoordinateFormat } from "coordinate-format";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 
@@ -37,7 +36,7 @@ export default function EditMarkerScreen() {
     : undefined;
 
   const handleSave = useCallback(() => {
-    router.dismiss();
+    router.dismissTo({ pathname: "/feature/[type]/[id]", params: { type: "marker", id } });
   }, []);
 
   useEffect(() => {
@@ -56,21 +55,16 @@ export default function EditMarkerScreen() {
       <SheetHeader
         title={marker.name ?? "Edit Marker"}
         subtitle={subtitle}
-        headerRight={() => (
-          <Host matchContents>
-            <Button
-              systemImage="checkmark"
-              label="Save"
-              onPress={handleSave}
-              modifiers={[
-                labelStyle("iconOnly"),
-                tint("primary"),
-                font({ weight: "semibold" }),
-              ]}
-            />
-          </Host>
-        )}
       />
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="checkmark"
+          onPress={handleSave}
+          variant="prominent"
+        >
+          Save
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
         <Form>
           <Section>
@@ -92,7 +86,10 @@ export default function EditMarkerScreen() {
           <Section header={<Text modifiers={[font({ size: 13 }), foregroundStyle("secondary")]}>Icon</Text>}>
             <ColorPicker
               selection={color}
-              onSelectionChange={(c) => { setColor(c); updateMarker(markerId, { color: c }); }}
+              onSelectionChange={(c) => {
+                setColor(c);
+                updateMarker(markerId, { color: c });
+              }}
               label="Color"
               supportsOpacity={false}
             />

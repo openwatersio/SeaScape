@@ -2,6 +2,7 @@ import SheetView from "@/components/ui/SheetView";
 import { describeUnit, getDepthUnits, getDistanceUnits, getSpeedUnits, getTemperatureUnits, setPreferredUnits, usePreferredUnits } from "@/hooks/usePreferredUnits";
 import { Host, List, Picker, Section, Text, VStack } from "@expo/ui/swift-ui";
 import { tag } from "@expo/ui/swift-ui/modifiers";
+import { router, Stack } from "expo-router";
 
 export default function Settings() {
   const speed = usePreferredUnits((s) => s.speed);
@@ -11,6 +12,11 @@ export default function Settings() {
 
   return (
     <SheetView id="settings">
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button icon="xmark" onPress={() => router.dismiss()}>
+          Close
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
         <VStack alignment="leading">
           <List>

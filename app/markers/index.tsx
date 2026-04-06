@@ -6,32 +6,29 @@ import { toDistance } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
 import type { Marker } from "@/lib/database";
 import { formatBearing } from "@/lib/geo";
-import { getDistance, getGreatCircleBearing } from "geolib";
 import {
   Button,
   ContextMenu,
   Host,
   HStack,
   List,
-  Picker,
   RNHostView,
   Spacer,
   Text,
-  VStack,
+  VStack
 } from "@expo/ui/swift-ui";
 import {
   font,
   foregroundStyle,
-  labelsHidden,
   lineLimit,
+  listStyle,
   monospacedDigit,
   onTapGesture,
-  padding,
-  pickerStyle,
-  tag,
+  padding
 } from "@expo/ui/swift-ui/modifiers";
 import { CoordinateFormat } from "coordinate-format";
-import { router } from "expo-router";
+import { router, Stack, StackToolbarMenuActionProps } from "expo-router";
+import { getDistance, getGreatCircleBearing } from "geolib";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, View } from "react-native";
 
@@ -46,10 +43,15 @@ function formatCoords(lat: number, lon: number): string {
 
 export default function MarkerList() {
   const markers = useMarkers((s) => s.markers);
-
   const position = usePosition();
   const theme = useTheme();
   const [sort, setSort] = useState<SortBy>("created");
+
+  const sortOptions: Array<{ label: string, value: SortBy, icon: StackToolbarMenuActionProps["icon"] }> = [
+    { label: "Recent", value: "created", icon: "clock" },
+    { label: "Name", value: "name", icon: "character" },
+    { label: "Nearby", value: "nearby", icon: "location" },
+  ]
 
   useEffect(() => {
     loadMarkers();
@@ -112,18 +114,28 @@ export default function MarkerList() {
 
   return (
     <SheetView id="markers">
+      <Stack.Screen options={{}} />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Menu icon="line.3.horizontal.decrease" title="Sort">
+          {sortOptions.map(({ label, value, icon }) => (
+            <Stack.Toolbar.MenuAction
+              icon={icon}
+              isOn={sort === value}
+              onPress={() => setSort(value)}
+            >
+              {label}
+            </Stack.Toolbar.MenuAction>
+          ))}
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="xmark"
+          onPress={() => router.dismissTo("/menu")}
+        />
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
-        <List>
-          <Picker
-            selection={sort}
-            onSelectionChange={(s) => setSort(s as SortBy)}
-            modifiers={[pickerStyle("segmented"), labelsHidden()]}
-          >
-            <Text modifiers={[tag("created")]}>Recent</Text>
-            <Text modifiers={[tag("name")]}>Name</Text>
-            <Text modifiers={[tag("nearby")]}>Nearby</Text>
-          </Picker>
-
+        <List modifiers={[listStyle("plain")]}>
           <List.ForEach>
             {sortedMarkers.map((marker) => {
               const distLabel = getDistanceLabel(marker);
@@ -137,7 +149,7 @@ export default function MarkerList() {
                       spacing={16}
                       modifiers={[
                         onTapGesture(() => {
-                          router.push({ pathname: "/feature/[type]/[id]", params: { type: "marker", id: String(marker.id) } });
+                          router.dismissTo({ pathname: "/feature/[type]/[id]", params: { type: "marker", id: String(marker.id) } });
                         }),
                         padding({ vertical: 4 }),
                       ]}

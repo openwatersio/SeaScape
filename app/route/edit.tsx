@@ -1,5 +1,4 @@
 import { flyTo } from "@/components/map/NavigationCamera";
-import CloseButton from "@/components/ui/CloseButton";
 import SheetHeader from "@/components/ui/SheetHeader";
 import SheetView from "@/components/ui/SheetView";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -26,29 +25,26 @@ import {
 } from "@/lib/database";
 import { formatBearing } from "@/lib/geo";
 import {
-  Button,
   Host,
   HStack,
   List,
   Spacer,
   Text,
-  VStack,
+  VStack
 } from "@expo/ui/swift-ui";
 import {
   environment,
   font,
   foregroundStyle,
   frame,
-  labelStyle,
   listStyle,
   monospacedDigit,
   onTapGesture,
-  padding,
-  tint,
+  padding
 } from "@expo/ui/swift-ui/modifiers";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { CoordinateFormat } from "coordinate-format";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { getDistance, getGreatCircleBearing } from "geolib";
 import { useCallback, useEffect, useMemo } from "react";
 import { Alert } from "react-native";
@@ -167,7 +163,7 @@ export default function EditRouteScreen() {
       }
       clearDraft();
       await loadRoutes();
-      router.replace({ pathname: "/feature/[type]/[id]", params: { type: "route", id: String(route.id) } });
+      router.dismissTo({ pathname: "/feature/[type]/[id]", params: { type: "route", id: route.id } });
     } else {
       // Update existing route: replace name and all points
       await updateRoute(routeId!, { name: name || null });
@@ -186,7 +182,7 @@ export default function EditRouteScreen() {
       }
       clearDraft();
       await loadRoutes();
-      router.dismiss();
+      router.dismissTo({ pathname: "/feature/[type]/[id]", params: { type: "route", id: routeId } });
     }
   }, [isNew, routeId, name, points]);
 
@@ -211,22 +207,20 @@ export default function EditRouteScreen() {
           : undefined
         }
         onPressTitle={handleRename}
-        headerLeft={() => (<CloseButton onPress={handleCancel} />)}
-        headerRight={() => (
-          <Host matchContents>
-            <Button
-              systemImage="checkmark"
-              label="Save"
-              onPress={handleSave}
-              modifiers={[
-                labelStyle("iconOnly"),
-                tint("primary"),
-                font({ weight: "semibold" }),
-              ]}
-            />
-          </Host>
-        )}
       />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button
+          icon="xmark"
+          onPress={handleCancel}
+        />
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="checkmark"
+          onPress={handleSave}
+        />
+      </Stack.Toolbar>
+
       <Host style={{ flex: 1 }}>
         <List modifiers={[
           listStyle("automatic"),

@@ -11,7 +11,6 @@ import {
   Form,
   Host,
   HStack,
-  Menu,
   ScrollView,
   Section,
   Spacer,
@@ -19,17 +18,14 @@ import {
   VStack,
 } from "@expo/ui/swift-ui";
 import {
-  buttonStyle,
   font,
   foregroundStyle,
   frame,
-  labelStyle,
   monospacedDigit,
-  offset,
   padding,
   tint,
 } from "@expo/ui/swift-ui/modifiers";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { showLocation } from "react-native-map-link";
@@ -105,44 +101,32 @@ export default function RouteDetail({ id }: { id: string }) {
           ? `${points.length} ${points.length === 1 ? "waypoint" : "waypoints"} · ${dist.value} ${dist.abbr}`
           : undefined
         }
-        headerLeft={() => (
-          <Host matchContents>
-            <Menu
-              systemImage="square.and.arrow.up"
-              label="Share"
-              modifiers={[
-                labelStyle("iconOnly"),
-                buttonStyle("borderless"),
-              ]}>
-              <Button
-                onPress={() => exportRouteAsGPX(routeId)}
-                modifiers={[
-                  tint("primary"),
-                  offset({ y: -3 }),
-                ]}
-                label="Export GPX…"
-              />
-              {points.length > 0 && (
-                <Button
-                  onPress={() => {
-                    const last = points[points.length - 1];
-                    showLocation({
-                      latitude: last.latitude,
-                      longitude: last.longitude,
-                      title: "Destination",
-                    });
-                  }}
-                  modifiers={[
-                    tint("primary"),
-                    offset({ y: -3 }),
-                  ]}
-                  label="Open in…"
-                />
-              )}
-            </Menu>
-          </Host>
-        )}
       />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Menu icon="square.and.arrow.up" title="Share">
+          <Stack.Toolbar.MenuAction
+            icon="square.and.arrow.up"
+            onPress={() => exportRouteAsGPX(routeId)}
+          >
+            Export GPX…
+          </Stack.Toolbar.MenuAction>
+          {points.length > 0 && (
+            <Stack.Toolbar.MenuAction
+              icon="map"
+              onPress={() => {
+                const last = points[points.length - 1];
+                showLocation({
+                  latitude: last.latitude,
+                  longitude: last.longitude,
+                  title: "Destination",
+                });
+              }}
+            >
+              Open in…
+            </Stack.Toolbar.MenuAction>
+          )}
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
         <ScrollView showsIndicators={false}>
           {/* Waypoint list */}

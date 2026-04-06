@@ -11,22 +11,17 @@ import {
   Host,
   HStack,
   Image,
-  Menu,
   Section,
   Spacer,
   Text
 } from "@expo/ui/swift-ui";
 import {
-  buttonStyle,
   font,
   foregroundStyle,
-  labelStyle,
-  monospacedDigit,
-  offset,
-  tint
+  monospacedDigit
 } from "@expo/ui/swift-ui/modifiers";
 import { CoordinateFormat } from "coordinate-format";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { getDistance, getGreatCircleBearing } from "geolib";
 import { useCallback, useMemo } from "react";
 import { Alert } from "react-native";
@@ -94,39 +89,27 @@ export default function MarkerDetail({ id }: { id: string }) {
       <SheetHeader
         title={marker?.name ?? "Marker"}
         subtitle={[latStr, lonStr,].join(", ")}
-        headerLeft={() => (
-          <Host matchContents>
-            <Menu
-              systemImage="square.and.arrow.up"
-              label="Share"
-              modifiers={[
-                labelStyle("iconOnly"),
-                buttonStyle("borderless"),
-              ]}>
-              <Button
-                onPress={handleShare}
-                modifiers={[
-                  tint("primary"),
-                  offset({ y: -3 }),
-                ]}
-                label="Export GPX…"
-              />
-              <Button
-                onPress={() => showLocation({
-                  latitude: marker?.latitude,
-                  longitude: marker?.longitude,
-                  title: `${latStr} ${lonStr}`,
-                })}
-                modifiers={[
-                  tint("primary"),
-                  offset({ y: -3 }),
-                ]}
-                label="Open in…"
-              />
-            </Menu>
-          </Host>
-        )}
       />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Menu icon="square.and.arrow.up" title="Share">
+          <Stack.Toolbar.MenuAction
+            icon="square.and.arrow.up"
+            onPress={handleShare}
+          >
+            Export GPX…
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction
+            icon="map"
+            onPress={() => showLocation({
+              latitude: marker?.latitude,
+              longitude: marker?.longitude,
+              title: `${latStr} ${lonStr}`,
+            })}
+          >
+            Open in…
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
         <Form>
           <Section>

@@ -16,26 +16,21 @@ import {
   Host,
   HStack,
   List,
-  Menu,
   Text,
-  Toggle,
   VStack
 } from "@expo/ui/swift-ui";
 import {
-  buttonStyle,
   font,
   foregroundStyle,
-  labelStyle,
   lineLimit,
+  listStyle,
   monospacedDigit,
   onTapGesture,
-  padding,
-  tint
+  padding
 } from "@expo/ui/swift-ui/modifiers";
-import { router, Stack } from "expo-router";
-import { SymbolView } from "expo-symbols";
+import { router, Stack, StackToolbarMenuActionProps } from "expo-router";
 import { useMemo, useState } from "react";
-import { Alert, TouchableOpacity } from "react-native";
+import { Alert } from "react-native";
 
 type SortBy = "recent" | "name" | "distance";
 
@@ -49,6 +44,12 @@ export default function RouteList() {
   const activeRouteId = useRouteNavigation((s) => s.activeRouteId);
   const theme = useTheme();
   const [sort, setSort] = useState<SortBy>("recent");
+
+  const sortOptions: Array<{ label: string, value: SortBy, icon: StackToolbarMenuActionProps["icon"] }> = [
+    { label: "Recent", value: "recent", icon: "clock" },
+    { label: "Name", value: "name", icon: "character" },
+    { label: "Distance", value: "distance", icon: "lines.measurement.vertical" },
+  ]
 
   const sortedRoutes = useMemo(() => {
     return [...routes].sort((a, b) => {
@@ -86,48 +87,27 @@ export default function RouteList() {
 
   return (
     <SheetView id="routes">
-      <Stack.Screen options={{
-        headerLeft: () => (
-          <Host matchContents>
-            <Menu
-              systemImage="line.3.horizontal.decrease"
-              label="Sort"
-              modifiers={[
-                tint("primary"),
-                labelStyle("iconOnly"),
-                buttonStyle("borderless"),
-              ]}>
-              <Toggle
-                systemImage="clock"
-                isOn={sort === "recent"}
-                onIsOnChange={(isOn) => isOn && setSort("recent")}
-                label="Recent"
-              />
-              <Toggle
-                systemImage="character"
-                isOn={sort === "name"}
-                onIsOnChange={(isOn) => isOn && setSort("name")}
-                label="Name"
-              />
-              <Toggle
-                systemImage="lines.measurement.vertical"
-                isOn={sort === "distance"}
-                onIsOnChange={(isOn) => isOn && setSort("distance")}
-                label="Distance"
-              />
-            </Menu>
-          </Host>
-        ),
-        headerRight: () => (
-          <TouchableOpacity onPress={() => {
-            router.push("/route/edit");
-          }}>
-            <SymbolView name="plus" tintColor={theme.textPrimary} />
-          </TouchableOpacity>
-        )
-      }} />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Menu icon="line.3.horizontal.decrease" title="Sort">
+          {sortOptions.map(({ label, value, icon }) => (
+            <Stack.Toolbar.MenuAction
+              icon={icon}
+              isOn={sort === value}
+              onPress={() => setSort(value)}
+            >
+              {label}
+            </Stack.Toolbar.MenuAction>
+          ))}
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="xmark"
+          onPress={() => router.dismissTo("/menu")}
+        />
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
-        <List>
+        <List modifiers={[listStyle("plain")]}>
           <List.ForEach>
             {sortedRoutes.map((route) => {
               const isNavigating = activeRouteId === route.id;

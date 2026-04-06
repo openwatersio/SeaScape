@@ -23,14 +23,12 @@ import {
   font,
   foregroundStyle,
   frame,
-  labelStyle,
   monospacedDigit,
-  offset,
   padding,
   tint
 } from "@expo/ui/swift-ui/modifiers";
 import { CoordinateFormat } from "coordinate-format";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { showLocation } from "react-native-map-link";
 
@@ -75,26 +73,19 @@ export default function LocationDetail({ id }: { id: string }) {
       <SheetHeader
         title="Location"
         subtitle={[latStr, lonStr].join(", ")}
-        headerLeft={() => (
-          <Host matchContents>
-            <Button
-              systemImage="square.and.arrow.up"
-              onPress={() => showLocation({
-                latitude: lat,
-                longitude: lon,
-                title: `${latStr} ${lonStr}`,
-              })}
-              modifiers={[
-                labelStyle("iconOnly"),
-                buttonStyle("borderless"),
-                tint("primary"),
-                offset({ y: -3 }),
-              ]}
-              label="Open In…"
-            />
-          </Host>
-        )}
       />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button
+          icon="square.and.arrow.up"
+          onPress={() => showLocation({
+            latitude: lat,
+            longitude: lon,
+            title: `${latStr} ${lonStr}`,
+          })}
+        >
+          Open In…
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
         <ScrollView showsIndicators={false}>
           <VStack spacing={16} modifiers={[padding({ horizontal: 20, top: 16 })]}>
