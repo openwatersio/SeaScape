@@ -1,205 +1,235 @@
+import { useCameraView } from "@/hooks/useCameraView";
 import { useNavigation } from "@/hooks/useNavigation";
 import useTheme from "@/hooks/useTheme";
-import { projectPosition } from "@/lib/geo";
 import type { LngLat } from "@maplibre/maplibre-react-native";
-import { GeoJSONSource, Layer, LayerAnnotation } from "@maplibre/maplibre-react-native";
-import { memo, useEffect, useRef, useState } from "react";
-import { Animated, Easing } from "react-native";
+import {
+  GeoJSONSource,
+  Layer,
+  Marker,
+} from "@maplibre/maplibre-react-native";
+import { memo, useEffect } from "react";
+import Reanimated, {
+  createAnimatedPropAdapter,
+  Easing,
+  useAnimatedProps,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import Svg, { Path } from "react-native-svg";
 
-const PUCK_ID = "current-location";
-const COG_PROJECTION_SECONDS = 5 * 60; // 5 minutes
+const PUCK_SIZE = 32;
+const HALO_STROKE = 4; // svg stroke width for the halo outline, in viewBox units
+const COG_PROJECTION_SECONDS = 15 * 60; // minutes
 const MIN_SOG_FOR_COG_LINE = 0.25; // m/s (~0.5 knots)
+const EXTENDED_DISTANCE_METERS = 400 * 1852; // 400 nm
 // Slightly longer than the GPS update interval (~1s) so animations overlap
 // rather than completing and pausing before the next update
 const ANIMATION_DURATION = 1500;
-const EASING = Easing.linear;
+const TIMING_CONFIG = { duration: ANIMATION_DURATION, easing: Easing.linear };
 
-/** Normalize an angle delta to [-180, 180] for shortest-path rotation */
-function shortestRotation(from: number, to: number): number {
-  const delta = ((to - from) % 360 + 540) % 360 - 180;
+const AnimatedMarker = Reanimated.createAnimatedComponent(Marker);
+const AnimatedGeoJSONSource = Reanimated.createAnimatedComponent(GeoJSONSource);
+
+// GeoJSONSource expects `data` as a serialized string on the native side.
+const geoJSONDataAdapter = createAnimatedPropAdapter((props) => {
+  "worklet";
+  if (props.data !== undefined) {
+    props.data = JSON.stringify(props.data);
+  }
+}, ["data"]);
+
+/** Normalize `to` so that (to - from) is the shortest path in [-180, 180]. */
+function shortestRotationTarget(from: number, to: number): number {
+  const delta = (((to - from) % 360) + 540) % 360 - 180;
   return from + delta;
 }
 
-/**
- * Animated angle value that always rotates the shortest direction.
- * Returns the current interpolated value in degrees.
- */
-function useAnimatedAngle(targetDeg: number | null): number {
-  const animValue = useRef(new Animated.Value(targetDeg ?? 0)).current;
-  const currentRef = useRef(targetDeg ?? 0);
-  const [display, setDisplay] = useState(targetDeg ?? 0);
-
-  useEffect(() => {
-    if (targetDeg === null) return;
-    const resolvedTarget = shortestRotation(currentRef.current, targetDeg);
-    currentRef.current = resolvedTarget;
-    Animated.timing(animValue, {
-      toValue: resolvedTarget,
-      duration: ANIMATION_DURATION,
-      easing: EASING,
-      useNativeDriver: false,
-    }).start();
-  }, [targetDeg, animValue]);
-
-  useEffect(() => {
-    const id = animValue.addListener(({ value }) => setDisplay(value));
-    return () => animValue.removeListener(id);
-  }, [animValue]);
-
-  return display;
-}
-
-/**
- * Animated position that interpolates longitude/latitude smoothly.
- * Returns the current interpolated position.
- */
-function useAnimatedPosition(
-  longitude: number | null,
-  latitude: number | null,
-): { longitude: number; latitude: number } | null {
-  const longitudeAnim = useRef(new Animated.Value(longitude ?? 0)).current;
-  const latitudeAnim = useRef(new Animated.Value(latitude ?? 0)).current;
-  const [display, setDisplay] = useState(
-    longitude !== null && latitude !== null ? { longitude, latitude } : null,
+export const NavigationPuck = memo(function NavigationPuck() {
+  const theme = useTheme();
+  const hasFix = useNavigation(
+    (s) => s.latitude !== null && s.longitude !== null,
   );
 
+  // Shared values driven imperatively from the navigation + camera stores.
+  // This avoids re-rendering the component on every GPS tick or map movement.
+  const latitude = useSharedValue(0);
+  const longitude = useSharedValue(0);
+  const headingDeg = useSharedValue(0); // unbounded, for shortest-path rotation
+  const courseDeg = useSharedValue(0); // unbounded, for shortest-path rotation
+  const speed = useSharedValue(0);
+  const mapBearing = useSharedValue(0);
+
+  // Initialize shared values from current store state on mount.
   useEffect(() => {
-    if (longitude === null || latitude === null) return;
-    Animated.parallel([
-      Animated.timing(longitudeAnim, {
-        toValue: longitude,
-        duration: ANIMATION_DURATION,
-        easing: EASING,
-        useNativeDriver: false,
-      }),
-      Animated.timing(latitudeAnim, {
-        toValue: latitude,
-        duration: ANIMATION_DURATION,
-        easing: EASING,
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, [longitude, latitude, longitudeAnim, latitudeAnim]);
+    const nav = useNavigation.getState();
+    if (nav.latitude !== null) latitude.value = nav.latitude;
+    if (nav.longitude !== null) longitude.value = nav.longitude;
+    if (nav.heading !== null) headingDeg.value = nav.heading;
+    if (nav.course !== null) courseDeg.value = (nav.course * 180) / Math.PI;
+    if (nav.speed !== null) speed.value = nav.speed;
+    mapBearing.value = useCameraView.getState().bearing;
+  }, [latitude, longitude, headingDeg, courseDeg, speed, mapBearing]);
 
+  // Subscribe to navigation updates and drive shared values with withTiming.
   useEffect(() => {
-    let currentLongitude = longitude ?? 0;
-    let currentLatitude = latitude ?? 0;
-    const longitudeId = longitudeAnim.addListener(({ value }) => {
-      currentLongitude = value;
-      setDisplay({ longitude: currentLongitude, latitude: currentLatitude });
+    return useNavigation.subscribe((nav) => {
+      if (nav.latitude !== null) {
+        latitude.value = withTiming(nav.latitude, TIMING_CONFIG);
+      }
+      if (nav.longitude !== null) {
+        longitude.value = withTiming(nav.longitude, TIMING_CONFIG);
+      }
+      if (nav.heading !== null) {
+        headingDeg.value = withTiming(
+          shortestRotationTarget(headingDeg.value, nav.heading),
+          TIMING_CONFIG,
+        );
+      }
+      if (nav.course !== null) {
+        const targetDeg = (nav.course * 180) / Math.PI;
+        courseDeg.value = withTiming(
+          shortestRotationTarget(courseDeg.value, targetDeg),
+          TIMING_CONFIG,
+        );
+      }
+      if (nav.speed !== null) {
+        speed.value = withTiming(nav.speed, TIMING_CONFIG);
+      }
     });
-    const latitudeId = latitudeAnim.addListener(({ value }) => {
-      currentLatitude = value;
-      setDisplay({ longitude: currentLongitude, latitude: currentLatitude });
+  }, [latitude, longitude, headingDeg, courseDeg, speed]);
+
+  // Sync map bearing immediately (no interpolation — the map's own animation is
+  // the source of truth).
+  useEffect(() => {
+    return useCameraView.subscribe((state) => {
+      mapBearing.value = state.bearing;
     });
-    return () => {
-      longitudeAnim.removeListener(longitudeId);
-      latitudeAnim.removeListener(latitudeId);
-    };
-  }, [longitudeAnim, latitudeAnim, longitude, latitude]);
+  }, [mapBearing]);
 
-  return display;
-}
+  // Marker position (lngLat) — drives native position updates without re-rendering React.
+  const markerAnimatedProps = useAnimatedProps<{ lngLat: LngLat }>(() => {
+    return { lngLat: [longitude.value, latitude.value] };
+  });
 
-export const NavigationPuck = memo(function NavigationPuck() {
-  const latitude = useNavigation((s) => s.latitude);
-  const longitude = useNavigation((s) => s.longitude);
-  const heading = useNavigation((s) => s.heading);
-  const course = useNavigation((s) => s.course);
-  const speed = useNavigation((s) => s.speed);
-  const theme = useTheme();
+  // Arrow rotation: heading in map-space, compensated for map bearing so the
+  // puck visually rotates with the map like an icon-rotation-alignment="map".
+  const arrowStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${headingDeg.value - mapBearing.value}deg` }],
+  }));
 
-  // Smooth heading rotation for the arrow icon
-  const displayHeading = useAnimatedAngle(heading);
+  // COG line: compute both segments on the UI thread each frame from animated
+  // position, course, and speed. Produces an empty collection when the vessel
+  // is below the speed threshold.
+  const cogAnimatedProps = useAnimatedProps(
+    () => {
+      const lat = latitude.value;
+      const lng = longitude.value;
+      const sog = speed.value;
+      if (sog <= MIN_SOG_FOR_COG_LINE) {
+        return {
+          data: { type: "FeatureCollection" as const, features: [] },
+        };
+      }
+      const courseRad = (courseDeg.value * Math.PI) / 180;
+      const cosLat = Math.cos((lat * Math.PI) / 180);
+      const sinC = Math.sin(courseRad);
+      const cosC = Math.cos(courseRad);
 
-  // Smooth course rotation for the COG line
-  const courseDeg = course !== null ? (course * 180) / Math.PI : null;
-  const displayCourseDeg = useAnimatedAngle(courseDeg);
-  const displayCourseRad = (displayCourseDeg * Math.PI) / 180;
+      const projDist = sog * COG_PROJECTION_SECONDS;
+      const projLat = lat + (projDist * cosC) / 110540;
+      const projLng = lng + (projDist * sinC) / (111320 * cosLat);
 
-  // Smooth position for the COG line start point (tracks the puck's animated position)
-  const animPos = useAnimatedPosition(longitude, latitude);
+      const extLat = lat + (EXTENDED_DISTANCE_METERS * cosC) / 110540;
+      const extLng = lng + (EXTENDED_DISTANCE_METERS * sinC) / (111320 * cosLat);
 
-  if (latitude === null || longitude === null || !animPos) return null;
-
-  const lngLat: LngLat = [longitude, latitude];
-  const showCogLine = course !== null && (speed ?? 0) > MIN_SOG_FOR_COG_LINE;
-
-  // COG line: projected segment (where vessel will be) + extended line (indefinite heading)
-  const cogLineData: GeoJSON.FeatureCollection = (() => {
-    if (!showCogLine || speed === null) {
-      return { type: "FeatureCollection", features: [] };
-    }
-    const projectedDist = speed * COG_PROJECTION_SECONDS;
-    const projectedEnd = projectPosition(animPos.latitude, animPos.longitude, displayCourseRad, projectedDist);
-    const extendedEnd = projectPosition(animPos.latitude, animPos.longitude, displayCourseRad, 400 * 1852); // 400 nm
-    return {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: { segment: "extended" },
-          geometry: {
-            type: "LineString",
-            coordinates: [projectedEnd, extendedEnd],
-          },
+      return {
+        data: {
+          type: "FeatureCollection" as const,
+          features: [
+            {
+              type: "Feature" as const,
+              properties: { segment: "extended" },
+              geometry: {
+                type: "LineString" as const,
+                coordinates: [
+                  [projLng, projLat],
+                  [extLng, extLat],
+                ],
+              },
+            },
+            {
+              type: "Feature" as const,
+              properties: { segment: "projected" },
+              geometry: {
+                type: "LineString" as const,
+                coordinates: [
+                  [lng, lat],
+                  [projLng, projLat],
+                ],
+              },
+            },
+          ],
         },
-        {
-          type: "Feature",
-          properties: { segment: "projected" },
-          geometry: {
-            type: "LineString",
-            coordinates: [[animPos.longitude, animPos.latitude], projectedEnd],
-          },
-        },
-      ],
-    };
-  })();
+      };
+    },
+    null,
+    geoJSONDataAdapter,
+  );
+
+  if (!hasFix) return null;
 
   return (
     <>
-      {/* COG projection line */}
-      <GeoJSONSource id="nav-puck-cog" data={cogLineData}>
+      {/* COG projection line — data is driven by useAnimatedProps on the UI thread. */}
+      <AnimatedGeoJSONSource
+        id="nav-puck-cog"
+        data={{ type: "FeatureCollection", features: [] }}
+        animatedProps={cogAnimatedProps}
+      >
         <Layer
           id="nav-puck-cog-line"
           type="line"
           paint={{
             "line-color": theme.userLocation,
             "line-width": 3,
-            "line-opacity": ["match", ["get", "segment"], "projected", 0.75, "extended", 0.25, 0.5],
+            "line-opacity": [
+              "match",
+              ["get", "segment"],
+              "projected",
+              0.75,
+              "extended",
+              0.25,
+              0.5,
+            ],
           }}
-          layout={{
-            "line-cap": "round",
-          }}
+          layout={{ "line-cap": "round" }}
         />
-      </GeoJSONSource>
-      {/* Puck arrow */}
-      <LayerAnnotation
-        id={PUCK_ID}
-        lngLat={lngLat}
-        animated
-        animationDuration={ANIMATION_DURATION}
-        animationEasingFunction={EASING}
+      </AnimatedGeoJSONSource>
+
+      {/* Puck — position is animated via animatedProps, rotation via animated style. */}
+      <AnimatedMarker
+        id="current-location"
+        lngLat={[0, 0]}
+        animatedProps={markerAnimatedProps}
       >
-        <Layer
-          type="symbol"
-          id="nav-puck-arrow"
-          layout={{
-            "icon-image": "nav-puck",
-            "icon-size": 0.5,
-            "icon-rotate": displayHeading,
-            "icon-rotation-alignment": "map",
-            "icon-pitch-alignment": "map",
-            "icon-allow-overlap": true,
-            "icon-ignore-placement": true,
-          }}
-          paint={{
-            "icon-color": theme.userLocation,
-            "icon-halo-color": theme.surface,
-            "icon-halo-width": 1.5,
-          }}
-        />
-      </LayerAnnotation>
+        <Reanimated.View style={arrowStyle}>
+          <Svg width={PUCK_SIZE} height={PUCK_SIZE} viewBox="0 0 64 64">
+            <Path
+              d={PUCK_PATH}
+              fill={theme.userLocation}
+              stroke={theme.surface}
+              strokeWidth={HALO_STROKE}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </Svg>
+        </Reanimated.View>
+      </AnimatedMarker>
     </>
   );
 });
+
+// Puck arrow path — mirrors assets/vessels/svg/puck.svg (64×64 viewBox).
+const PUCK_PATH =
+  "M 32 6 L 53 48 Q 54 51 51 50 L 34 41 Q 32 40 30 41 L 13 50 Q 10 51 11 48 Z";
