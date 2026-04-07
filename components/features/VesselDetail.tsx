@@ -9,8 +9,10 @@ import { calculateCPA, formatBearing } from "@/lib/geo";
 import {
   Form,
   Host,
+  HStack,
   LabeledContent,
   Section,
+  Spacer,
   Text,
 } from "@expo/ui/swift-ui";
 import {
@@ -78,7 +80,7 @@ function getPosition(value: unknown): Position | null {
 
 function formatTimeAgo(timestamp: number): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (seconds < 5) return "Just now";
+  if (seconds < 5) return "Now";
   if (seconds < 60) return `${seconds}s ago`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   return `${Math.floor(seconds / 3600)}h ago`;
@@ -176,7 +178,17 @@ export default function VesselDetail({ id }: { id: string }) {
       )}
       <Host style={{ flex: 1 }}>
         <Form>
-          <Section title="Navigation">
+          <Section
+            header={
+              <HStack>
+                <Text>Navigation</Text>
+                <Spacer />
+                <Text modifiers={[font({ weight: "regular" }), foregroundStyle("secondary")]}>
+                  {formatTimeAgo(vessel.lastSeen)}
+                </Text>
+              </HStack>
+            }
+          >
             <LabeledContent label="CPA">
               <Text modifiers={valueMods}>
                 {cpa ? `${toDistance(cpa.distance).value}${toDistance(cpa.distance).abbr} • ${formatCPATime(cpa.time)}` : "—"}
@@ -229,12 +241,6 @@ export default function VesselDetail({ id }: { id: string }) {
             </LabeledContent>
             <LabeledContent label="IMO">
               <Text modifiers={valueMods}>{imo ?? "—"}</Text>
-            </LabeledContent>
-          </Section>
-
-          <Section title="">
-            <LabeledContent label="Updated">
-              <Text modifiers={valueMods}>{formatTimeAgo(vessel.lastSeen)}</Text>
             </LabeledContent>
           </Section>
         </Form>
