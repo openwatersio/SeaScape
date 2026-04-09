@@ -1,5 +1,4 @@
 import { Annotation, AnnotationProps } from "@/components/map/Annotation";
-import { fitBounds } from "@/components/map/NavigationCamera";
 import {
   removeRouteWaypoint,
   RouteMode,
@@ -9,14 +8,10 @@ import {
   type ActiveRoute,
   type ActiveWaypoint
 } from "@/hooks/useRoutes";
-import { useSheetStore } from "@/hooks/useSheetPosition";
 import useTheme from "@/hooks/useTheme";
-import type { LngLatBounds } from "@maplibre/maplibre-react-native";
 import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
-import { getBounds } from "geolib";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import OverlayView from "./ui/OverlayView";
 
 type Coord = [longitude: number, latitude: number];
@@ -45,26 +40,10 @@ function EditingOverlay({ active }: { active: ActiveRoute }) {
   const points = active.points;
   const activeIndex = active.activeIndex;
 
-  const sheetHeight = useSheetStore((s) => s.sheets["route"]?.height ?? 0);
-  const insets = useSafeAreaInsets();
-
   const coords: Coord[] = useMemo(
     () => points.map((p) => [p.longitude, p.latitude]),
     [points],
   );
-
-  // Fit camera to route bounds when the geometry changes.
-  useEffect(() => {
-    if (coords.length < 2) return;
-    const { minLng, minLat, maxLng, maxLat } = getBounds(coords);
-    const routeBounds: LngLatBounds = [minLng, minLat, maxLng, maxLat];
-    // FIXME: this zooms way out and then back in. Figure out how to make the map movement minimal
-    // FIXME: this should maybe only run on first load, not every coords change
-    fitBounds(routeBounds, {
-      padding: { top: insets.top + 16, right: 16, bottom: 16 + sheetHeight, left: 16 },
-      duration: 300,
-    });
-  }, [coords, sheetHeight, insets]);
 
   const lineData = useMemo(() => {
     if (coords.length < 2) return null;
@@ -122,24 +101,10 @@ function NavigatingOverlay({ active }: { active: ActiveRoute }) {
   const points = active.points;
   const activePointIndex = active.activeIndex ?? 0;
 
-  const sheetHeight = useSheetStore((s) => s.sheets["route-navigate"]?.height ?? 0);
-  const insets = useSafeAreaInsets();
-
   const coords: Coord[] = useMemo(
     () => points.map((p) => [p.longitude, p.latitude]),
     [points],
   );
-
-  // Fit bounds once when the route is loaded for navigation.
-  useEffect(() => {
-    if (coords.length < 2) return;
-    const { minLng, minLat, maxLng, maxLat } = getBounds(coords);
-    const routeBounds: LngLatBounds = [minLng, minLat, maxLng, maxLat];
-    fitBounds(routeBounds, {
-      padding: { top: insets.top + 16, right: 16, bottom: 16 + sheetHeight, left: 16 },
-      duration: 300,
-    });
-  }, [coords, sheetHeight, insets]);
 
   const { completedLineData, activeLineData, remainingLineData } = useMemo(() => {
     if (coords.length < 2) {
