@@ -65,7 +65,7 @@ export default function TrackList() {
   const [sort, setSort] = useState<SortBy>("date");
   const [proximityMap, setProximityMap] = useState<Map<number, number> | null>(null);
 
-  const sortOptions: Array<{ label: string, value: SortBy, icon: StackToolbarMenuActionProps["icon"] }> = [
+  const sortOptions: { label: string, value: SortBy, icon: StackToolbarMenuActionProps["icon"] }[] = [
     { label: "Recent", value: "date", icon: "clock" },
     { label: "Distance", value: "distance", icon: "lines.measurement.vertical" },
     { label: "Duration", value: "duration", icon: "stopwatch" },
@@ -135,6 +135,7 @@ export default function TrackList() {
         <Stack.Toolbar.Menu icon="line.3.horizontal.decrease">
           {sortOptions.map(({ label, value, icon }) => (
             <Stack.Toolbar.MenuAction
+              key={value}
               icon={icon}
               isOn={sort === value}
               onPress={() => setSort(value)}

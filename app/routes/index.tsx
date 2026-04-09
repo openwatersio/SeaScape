@@ -16,32 +16,20 @@ import {
   ContextMenu,
   Host,
   HStack,
-  Label,
   List,
-  Picker, Section,
   Text,
-  Toggle,
   VStack,
 } from "@expo/ui/swift-ui";
 import {
-  animation,
-  Animation,
-  environment,
   font,
   foregroundStyle,
   lineLimit,
   listStyle,
-  type ListStyle,
   monospacedDigit,
   onTapGesture,
   padding,
-  pickerStyle,
-  refreshable,
-  tag,
 } from "@expo/ui/swift-ui/modifiers";
 import { router, Stack, StackToolbarMenuActionProps } from "expo-router";
-import type { SFSymbol } from 'expo-symbols';
-import * as React from 'react';
 import { useState } from "react";
 import { Alert } from "react-native";
 
@@ -55,11 +43,11 @@ export default function RouteList() {
   const activeRouteId = useActiveRoute((a) => (a?.mode === RouteMode.Navigating ? a.id : null));
   const theme = useTheme();
 
-  const sortOptions: Array<{
+  const sortOptions: {
     label: string;
     value: RoutesOrder;
     icon: StackToolbarMenuActionProps["icon"];
-  }> = [
+  }[] = [
       { label: "Recent", value: "recent", icon: "clock" },
       { label: "Name", value: "name", icon: "character" },
       { label: "Distance", value: "distance", icon: "lines.measurement.vertical" },
@@ -144,6 +132,7 @@ export default function RouteList() {
         <Stack.Toolbar.Menu icon="line.3.horizontal.decrease" title="Sort">
           {sortOptions.map(({ label, value, icon }) => (
             <Stack.Toolbar.MenuAction
+              key={value}
               icon={icon}
               isOn={sort === value}
               onPress={() => setSort(value)}
@@ -237,107 +226,3 @@ export default function RouteList() {
 
 
 
-
-
-
-
-
-
-type ListItem = {
-  id: string;
-  title: string;
-  icon: SFSymbol;
-};
-
-const INITIAL_ITEMS: ListItem[] = [
-  { id: '1', title: 'Sun', icon: 'sun.max.fill' },
-  { id: '2', title: 'Moon', icon: 'moon.fill' },
-  { id: '3', title: 'Star', icon: 'star.fill' },
-  { id: '4', title: 'Cloud', icon: 'cloud.fill' },
-  { id: '5', title: 'Rain', icon: 'cloud.rain.fill' },
-];
-
-const LIST_STYLES: ListStyle[] = [
-  'automatic',
-  'plain',
-  'inset',
-  'insetGrouped',
-  'grouped',
-  'sidebar',
-];
-
-function ListScreen() {
-  const [items, setItems] = React.useState<ListItem[]>(INITIAL_ITEMS);
-  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
-  const [editMode, setEditMode] = React.useState(false);
-  const [listStyleIndex, setListStyleIndex] = React.useState(0);
-
-  const handleDelete = (indices: number[]) => {
-    setItems((prev) => prev.filter((_, i) => !indices.includes(i)));
-  };
-
-  const handleMove = (sourceIndices: number[], destination: number) => {
-    setItems((prev) => {
-      const newItems = [...prev];
-      const [removed] = newItems.splice(sourceIndices[0], 1);
-      const adjustedDest = sourceIndices[0] < destination ? destination - 1 : destination;
-      newItems.splice(adjustedDest, 0, removed);
-      return newItems;
-    });
-  };
-
-  const handleRefresh = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setItems(INITIAL_ITEMS);
-  };
-
-  const resetItems = () => setItems(INITIAL_ITEMS);
-  const clearSelection = () => setSelectedIds([]);
-
-  return (
-    <Host style={{ flex: 1 }}>
-      <List
-        selection={selectedIds}
-        onSelectionChange={(ids) => setSelectedIds(ids.map((id) => id.toString()))}
-        modifiers={[
-          listStyle(LIST_STYLES[listStyleIndex]),
-          refreshable(handleRefresh),
-          animation(Animation.default, editMode),
-          environment('editMode', editMode ? 'active' : 'inactive'),
-        ]}>
-        <Section title="Settings">
-          <Toggle label="Edit Mode" isOn={editMode} onIsOnChange={setEditMode} />
-          <Picker
-            label="List Style"
-            selection={listStyleIndex}
-            onSelectionChange={setListStyleIndex}
-            modifiers={[pickerStyle('menu')]}>
-            {LIST_STYLES.map((style, i) => (
-              <Text key={style} modifiers={[tag(i)]}>
-                {style}
-              </Text>
-            ))}
-          </Picker>
-          <Button label="Reset Items" onPress={resetItems} />
-          <Button label="Clear Selection" onPress={clearSelection} />
-        </Section>
-
-        <Section title="Items" footer={<Text>Swipe to delete, drag to reorder</Text>}>
-          <List.ForEach
-            onDelete={handleDelete}
-            onMove={handleMove}
-            modifiers={[animation(Animation.default, editMode)]}>
-            {items.map((item) => (
-              <Label
-                key={item.id}
-                title={item.title}
-                systemImage={item.icon}
-                modifiers={[tag(item.id)]}
-              />
-            ))}
-          </List.ForEach>
-        </Section>
-      </List>
-    </Host>
-  );
-}

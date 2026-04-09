@@ -27,7 +27,7 @@ export default function NavigateScreen() {
   const route = useActiveRoute();
   const activeRouteId = route?.mode === RouteMode.Navigating ? route.id : null;
   const activePointIndex = route?.activeIndex ?? 0;
-  const points = route?.points ?? [];
+  const points = useMemo(() => route?.points ?? [], [route?.points]);
   const nav = useNavigationState();
 
   useDismissBehavior();
@@ -57,7 +57,7 @@ export default function NavigateScreen() {
   if (!activeRouteId) return null;
 
   return (
-    <SheetView id="route-navigate" gap={16} initialDetentIndex={0}>
+    <SheetView id="route-navigate" gap={0} initialDetentIndex={0}>
       <Detent style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }} >
         <Host matchContents>
           <HStack spacing={16}>
@@ -135,7 +135,7 @@ function useWaypointArrival() {
   const arriveOnCircleOnly = usePreferredUnits((s) => s.arriveOnCircleOnly);
 
   const activePointIndex = route?.activeIndex ?? 0;
-  const points = route?.points ?? [];
+  const points = useMemo(() => route?.points ?? [], [route?.points]);
   const targetPoint = points[activePointIndex] ?? null;
   const isLastPoint = activePointIndex >= points.length - 1;
 
@@ -184,8 +184,9 @@ function useDismissBehavior() {
   }, [isNavigating]);
 
   useEffect(() => {
+    const hotReloading = isHotReloading;
     return () => {
-      if (isHotReloading.current) return;
+      if (hotReloading.current) return;
 
       const { mode } = useActiveRoute.getState() ?? {}
       if (mode !== RouteMode.Navigating) return
@@ -195,5 +196,5 @@ function useDismissBehavior() {
       router.navigate("/route/navigate");
       handleStop();
     }
-  }, []); // run cleanup only on actual unmount
+  }, [isHotReloading]); // run cleanup only on actual unmount
 }

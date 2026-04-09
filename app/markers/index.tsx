@@ -47,7 +47,7 @@ export default function MarkerList() {
   const theme = useTheme();
   const [sort, setSort] = useState<SortBy>("created");
 
-  const sortOptions: Array<{ label: string, value: SortBy, icon: StackToolbarMenuActionProps["icon"] }> = [
+  const sortOptions: { label: string, value: SortBy, icon: StackToolbarMenuActionProps["icon"] }[] = [
     { label: "Recent", value: "created", icon: "clock" },
     { label: "Name", value: "name", icon: "character" },
     { label: "Nearby", value: "nearby", icon: "location" },
@@ -119,6 +119,7 @@ export default function MarkerList() {
         <Stack.Toolbar.Menu icon="line.3.horizontal.decrease" title="Sort">
           {sortOptions.map(({ label, value, icon }) => (
             <Stack.Toolbar.MenuAction
+              key={value}
               icon={icon}
               isOn={sort === value}
               onPress={() => setSort(value)}

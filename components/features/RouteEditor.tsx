@@ -123,7 +123,7 @@ function RouteEditorContent({ active }: { active: ActiveRoute }) {
       clearActiveRoute();
       router.dismiss();
     }
-  }, [isEditing, points.length, isExisting]);
+  }, [isEditing, points.length, isExisting, id]);
 
   const handleSave = useCallback(async () => {
     if (!isExisting && points.length === 0) {

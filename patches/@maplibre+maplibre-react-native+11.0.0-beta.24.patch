@@ -1,5 +1,5 @@
 diff --git a/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotation.m b/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotation.m
-index c8d7d98..39e4862 100644
+index c8d7d98..276f3dd 100644
 --- a/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotation.m
 +++ b/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotation.m
 @@ -9,6 +9,12 @@ const float CENTER_Y_OFFSET_BASE = -0.5f;
@@ -100,3 +100,46 @@ index c8d7d98..39e4862 100644
      return self;
    }
  }
+@@ -214,6 +284,15 @@ const float CENTER_Y_OFFSET_BASE = -0.5f;
+     return;
+   }
+ 
++  // Don't fight the drag gesture: setting `coordinate` during a drag would
++  // reproject the annotation back to its original location and cancel the
++  // drag. Belt-and-suspenders for the diffing fix in
++  // MLRNPointAnnotationComponentView.mm — defends against any future caller
++  // that funnels through here.
++  if (self.dragState != MLNAnnotationViewDragStateNone) {
++    return;
++  }
++
+   double lng = [_reactLngLat[0] doubleValue];
+   double lat = [_reactLngLat[1] doubleValue];
+ 
+diff --git a/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotationComponentView.mm b/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotationComponentView.mm
+index 9ebd2ba..b29270b 100644
+--- a/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotationComponentView.mm
++++ b/node_modules/@maplibre/maplibre-react-native/ios/components/annotations/point-annotation/MLRNPointAnnotationComponentView.mm
+@@ -275,8 +275,20 @@ using namespace facebook::react;
+     [_view setReactDraggable:newViewProps.draggable];
+   }
+ 
+-  if (!oldViewProps.lngLat.isNull() || !newViewProps.lngLat.isNull()) {
+-    if (newViewProps.lngLat.isArray() && newViewProps.lngLat.size() >= 2) {
++  // PATCH: only forward lngLat when it actually changed. The original check
++  // (`!oldViewProps.lngLat.isNull() || !newViewProps.lngLat.isNull()`) is
++  // always true once a valid lngLat has been set, so every Fabric props
++  // update was calling setReactLngLat:, which dispatches a coordinate reset
++  // on the main queue. During a drag this fights and cancels the gesture.
++  // All other props in this method already diff old vs new — bring lngLat
++  // in line with that pattern.
++  if (newViewProps.lngLat.isArray() && newViewProps.lngLat.size() >= 2) {
++    BOOL lngLatChanged = YES;
++    if (oldViewProps.lngLat.isArray() && oldViewProps.lngLat.size() >= 2) {
++      lngLatChanged = (oldViewProps.lngLat[0].asDouble() != newViewProps.lngLat[0].asDouble() ||
++                       oldViewProps.lngLat[1].asDouble() != newViewProps.lngLat[1].asDouble());
++    }
++    if (lngLatChanged) {
+       NSArray<NSNumber *> *lngLat =
+           @[ @(newViewProps.lngLat[0].asDouble()), @(newViewProps.lngLat[1].asDouble()) ];
+       [_view setReactLngLat:lngLat];

@@ -86,7 +86,7 @@ export function DetentProvider({ gap = 16, initialDetentIndex, headerDetent, add
         navigation.setOptions({ sheetAllowedDetents: detents });
       }
     }
-  }, [navigation, insets.top, insets.bottom, screenHeight, gap, headerHeight, additionalDetents]);
+  }, [navigation, insets.top, insets.bottom, screenHeight, gap, headerHeight, additionalDetents, headerDetent]);
 
   // Recompute when headerHeight or additionalDetents change (not triggered by
   // <Detent> children reporting, so we need an explicit effect).
@@ -99,7 +99,7 @@ export function DetentProvider({ gap = 16, initialDetentIndex, headerDetent, add
     if (initialDetentIndex != null) {
       navigation.setOptions({ sheetInitialDetentIndex: initialDetentIndex });
     }
-  }, []);
+  }, [initialDetentIndex, navigation]);
 
   const register = useCallback(() => {
     const index = nextIndex.current++;
@@ -151,7 +151,7 @@ export function Detent({ children, style, ...props }: ViewProps) {
     (e: LayoutChangeEvent) => {
       ctx.reportHeight(indexRef.current!, e.nativeEvent.layout.height);
     },
-    [ctx.reportHeight],
+    [ctx],
   );
 
   return (

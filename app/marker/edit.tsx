@@ -37,7 +37,7 @@ export default function EditMarkerScreen() {
 
   const handleSave = useCallback(() => {
     router.dismissTo({ pathname: "/feature/[type]/[id]", params: { type: "marker", id } });
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     if (!marker) return;
