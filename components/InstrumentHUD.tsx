@@ -1,6 +1,7 @@
 import { type DataPoint, useHasInstrumentData, useInstrumentPath } from "@/hooks/useInstruments";
 import { toDepth, toSpeed, toTemperature } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
+import * as Haptics from "expo-haptics";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import OverlayView from "./ui/OverlayView";
@@ -90,7 +91,7 @@ export default function InstrumentHUD() {
   const tempFormatted = formatTemp(waterTemp);
 
   return (
-    <Pressable onPress={() => setExpanded((e) => !e)}>
+    <Pressable onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setExpanded((e) => !e); }}>
       <OverlayView style={styles.container}>
         {/* Always visible: depth + SOG */}
         <View style={styles.row}>

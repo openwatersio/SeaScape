@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -32,6 +33,7 @@ export function setFollowUserLocation(follow: boolean) {
 }
 
 export function cycleTrackingMode() {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   useCameraState.setState((state) => {
     if (state.followUserLocation && state.trackingMode === "default") {
       return { trackingMode: "course" as const };

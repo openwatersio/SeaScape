@@ -1,4 +1,5 @@
 import { router, useGlobalSearchParams, usePathname } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { useCallback } from "react";
 
 export type FeatureType =
@@ -36,6 +37,7 @@ export function useSelectionHandler() {
 
   return useCallback(
     (type: FeatureType, id: string) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       if (selection) {
         router.setParams({ type, id });
       } else {

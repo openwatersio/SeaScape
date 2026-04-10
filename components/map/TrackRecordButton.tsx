@@ -1,6 +1,7 @@
 import useTheme from "@/hooks/useTheme";
 import { startTrackRecording, useTrackRecording } from "@/hooks/useTrackRecording";
 import { Button, Host } from "@expo/ui/swift-ui";
+import * as Haptics from "expo-haptics";
 import { frame, glassEffect, glassEffectId } from "@expo/ui/swift-ui/modifiers";
 import { SymbolView } from "expo-symbols";
 import { useEffect } from "react";
@@ -42,7 +43,10 @@ export default function TrackRecordButton() {
   return (
     <Host>
       <Button
-        onPress={() => startTrackRecording()}
+        onPress={() => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          startTrackRecording();
+        }}
         modifiers={[
           frame({ width: 44, height: 44, alignment: 'center' }),
           glassEffect({ glass: { variant: 'regular', interactive: true }, shape: 'circle' }),

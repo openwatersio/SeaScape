@@ -1,5 +1,6 @@
 import useTheme from "@/hooks/useTheme";
 import { ViewAnnotation, type ViewAnnotationProps } from "@maplibre/maplibre-react-native";
+import * as Haptics from "expo-haptics";
 import { ReactNode, useCallback, useEffect, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
@@ -134,12 +135,14 @@ export function Annotation({
   }, [onPress]);
 
   const handleDragStart = useCallback<NonNullable<ViewAnnotationProps["onDragStart"]>>((e) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     dragLift.value = withSpring(-10, { damping: 12, stiffness: 300 });
     dragScale.value = withSpring(1.15, { damping: 12, stiffness: 300 });
     onDragStart?.(e);
   }, [onDragStart, dragLift, dragScale]);
 
   const handleDragEnd = useCallback<NonNullable<ViewAnnotationProps["onDragEnd"]>>((e) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     dragLift.value = withSpring(0, { damping: 30, stiffness: 350 });
     dragScale.value = withSpring(1, { damping: 30, stiffness: 350 });
     onDragEnd?.(e);

@@ -44,6 +44,7 @@ import {
   padding,
   tint
 } from "@expo/ui/swift-ui/modifiers";
+import * as Haptics from "expo-haptics";
 import { CoordinateFormat } from "coordinate-format";
 import { router, Stack } from "expo-router";
 import { useCallback, useMemo } from "react";
@@ -165,6 +166,7 @@ function RouteEditorContent({ active }: { active: ActiveRoute }) {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
             await handleDeleteRoute(id);
             router.dismiss();
           },
@@ -182,6 +184,7 @@ function RouteEditorContent({ active }: { active: ActiveRoute }) {
       coords?.latitude != null && coords?.longitude != null
         ? { latitude: coords.latitude, longitude: coords.longitude }
         : undefined;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     await startNavigation(id, { from });
     router.dismissAll();
   }, [id]);

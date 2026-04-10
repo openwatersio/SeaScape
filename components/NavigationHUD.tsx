@@ -3,6 +3,7 @@ import { NavigationState, useNavigation } from "@/hooks/useNavigation";
 import { toDepth, toSpeed, toTemperature } from "@/hooks/usePreferredUnits";
 import { useTrackRecording } from "@/hooks/useTrackRecording";
 import useTheme from "@/hooks/useTheme";
+import * as Haptics from "expo-haptics";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -85,7 +86,7 @@ export default function NavigationHUD() {
   const tempFormatted = waterTemp ? toTemperature(waterTemp.value as number) : null;
 
   return (
-    <Pressable onPress={() => setExpanded((e) => !e)}>
+    <Pressable onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setExpanded((e) => !e); }}>
       <OverlayView style={styles.container}>
         {/* Source indicator */}
         {navSource === "signalk" && (

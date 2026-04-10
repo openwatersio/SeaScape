@@ -15,6 +15,7 @@ import {
   calculateWaypointProgress,
 } from "@/lib/geo";
 import { Button, Host, HStack, Text, VStack } from "@expo/ui/swift-ui";
+import * as Haptics from "expo-haptics";
 import { buttonStyle, font, foregroundStyle, frame, textCase } from "@expo/ui/swift-ui/modifiers";
 import { router } from "expo-router";
 import { useEffect, useMemo } from "react";
@@ -156,6 +157,7 @@ function handleStopNavigation() {
         text: "Stop",
         style: "destructive",
         onPress: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
           stopNavigation();
 
           if (useTrackRecording.getState().isRecording) {
@@ -167,7 +169,10 @@ function handleStopNavigation() {
                 {
                   text: "Stop Recording",
                   style: "destructive",
-                  onPress: () => stopTrackRecording(),
+                  onPress: () => {
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                    stopTrackRecording();
+                  },
                 },
               ],
             );
@@ -188,7 +193,10 @@ function handleStopRecording() {
       {
         text: "Stop",
         style: "destructive",
-        onPress: () => stopTrackRecording(),
+        onPress: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          stopTrackRecording();
+        },
       },
     ],
   );
