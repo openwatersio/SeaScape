@@ -1,4 +1,3 @@
-import { resetNorth } from "@/components/map/NavigationCamera";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -37,7 +36,6 @@ export function cycleTrackingMode() {
     if (state.followUserLocation && state.trackingMode === "default") {
       return { trackingMode: "course" as const };
     }
-    resetNorth();
     return { followUserLocation: true, trackingMode: "default" as const };
   });
 }

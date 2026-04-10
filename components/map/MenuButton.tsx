@@ -11,7 +11,7 @@ const NS_ID = 'map-controls';
 
 export function MenuButton() {
   const router = useRouter();
-  const pathname = '/MainSheet';
+  const pathname = '/menu';
   const isOpen = pathname === usePathname();
 
   return (

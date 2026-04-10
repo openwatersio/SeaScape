@@ -1,46 +1,59 @@
+import { useCameraPosition } from "@/hooks/useCameraPosition";
 import { mapRef } from "@/hooks/useMapRef";
-import { loadMarkers } from "@/hooks/useMarkers";
-import { useSelection, useSelectionHandler } from "@/hooks/useSelection";
-import { useSheetOffset } from "@/hooks/useSheetPosition";
-import useTheme from "@/hooks/useTheme";
-import { mapStyles, useViewOptions } from "@/hooks/useViewOptions";
-import { Images, Map } from "@maplibre/maplibre-react-native";
-import { router } from "expo-router";
-import { Fragment, useCallback, useEffect } from "react";
-import Animated from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  addRouteWaypoint,
+  getActiveRoute,
+  RouteMode,
+  setActiveIndex
+} from "@/hooks/useRoutes";
+import { useSelectionHandler } from "@/hooks/useSelection";
+import { useMapStyle } from "@/hooks/useViewOptions";
+import { findNearestLegIndex, metersPerPixel } from "@/lib/geo";
+import { Images, Map, PressEvent } from "@maplibre/maplibre-react-native";
+import { useCallback } from "react";
+import { NativeSyntheticEvent } from "react-native";
 import AISLayer from "./AISLayer";
 import AtoNLayer from "./AtoNLayer";
-import { MapControls } from "./MapControls";
+import MapOverlay from "./MapOverlay";
 import MarkerOverlay from "./MarkerOverlay";
-import NavigationHUD from "./NavigationHUD";
+import RouteOverlay from "./RouteOverlay";
 import TrackOverlay from "./TrackOverlay";
-import { Annotation } from "./map/Annotation";
-import { NavigationCamera, handleRegionDidChange, handleRegionIsChanging } from "./map/NavigationCamera";
+import { handleRegionDidChange, handleRegionIsChanging, NavigationCamera } from "./map/NavigationCamera";
 import { NavigationPuck } from "./map/NavigationPuck";
-import TrackRecordButton from "./map/TrackRecordButton";
+import SelectedLocationAnnotation from "./map/SelectedLocationAnnotation";
 
 export default function ChartView() {
-  const mapStyleId = useViewOptions((s) => s.mapStyleId);
-  const selection = useSelection();
-  const sheetOffset = useSheetOffset();
-  const theme = useTheme();
-  const mapStyle = mapStyles.find(style => style.id === mapStyleId)?.style || mapStyles[0].style;
-
-  useEffect(() => {
-    loadMarkers();
-  }, []);
-
+  const mapStyle = useMapStyle();
   const navigate = useSelectionHandler();
-  const selectedCoords = selection?.type === "location"
-    ? selection.id.split(",").map(Number) as [number, number]
-    : null;
 
-  const handleDragEnd = useCallback(
-    (e: { nativeEvent: { lngLat: [number, number] } }) =>
-      router.setParams({ id: `${e.nativeEvent.lngLat[0]},${e.nativeEvent.lngLat[1]}` }),
-    []
-  );
+  const handlePress = useCallback((e: NativeSyntheticEvent<PressEvent>) => {
+    const { lngLat } = e.nativeEvent;
+    const active = getActiveRoute();
+    if (active?.mode === RouteMode.Editing && active?.activeIndex != null) {
+      setActiveIndex(null);
+    } else {
+      navigate("location", lngLat.join(','));
+    }
+  }, [navigate]);
+
+  const handleLongPress = useCallback((e: NativeSyntheticEvent<PressEvent>) => {
+    const [lon, lat] = e.nativeEvent.lngLat;
+
+    // Only add waypoints when a route is loaded (not while navigating).
+    // `addRouteWaypoint` flips mode to "editing" implicitly.
+    const active = getActiveRoute();
+    if (!active || active.mode === RouteMode.Navigating) return;
+
+    // Scale the leg-hit threshold with zoom so it's always ~LEG_HIT_PIXELS
+    // of screen slop regardless of how zoomed in/out the map is.
+    const LEG_HIT_PIXELS = 44;
+    const zoom = useCameraPosition.getState().zoom ?? 10;
+    const thresholdMeters = metersPerPixel(zoom, lat) * LEG_HIT_PIXELS;
+
+    // Check if near a leg line — insert between waypoints, otherwise append
+    const insertIndex = findNearestLegIndex(lat, lon, active.points, thresholdMeters);
+    addRouteWaypoint({ latitude: lat, longitude: lon }, insertIndex ?? undefined);
+  }, []);
 
   return <>
     <Map
@@ -54,24 +67,11 @@ export default function ChartView() {
       compassPosition={{ top: -2000, right: -2000 }}
       onRegionIsChanging={handleRegionIsChanging}
       onRegionDidChange={handleRegionDidChange}
-      onPress={(e) => {
-        const { lngLat } = e.nativeEvent;
-        navigate("location", `${lngLat[0]},${lngLat[1]}`);
-      }}
+      onLongPress={handleLongPress}
+      onPress={handlePress}
       logo={false}
     >
       <NavigationCamera />
-      {selectedCoords && (
-        <Annotation
-          id="selected-location"
-          lngLat={selectedCoords}
-          icon="mappin"
-          color={theme.danger}
-          selected
-          draggable
-          onDragEnd={handleDragEnd}
-        />
-      )}
       <Images images={{
         "vessel-default": { source: require("@/assets/vessels/png/default.png"), sdf: true },
         "vessel-unknown": { source: require("@/assets/vessels/png/unknown.png"), sdf: true },
@@ -90,24 +90,14 @@ export default function ChartView() {
         "aton-lighthouse": { source: require("@/assets/atons/png/lighthouse.png"), sdf: true },
         "aton-virtual": { source: require("@/assets/atons/png/virtual.png"), sdf: true },
       }} />
-      <Fragment key={mapStyleId}>
-        <TrackOverlay />
-        <MarkerOverlay />
-        <AISLayer />
-        <AtoNLayer />
-        <NavigationPuck />
-      </Fragment>
+      <TrackOverlay />
+      <MarkerOverlay />
+      <RouteOverlay />
+      <AISLayer />
+      <AtoNLayer />
+      <SelectedLocationAnnotation />
+      <NavigationPuck />
     </Map>
-    <SafeAreaView style={{ position: "absolute", top: 0, left: 16, right: 16, alignItems: "center" }}>
-      <NavigationHUD />
-    </SafeAreaView>
-    <Animated.View style={[{ position: "absolute", bottom: 0, left: 0, right: 0 }, sheetOffset]}>
-      <SafeAreaView style={{ position: "absolute", bottom: 0, right: 16, gap: 16 }}>
-        <MapControls />
-      </SafeAreaView>
-      <SafeAreaView style={{ position: "absolute", bottom: 0, left: 16, gap: 16 }}>
-        <TrackRecordButton />
-      </SafeAreaView>
-    </Animated.View>
+    <MapOverlay />
   </>;
 }

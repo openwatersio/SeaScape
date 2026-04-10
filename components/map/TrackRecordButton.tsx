@@ -1,8 +1,7 @@
 import useTheme from "@/hooks/useTheme";
-import { useTrackRecording } from "@/hooks/useTrackRecording";
+import { startTrackRecording, useTrackRecording } from "@/hooks/useTrackRecording";
 import { Button, Host } from "@expo/ui/swift-ui";
 import { frame, glassEffect, glassEffectId } from "@expo/ui/swift-ui/modifiers";
-import { router, usePathname } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useEffect } from "react";
 import Animated, {
@@ -17,16 +16,12 @@ const NS_ID = 'map-controls';
 export default function TrackRecordButton() {
   const { isRecording } = useTrackRecording();
   const theme = useTheme();
-  const pathname = usePathname();
-  const trackSheetOpen = pathname.startsWith("/track/");
 
-  const showButton = !trackSheetOpen;
-
-  // Pulse animation when recording is active but sheet is not visible
+  // Pulse animation when recording is active
   const pulse = useSharedValue(1);
 
   useEffect(() => {
-    if (isRecording && !trackSheetOpen) {
+    if (isRecording) {
       pulse.value = withRepeat(
         withTiming(0.75, { duration: 1000 }),
         -1,
@@ -35,19 +30,19 @@ export default function TrackRecordButton() {
     } else {
       pulse.value = withTiming(1, { duration: 200 });
     }
-  }, [isRecording, trackSheetOpen, pulse]);
+  }, [isRecording, pulse]);
 
   const pulseStyle = useAnimatedStyle(() => ({
     opacity: pulse.value,
     transform: [{ scale: 1 - (1 - pulse.value) * 0.2 }],
   }));
 
-  if (!showButton) return null;
+  if (isRecording) return null;
 
   return (
     <Host>
       <Button
-        onPress={() => router.push("/track/record")}
+        onPress={() => startTrackRecording()}
         modifiers={[
           frame({ width: 44, height: 44, alignment: 'center' }),
           glassEffect({ glass: { variant: 'regular', interactive: true }, shape: 'circle' }),

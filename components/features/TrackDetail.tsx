@@ -4,7 +4,7 @@ import { toDistance, toSpeed } from "@/hooks/usePreferredUnits";
 import useTheme from "@/hooks/useTheme";
 import { handleDelete, handleRename, trackDisplayName } from "@/hooks/useTracks";
 import { getTrack, getTrackPoints, TrackPoint, type Track } from "@/lib/database";
-import { exportTrackAsGPX } from "@/lib/exportTrack";
+import { exportTrackAsGPX } from "@/lib/export";
 import { formatDate, formatElapsedTime, formatTime } from "@/lib/format";
 import type { ChartDataPoint } from "@expo/ui/swift-ui";
 import {
@@ -19,15 +19,11 @@ import {
 } from "@expo/ui/swift-ui";
 import {
   background,
-  buttonStyle,
   cornerRadius,
   frame,
-  labelStyle,
-  offset,
-  padding,
-  tint
+  padding
 } from "@expo/ui/swift-ui/modifiers";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 
@@ -99,22 +95,15 @@ export default function TrackDetail({ id }: { id: string }) {
       <SheetHeader
         title={track ? trackDisplayName(track) : ""}
         subtitle={track?.started_at ? formatDate(track.started_at) : undefined}
-        headerLeft={() => (
-          <Host matchContents>
-            <Button
-              onPress={handleExport}
-              systemImage="square.and.arrow.up"
-              modifiers={[
-                labelStyle("iconOnly"),
-                buttonStyle("borderless"),
-                tint("primary"),
-                offset({ y: -3 }),
-              ]}
-              label="Export GPX"
-            />
-          </Host>
-        )}
       />
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Button
+          icon="square.and.arrow.up"
+          onPress={handleExport}
+        >
+          Export GPX
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
         <ScrollView showsIndicators={false}>
           <VStack spacing={12} modifiers={[padding({ horizontal: 20, top: 16 })]}>

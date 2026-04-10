@@ -57,6 +57,40 @@ async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
       PRAGMA user_version = 1;
     `);
   }
+
+  if (currentVersion < 2) {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS routes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS route_points (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        route_id INTEGER NOT NULL,
+        "order" INTEGER NOT NULL,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        name TEXT,
+        FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_route_points_route_id
+        ON route_points(route_id);
+
+      PRAGMA user_version = 2;
+    `);
+  }
+
+  if (currentVersion < 4) {
+    await db.execAsync(`
+      ALTER TABLE routes ADD COLUMN distance REAL NOT NULL DEFAULT 0;
+      ALTER TABLE route_points DROP COLUMN name;
+      PRAGMA user_version = 4;
+    `);
+  }
 }
 
 // -- Track operations --
@@ -274,6 +308,125 @@ export async function updateMarker(
 export async function deleteMarker(id: number): Promise<void> {
   const db = await getDatabase();
   await db.runAsync("DELETE FROM markers WHERE id = ?", id);
+}
+
+// -- Route operations --
+
+export type Route = {
+  id: number;
+  name: string | null;
+  created_at: string;
+  updated_at: string;
+  distance: number; // meters
+};
+
+export type RoutePoint = {
+  id: number;
+  route_id: number;
+  order: number;
+  latitude: number;
+  longitude: number;
+};
+
+export type RoutesOrder = "recent" | "name" | "distance";
+
+const ROUTES_ORDER_BY: Record<RoutesOrder, string> = {
+  recent: "updated_at DESC",
+  name: "name COLLATE NOCASE ASC",
+  distance: "distance DESC",
+};
+
+export async function insertRoute(name?: string): Promise<Route> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const result = await db.runAsync(
+    "INSERT INTO routes (name, created_at, updated_at) VALUES (?, ?, ?)",
+    name ?? null,
+    now,
+    now,
+  );
+  const route = await db.getFirstAsync<Route>(
+    "SELECT * FROM routes WHERE id = ?",
+    result.lastInsertRowId,
+  );
+  return route!;
+}
+
+export async function getRoute(id: number): Promise<Route | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<Route>("SELECT * FROM routes WHERE id = ?", id);
+}
+
+export async function getAllRoutes(
+  order: RoutesOrder = "recent",
+): Promise<Route[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<Route>(
+    `SELECT * FROM routes ORDER BY ${ROUTES_ORDER_BY[order]}`,
+  );
+}
+
+export async function updateRoute(
+  id: number,
+  fields: Partial<Pick<Route, "name" | "distance">>,
+): Promise<void> {
+  const db = await getDatabase();
+  const entries = Object.entries(fields).filter(([, v]) => v !== undefined);
+  if (entries.length === 0) return;
+  const setClauses = [
+    ...entries.map(([k]) => `${k} = ?`),
+    "updated_at = ?",
+  ].join(", ");
+  const values = entries.map(([, v]) => v);
+  await db.runAsync(
+    `UPDATE routes SET ${setClauses} WHERE id = ?`,
+    ...values,
+    new Date().toISOString(),
+    id,
+  );
+}
+
+export async function deleteRoute(id: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync("DELETE FROM route_points WHERE route_id = ?", id);
+  await db.runAsync("DELETE FROM routes WHERE id = ?", id);
+}
+
+export async function getRoutePoints(routeId: number): Promise<RoutePoint[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<RoutePoint>(
+    'SELECT * FROM route_points WHERE route_id = ? ORDER BY "order" ASC',
+    routeId,
+  );
+}
+
+/**
+ * Replaces all points for a route in a single transaction. Deletes existing
+ * points and bulk-inserts the new set, then bumps `routes.updated_at`.
+ */
+export async function replaceRoutePoints(
+  routeId: number,
+  points: { latitude: number; longitude: number }[],
+): Promise<void> {
+  const db = await getDatabase();
+  await db.withTransactionAsync(async () => {
+    await db.runAsync("DELETE FROM route_points WHERE route_id = ?", routeId);
+    for (let i = 0; i < points.length; i++) {
+      await db.runAsync(
+        `INSERT INTO route_points (route_id, "order", latitude, longitude)
+         VALUES (?, ?, ?, ?)`,
+        routeId,
+        i,
+        points[i].latitude,
+        points[i].longitude,
+      );
+    }
+    await db.runAsync(
+      "UPDATE routes SET updated_at = ? WHERE id = ?",
+      new Date().toISOString(),
+      routeId,
+    );
+  });
 }
 
 export async function getAllTimeSpeedStats(): Promise<SpeedStats> {

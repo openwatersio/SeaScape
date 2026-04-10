@@ -1,11 +1,11 @@
 import { Annotation } from "@/components/map/Annotation";
 import { useCameraView } from "@/hooks/useCameraView";
-import { updateMarker, useMarkers } from "@/hooks/useMarkers";
+import { loadMarkers, updateMarker, useMarkers } from "@/hooks/useMarkers";
 import { useSelection, useSelectionHandler } from "@/hooks/useSelection";
 import useTheme from "@/hooks/useTheme";
 import type { LngLatBounds } from "@maplibre/maplibre-react-native";
 import type { SFSymbol } from "expo-symbols";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 const DEFAULT_ICON: SFSymbol = "mappin";
 // Fraction of the viewport to extend bounds by, to avoid pop-in while panning
@@ -20,6 +20,10 @@ function isInBounds(lat: number, lng: number, bounds: LngLatBounds): boolean {
 }
 
 export default function MarkerOverlay() {
+  useEffect(() => {
+    loadMarkers();
+  }, []);
+
   const markers = useMarkers((s) => s.markers);
   const selection = useSelection();
   const selectedId = selection?.type === "marker" ? Number(selection.id) : null;
@@ -45,12 +49,10 @@ export default function MarkerOverlay() {
             color={marker.color ?? theme.primary}
             selected={isSelected}
             draggable={isSelected}
-            onPress={isSelected ? undefined : () => {
-              navigate("marker", String(marker.id));
-            }}
+            onPress={() => navigate("marker", String(marker.id))}
             onDragEnd={(e) => {
-              const [lng, lat] = e.nativeEvent.lngLat;
-              updateMarker(marker.id, { latitude: lat, longitude: lng });
+              const [longitude, latitude] = e.nativeEvent.lngLat;
+              updateMarker(marker.id, { latitude, longitude });
             }}
           />
         );

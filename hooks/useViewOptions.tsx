@@ -24,3 +24,8 @@ export const useViewOptions = create<State>()(
 export function setViewOptions(options: Partial<State>) {
   useViewOptions.setState(options);
 }
+
+export function useMapStyle() {
+  const mapStyleId = useViewOptions((s) => s.mapStyleId);
+  return mapStyles.find(style => style.id === mapStyleId)?.style || mapStyles[0].style;
+}

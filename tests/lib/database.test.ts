@@ -12,11 +12,18 @@ import {
   getAllMarkers,
   updateMarker,
   deleteMarker,
+  insertRoute,
+  getRoute,
+  getAllRoutes,
+  updateRoute,
+  deleteRoute,
+  getRoutePoints,
+  replaceRoutePoints,
 } from "@/lib/database";
 
 // Mock expo-sqlite with an in-memory implementation
-const rows: Record<string, any[]> = { tracks: [], track_points: [], markers: [] };
-let autoIncrement: Record<string, number> = { tracks: 0, track_points: 0, markers: 0 };
+const rows: Record<string, any[]> = { tracks: [], track_points: [], markers: [], routes: [], route_points: [] };
+let autoIncrement: Record<string, number> = { tracks: 0, track_points: 0, markers: 0, routes: 0, route_points: 0 };
 let userVersion = 0;
 
 const mockDb = {
@@ -40,6 +47,14 @@ const mockDb = {
       const id = args[0];
       return rows.markers.find((m) => m.id === id) ?? null;
     }
+    if (sql.includes("FROM routes WHERE id")) {
+      const id = args[0];
+      return rows.routes.find((r) => r.id === id) ?? null;
+    }
+    if (sql.includes("FROM route_points WHERE id")) {
+      const id = args[0];
+      return rows.route_points.find((p) => p.id === id) ?? null;
+    }
     return null;
   }),
   getAllAsync: jest.fn(async (sql: string, ...args: any[]) => {
@@ -52,6 +67,23 @@ const mockDb = {
     }
     if (sql.includes("FROM markers ORDER BY")) {
       return [...rows.markers].reverse();
+    }
+    if (sql.includes("FROM routes") && sql.includes("ORDER BY")) {
+      const sorted = [...rows.routes];
+      if (sql.includes("ORDER BY name")) {
+        sorted.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
+      } else if (sql.includes("ORDER BY distance")) {
+        sorted.sort((a, b) => (b.distance ?? 0) - (a.distance ?? 0));
+      } else {
+        sorted.reverse(); // updated_at DESC equivalent for tests
+      }
+      return sorted;
+    }
+    if (sql.includes("FROM route_points WHERE route_id")) {
+      const routeId = args[0];
+      return rows.route_points
+        .filter((p) => p.route_id === routeId)
+        .sort((a: any, b: any) => a.order - b.order);
     }
     return [];
   }),
@@ -136,7 +168,52 @@ const mockDb = {
       rows.markers = rows.markers.filter((m) => m.id !== args[0]);
       return { changes: 0 };
     }
+    if (sql.includes("INSERT INTO routes")) {
+      const id = ++autoIncrement.routes;
+      rows.routes.push({
+        id,
+        name: args[0],
+        created_at: args[1],
+        updated_at: args[2],
+        distance: 0,
+      });
+      return { lastInsertRowId: id };
+    }
+    if (sql.includes("INSERT INTO route_points")) {
+      const id = ++autoIncrement.route_points;
+      rows.route_points.push({
+        id,
+        route_id: args[0],
+        order: args[1],
+        latitude: args[2],
+        longitude: args[3],
+      });
+      return { lastInsertRowId: id };
+    }
+    if (sql.match(/UPDATE routes SET .+ WHERE id/)) {
+      const id = args[args.length - 1];
+      const route = rows.routes.find((r) => r.id === id);
+      if (route) {
+        const setMatch = sql.match(/SET (.+) WHERE/);
+        if (setMatch) {
+          const keys = setMatch[1].split(", ").map((s) => s.replace(" = ?", "").trim());
+          keys.forEach((key, i) => { route[key] = args[i]; });
+        }
+      }
+      return { changes: route ? 1 : 0 };
+    }
+    if (sql.includes("DELETE FROM route_points WHERE route_id")) {
+      rows.route_points = rows.route_points.filter((p) => p.route_id !== args[0]);
+      return { changes: 0 };
+    }
+    if (sql.includes("DELETE FROM routes WHERE id")) {
+      rows.routes = rows.routes.filter((r) => r.id !== args[0]);
+      return { changes: 0 };
+    }
     return { lastInsertRowId: 0, changes: 0 };
+  }),
+  withTransactionAsync: jest.fn(async (task: () => Promise<void>) => {
+    await task();
   }),
 };
 
@@ -148,7 +225,9 @@ beforeEach(() => {
   rows.tracks = [];
   rows.track_points = [];
   rows.markers = [];
-  autoIncrement = { tracks: 0, track_points: 0, markers: 0 };
+  rows.routes = [];
+  rows.route_points = [];
+  autoIncrement = { tracks: 0, track_points: 0, markers: 0, routes: 0, route_points: 0 };
 });
 
 describe("database", () => {
@@ -282,6 +361,108 @@ describe("database", () => {
 
       const marker = await getMarker(id);
       expect(marker).toBeNull();
+    });
+  });
+
+  describe("routes", () => {
+    it("creates a route and returns the route object", async () => {
+      const route = await insertRoute();
+      expect(route.id).toBe(1);
+      expect(route.name).toBeNull();
+      expect(route.created_at).toBeTruthy();
+      expect(route.updated_at).toBeTruthy();
+    });
+
+    it("creates a route with a name", async () => {
+      const route = await insertRoute("Harbor to Island");
+      expect(route.name).toBe("Harbor to Island");
+    });
+
+    it("lists all routes in reverse chronological order", async () => {
+      const r1 = await insertRoute("First");
+      const r2 = await insertRoute("Second");
+
+      const routes = await getAllRoutes();
+      expect(routes).toHaveLength(2);
+      expect(routes[0].id).toBe(r2.id);
+      expect(routes[1].id).toBe(r1.id);
+    });
+
+    it("renames a route", async () => {
+      const { id } = await insertRoute();
+      await updateRoute(id, { name: "Evening cruise" });
+
+      const route = await getRoute(id);
+      expect(route!.name).toBe("Evening cruise");
+    });
+
+    it("updates the distance field", async () => {
+      const { id } = await insertRoute();
+      await updateRoute(id, { distance: 1234.5 });
+
+      const route = await getRoute(id);
+      expect(route!.distance).toBe(1234.5);
+    });
+
+    it("deletes a route and its points", async () => {
+      const { id } = await insertRoute();
+      await replaceRoutePoints(id, [{ latitude: 47.6, longitude: -122.3 }]);
+
+      await deleteRoute(id);
+
+      const route = await getRoute(id);
+      expect(route).toBeNull();
+
+      const points = await getRoutePoints(id);
+      expect(points).toHaveLength(0);
+    });
+  });
+
+  describe("route points (replaceRoutePoints)", () => {
+    it("bulk-inserts points for a route", async () => {
+      const { id: routeId } = await insertRoute();
+
+      await replaceRoutePoints(routeId, [
+        { latitude: 47.6, longitude: -122.3 },
+        { latitude: 47.7, longitude: -122.4 },
+      ]);
+
+      const points = await getRoutePoints(routeId);
+      expect(points).toHaveLength(2);
+      expect(points[0].latitude).toBe(47.6);
+      expect(points[0].order).toBe(0);
+      expect(points[1].latitude).toBe(47.7);
+      expect(points[1].order).toBe(1);
+    });
+
+    it("replaces existing points on a second call", async () => {
+      const { id: routeId } = await insertRoute();
+      await replaceRoutePoints(routeId, [
+        { latitude: 47.6, longitude: -122.3 },
+        { latitude: 47.7, longitude: -122.4 },
+        { latitude: 47.8, longitude: -122.5 },
+      ]);
+
+      await replaceRoutePoints(routeId, [
+        { latitude: 48.0, longitude: -123.0 },
+      ]);
+
+      const points = await getRoutePoints(routeId);
+      expect(points).toHaveLength(1);
+      expect(points[0].latitude).toBe(48.0);
+      expect(points[0].order).toBe(0);
+    });
+
+    it("clears all points when given an empty array", async () => {
+      const { id: routeId } = await insertRoute();
+      await replaceRoutePoints(routeId, [
+        { latitude: 47.6, longitude: -122.3 },
+      ]);
+
+      await replaceRoutePoints(routeId, []);
+
+      const points = await getRoutePoints(routeId);
+      expect(points).toHaveLength(0);
     });
   });
 });

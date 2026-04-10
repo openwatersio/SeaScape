@@ -11,7 +11,7 @@ import {
 } from "@/lib/discovery";
 import { Button, Host, LabeledContent, List, Picker, Section, Text, TextField } from "@expo/ui/swift-ui";
 import { foregroundStyle, pickerStyle, tag, tint } from "@expo/ui/swift-ui/modifiers";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 
 function typeLabel(type: string): string {
@@ -97,6 +97,12 @@ export default function Connections() {
 
   return (
     <SheetView id="connections">
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button icon="xmark" onPress={() => router.dismiss()}>
+          Close
+        </Stack.Toolbar.Button>
+      </Stack.Toolbar>
+
       <Host style={{ flex: 1 }}>
         <List>
           {availableServices.length > 0 ? (

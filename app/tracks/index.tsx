@@ -16,10 +16,9 @@ import { getTrackDistances, type TrackWithStats } from "@/lib/database";
 import {
   Button,
   ContextMenu,
-  HStack,
   Host,
+  HStack,
   List,
-  Picker,
   Spacer,
   Text,
   VStack
@@ -27,16 +26,14 @@ import {
 import {
   font,
   foregroundStyle,
-  labelsHidden,
   lineLimit,
+  listStyle,
   monospacedDigit,
   onTapGesture,
-  padding,
-  pickerStyle,
-  tag
+  padding
 } from "@expo/ui/swift-ui/modifiers";
 import * as Location from "expo-location";
-import { router } from "expo-router";
+import { router, Stack, StackToolbarMenuActionProps } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 
@@ -67,6 +64,14 @@ export default function TrackList() {
   const theme = useTheme();
   const [sort, setSort] = useState<SortBy>("date");
   const [proximityMap, setProximityMap] = useState<Map<number, number> | null>(null);
+
+  const sortOptions: { label: string, value: SortBy, icon: StackToolbarMenuActionProps["icon"] }[] = [
+    { label: "Recent", value: "date", icon: "clock" },
+    { label: "Distance", value: "distance", icon: "lines.measurement.vertical" },
+    { label: "Duration", value: "duration", icon: "stopwatch" },
+    { label: "Speed", value: "speed", icon: "hare" },
+    { label: "Nearby", value: "nearby", icon: "location" },
+  ]
 
   useEffect(() => {
     if (sort !== "nearby") return;
@@ -126,20 +131,28 @@ export default function TrackList() {
 
   return (
     <SheetView id="tracks">
+      <Stack.Toolbar placement="left">
+        <Stack.Toolbar.Menu icon="line.3.horizontal.decrease">
+          {sortOptions.map(({ label, value, icon }) => (
+            <Stack.Toolbar.MenuAction
+              key={value}
+              icon={icon}
+              isOn={sort === value}
+              onPress={() => setSort(value)}
+            >
+              {label}
+            </Stack.Toolbar.MenuAction>
+          ))}
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Button
+          icon="xmark"
+          onPress={() => router.back()}
+        />
+      </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
-        <List>
-          <Picker
-            selection={sort}
-            onSelectionChange={(s) => setSort(s as SortBy)}
-            modifiers={[pickerStyle("segmented"), labelsHidden()]}
-          >
-            <Text modifiers={[tag("date")]}>Date</Text>
-            <Text modifiers={[tag("distance")]}>Distance</Text>
-            <Text modifiers={[tag("duration")]}>Duration</Text>
-            <Text modifiers={[tag("speed")]}>Speed</Text>
-            <Text modifiers={[tag("nearby")]}>Nearby</Text>
-          </Picker>
-
+        <List modifiers={[listStyle("plain")]}>
           <List.ForEach>
             {sortedTracks.map((track) => {
               const isActiveRecording = activeTrack?.id === track.id;
@@ -156,7 +169,7 @@ export default function TrackList() {
                       modifiers={[
                         onTapGesture(() => {
                           if (isActiveRecording) {
-                            router.replace("/track/record");
+                            router.dismissTo("/activity");
                           } else {
                             router.replace(`/feature/track/${track.id}`);
                           }

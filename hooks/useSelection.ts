@@ -1,8 +1,12 @@
-import { useGlobalSearchParams, usePathname } from "expo-router";
-import { router } from "expo-router";
-import { useCallback, useMemo } from "react";
+import { router, useGlobalSearchParams, usePathname } from "expo-router";
+import { useCallback } from "react";
 
-export type FeatureType = "marker" | "track" | "vessel" | "aton" | "location";
+export type FeatureType =
+  | "marker"
+  | "track"
+  | "vessel"
+  | "aton"
+  | "location";
 
 export type Selection = {
   type: FeatureType;
@@ -17,12 +21,10 @@ export function useSelection(): Selection {
   const pathname = usePathname();
   const params = useGlobalSearchParams<{ type?: string; id?: string }>();
 
-  return useMemo(() => {
-    if (!pathname.startsWith("/feature/") || !params.type || !params.id) {
-      return null;
-    }
-    return { type: params.type as FeatureType, id: params.id };
-  }, [pathname, params.type, params.id]);
+  if (!pathname.startsWith("/feature/") || !params.type || !params.id) {
+    return null;
+  }
+  return { type: params.type as FeatureType, id: params.id };
 }
 
 /**

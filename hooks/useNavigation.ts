@@ -121,6 +121,7 @@ function scheduleMoored(currentState: NavigationState) {
 
 /** Called from LocationManager listener (device GPS) */
 export function updateFromDevice(location: GeolocationPosition) {
+  if (!location) return;
   const { coords } = location;
   _device = {
     latitude: coords.latitude,

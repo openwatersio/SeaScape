@@ -25,8 +25,6 @@ type NavigationCameraProps = Omit<
 export const NavigationCamera = forwardRef<CameraRef, NavigationCameraProps>(
   function NavigationCamera(props, ref) {
     const cameraRef = useRef<CameraRef>(null);
-    const { followUserLocation, trackingMode } = useCameraState();
-    const { longitude, latitude, course } = useNavigation();
 
     useImperativeHandle(ref, () => cameraRef.current!, []);
 
@@ -34,27 +32,50 @@ export const NavigationCamera = forwardRef<CameraRef, NavigationCameraProps>(
       _cameraRef = cameraRef;
     }, []);
 
-    // Compute reactive camera props based on follow state
-    const followProps = followUserLocation && longitude !== null && latitude !== null
-      ? {
-        center: [longitude, latitude] as [number, number],
-        bearing: trackingMode === "course" && course !== null
-          ? (course * 180) / Math.PI
-          : 0,
-        duration: 1000,
-        easing: "linear" as const,
-      }
-      : {};
+    // Follow user location imperatively to avoid re-renders on every GPS tick
+    useEffect(() => {
+      const unsubNav = useNavigation.subscribe((nav) => {
+        const { followUserLocation, trackingMode } = useCameraState.getState();
+        if (!followUserLocation || nav.latitude === null || nav.longitude === null) return;
+
+        cameraRef.current?.easeTo({
+          center: [nav.longitude, nav.latitude],
+          bearing: trackingMode === "course" && nav.course !== null
+            ? (nav.course * 180) / Math.PI
+            : undefined,
+          duration: 1000,
+          easing: "linear",
+        });
+      });
+
+      const unsubCamera = useCameraState.subscribe((state, prev) => {
+        if (state.trackingMode === "default" && prev.trackingMode !== "default") {
+          resetNorth();
+        }
+
+        if (state.followUserLocation && !prev.followUserLocation) {
+          const nav = useNavigation.getState();
+          if (nav.latitude !== null && nav.longitude !== null) {
+            cameraRef.current?.easeTo({
+              center: [nav.longitude, nav.latitude],
+              duration: 1000,
+              easing: "linear",
+            });
+          }
+        }
+      });
+
+      return () => {
+        unsubNav();
+        unsubCamera();
+      };
+    }, []);
 
     return (
       <Camera
         ref={cameraRef}
-        initialViewState={{
-          zoom: useCameraPosition.getState().zoom,
-          center: useCameraPosition.getState().center,
-        }}
+        initialViewState={useCameraPosition.getState()}
         pitch={0}
-        {...followProps}
         {...props}
       />
     );
