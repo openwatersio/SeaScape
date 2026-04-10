@@ -120,13 +120,6 @@ export function useRoute(id: number): ActiveRoute | null {
     const current = getActiveRoute();
     if (current?.id === id) return; // already loaded — preserve edits
     setActiveRoute(id);
-
-    // Dismissing the sheet (swipe or Cancel) clears the active route.
-    return () => {
-      if (getActiveRoute()?.mode !== RouteMode.Navigating) {
-        clearActiveRoute();
-      }
-    };
   }, [id]);
   return useActiveRoute();
 }

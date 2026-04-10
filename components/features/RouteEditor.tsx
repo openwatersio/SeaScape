@@ -23,20 +23,26 @@ import {
   Button,
   Host,
   HStack,
+  Image,
   List,
   Section,
   Spacer,
   Text,
-  VStack
+  VStack,
 } from "@expo/ui/swift-ui";
 import {
+  animation,
+  Animation,
+  buttonStyle,
+  controlSize,
   environment,
   font,
   foregroundStyle,
   listStyle,
   monospacedDigit,
   onTapGesture,
-  padding
+  padding,
+  tint
 } from "@expo/ui/swift-ui/modifiers";
 import { CoordinateFormat } from "coordinate-format";
 import { router, Stack } from "expo-router";
@@ -177,16 +183,15 @@ function RouteEditorContent({ active }: { active: ActiveRoute }) {
         ? { latitude: coords.latitude, longitude: coords.longitude }
         : undefined;
     await startNavigation(id, { from });
+    router.dismissAll();
   }, [id]);
 
-  const dist = toDistance(totalDistance);
-  const subtitle = `${dist.value} ${dist.abbr}`
+  const distance = toDistance(totalDistance);
 
   return (
     <>
       <SheetHeader
         title={routeDisplayName(active)}
-        subtitle={subtitle}
         onPressTitle={handleRename}
       />
       {isEditing ?
@@ -208,12 +213,9 @@ function RouteEditorContent({ active }: { active: ActiveRoute }) {
             onPress={handleSave}
           />
           :
-          <Stack.Toolbar.Button
-            variant="prominent"
-            icon="chevron.forward.2"
-            tintColor={theme.success}
-            onPress={handleNavigate}
-          />
+          <Stack.Toolbar.Button icon="xmark" onPress={() => router.dismiss()}>
+            Close
+          </Stack.Toolbar.Button>
         }
       </Stack.Toolbar>
 
@@ -221,8 +223,35 @@ function RouteEditorContent({ active }: { active: ActiveRoute }) {
         <List modifiers={[
           listStyle("automatic"),
           environment("editMode", active.mode === RouteMode.Editing ? "active" : "inactive"),
+          animation(Animation.default, isEditing),
         ]}
         >
+          {!isEditing && (
+            <Section>
+              <HStack>
+                <Text modifiers={[
+                  font({ size: 24, weight: "bold" }),
+                ]}>
+                  {distance.value} {distance.abbr}
+                </Text>
+                <Spacer />
+                <Button
+                  onPress={handleNavigate}
+                  modifiers={[
+                    buttonStyle("glassProminent"),
+                    controlSize("large"),
+                    tint(theme.success),
+                  ]}
+                >
+                  <HStack spacing={4}>
+                    <Text>Start</Text>
+                    <Image systemName="chevron.right" />
+                  </HStack>
+                </Button>
+              </HStack>
+            </Section>
+          )}
+
           {points.length > 0 ? (
             <List.ForEach
               onDelete={(indices) => {

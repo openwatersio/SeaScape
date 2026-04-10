@@ -4,7 +4,7 @@ import {
   addRouteWaypoint,
   getActiveRoute,
   RouteMode,
-  setActiveIndex,
+  setActiveIndex
 } from "@/hooks/useRoutes";
 import { useSelectionHandler } from "@/hooks/useSelection";
 import { useMapStyle } from "@/hooks/useViewOptions";
@@ -28,8 +28,12 @@ export default function ChartView() {
 
   const handlePress = useCallback((e: NativeSyntheticEvent<PressEvent>) => {
     const { lngLat } = e.nativeEvent;
-    setActiveIndex(null);
-    navigate("location", lngLat.join(','));
+    const active = getActiveRoute();
+    if (active?.mode === RouteMode.Editing && active?.activeIndex != null) {
+      setActiveIndex(null);
+    } else {
+      navigate("location", lngLat.join(','));
+    }
   }, [navigate]);
 
   const handleLongPress = useCallback((e: NativeSyntheticEvent<PressEvent>) => {

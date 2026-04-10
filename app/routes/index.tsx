@@ -63,8 +63,7 @@ export default function RouteList() {
     const targetPath = { pathname: "/route/[id]" as const, params: { id: String(route.id) } };
 
     if (!active || active.id === route.id) {
-      router.dismissAll();
-      router.push(targetPath);
+      router.dismissTo(targetPath);
       return;
     }
 
@@ -145,7 +144,7 @@ export default function RouteList() {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
           icon="xmark"
-          onPress={() => router.dismissTo("/menu")}
+          onPress={() => router.back()}
         />
       </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
@@ -219,10 +218,3 @@ export default function RouteList() {
     </SheetView >
   );
 }
-
-
-
-
-
-
-

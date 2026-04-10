@@ -1,16 +1,24 @@
 import { Annotation, AnnotationProps } from "@/components/map/Annotation";
+import { useNavigationState } from "@/hooks/useNavigationState";
+import { usePreferredUnits } from "@/hooks/usePreferredUnits";
 import {
+  advanceToNext,
+  clearActiveRoute,
   removeRouteWaypoint,
   RouteMode,
   setActiveIndex,
+  stopNavigation,
   updateRouteWaypoint,
   useActiveRoute,
   type ActiveRoute,
   type ActiveWaypoint
 } from "@/hooks/useRoutes";
 import useTheme from "@/hooks/useTheme";
+import { checkWaypointArrival } from "@/lib/waypointArrival";
 import { GeoJSONSource, Layer } from "@maplibre/maplibre-react-native";
-import { useMemo } from "react";
+import * as Haptics from "expo-haptics";
+import { router, usePathname } from "expo-router";
+import { useEffect, useMemo } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import OverlayView from "./ui/OverlayView";
 
@@ -24,6 +32,8 @@ type Coord = [longitude: number, latitude: number];
  */
 export default function RouteOverlay() {
   const active = useActiveRoute();
+  useRouteCleanup();
+
   if (!active) return null;
 
   return active.mode === RouteMode.Navigating ? (
@@ -31,6 +41,37 @@ export default function RouteOverlay() {
   ) : (
     <EditingOverlay active={active} />
   );
+}
+
+/**
+ * When the user lands back on "/" with a non-navigating active route,
+ * either clear it (viewing) or re-present its editor (editing).
+ * Uses a short delay to avoid racing with other navigation transitions.
+ */
+function useRouteCleanup() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const timeout = setTimeout(() => {
+      const route = useActiveRoute.getState();
+      if (!route || route.mode === RouteMode.Navigating) return;
+
+      if (route.mode === RouteMode.Viewing) {
+        clearActiveRoute();
+      } else if (route.mode === RouteMode.Editing) {
+        router.navigate(route.id
+          ? { pathname: "/route/[id]" as const, params: { id: route.id } }
+          : "/route/new"
+        );
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(timeout);
+    }
+  }, [pathname]);
 }
 
 // --- Editing overlay (in-memory, draggable) ---
@@ -44,6 +85,8 @@ function EditingOverlay({ active }: { active: ActiveRoute }) {
     () => points.map((p) => [p.longitude, p.latitude]),
     [points],
   );
+
+
 
   const lineData = useMemo(() => {
     if (coords.length < 2) return null;
@@ -100,6 +143,8 @@ function NavigatingOverlay({ active }: { active: ActiveRoute }) {
   const theme = useTheme();
   const points = active.points;
   const activePointIndex = active.activeIndex ?? 0;
+
+  useWaypointArrival(points, activePointIndex);
 
   const coords: Coord[] = useMemo(
     () => points.map((p) => [p.longitude, p.latitude]),
@@ -250,6 +295,46 @@ function WaypointAnnotation({
       accessory={accessory}
     />
   );
+}
+
+function useWaypointArrival(points: ActiveWaypoint[], activePointIndex: number) {
+  const nav = useNavigationState();
+  const arrivalRadius = usePreferredUnits((s) => s.arrivalRadius);
+  const arriveOnCircleOnly = usePreferredUnits((s) => s.arriveOnCircleOnly);
+
+  const targetPoint = points[activePointIndex] ?? null;
+  const isLastPoint = activePointIndex >= points.length - 1;
+
+  useEffect(() => {
+    if (!nav.coords || !targetPoint) return;
+
+    const arrival = checkWaypointArrival({
+      position: nav.coords,
+      previousWaypoint: activePointIndex > 0 ? points[activePointIndex - 1] : null,
+      activeWaypoint: targetPoint,
+      nextWaypoint:
+        activePointIndex < points.length - 1 ? points[activePointIndex + 1] : null,
+      arrivalRadius,
+      arriveOnCircleOnly,
+    });
+
+    if (arrival.arrived) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (isLastPoint) {
+        stopNavigation();
+      } else {
+        advanceToNext();
+      }
+    }
+  }, [
+    nav.coords,
+    targetPoint,
+    isLastPoint,
+    activePointIndex,
+    points,
+    arrivalRadius,
+    arriveOnCircleOnly,
+  ]);
 }
 
 const waypointStyles = StyleSheet.create({

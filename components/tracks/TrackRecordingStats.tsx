@@ -1,10 +1,9 @@
 import { StatItem } from "@/components/ui/StatItem";
 import { toDistance, toSpeed } from "@/hooks/usePreferredUnits";
-import { stopTrackRecording, useTrackRecording } from "@/hooks/useTrackRecording";
+import { useTrackRecording } from "@/hooks/useTrackRecording";
 import { formatElapsedTime } from "@/lib/format";
 import { HStack } from "@expo/ui/swift-ui";
-import { useCallback, useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { useEffect, useState } from "react";
 
 export default function TrackRecordingStats() {
   const { track, distance, averageSpeed } = useTrackRecording();
@@ -13,17 +12,6 @@ export default function TrackRecordingStats() {
   useEffect(() => {
     const interval = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(interval);
-  }, []);
-
-  const confirmStop = useCallback(() => {
-    Alert.alert("Stop Recording?", "Do you want to stop recording this track?", [
-      {
-        text: "Stop",
-        style: "destructive",
-        onPress: () => stopTrackRecording(),
-      },
-      { text: "Cancel", style: "cancel" },
-    ]);
   }, []);
 
   const dist = toDistance(distance);

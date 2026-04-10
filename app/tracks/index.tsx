@@ -148,7 +148,7 @@ export default function TrackList() {
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
           icon="xmark"
-          onPress={() => router.dismissTo("/menu")}
+          onPress={() => router.back()}
         />
       </Stack.Toolbar>
       <Host style={{ flex: 1 }}>
@@ -169,7 +169,7 @@ export default function TrackList() {
                       modifiers={[
                         onTapGesture(() => {
                           if (isActiveRecording) {
-                            router.replace("/track/record");
+                            router.dismissTo("/activity");
                           } else {
                             router.replace(`/feature/track/${track.id}`);
                           }

@@ -1,7 +1,7 @@
 import RouteEditor from "@/components/features/RouteEditor";
 import SheetView from "@/components/ui/SheetView";
 import { useNavigation } from "@/hooks/useNavigation";
-import { addRouteWaypoint, clearActiveRoute, startRoute } from "@/hooks/useRoutes";
+import { addRouteWaypoint, startRoute } from "@/hooks/useRoutes";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 
@@ -27,10 +27,6 @@ export default function NewRouteScreen() {
       addRouteWaypoint({ latitude: toLat, longitude: toLon });
     }
 
-    // Dismissing the sheet (swipe or Cancel) clears the active route.
-    return () => {
-      clearActiveRoute();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -28,10 +28,11 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="track/record" options={{
+        <Stack.Screen name="activity" options={{
           presentation: "formSheet",
           sheetLargestUndimmedDetentIndex: "last",
-          sheetAllowedDetents: "fitToContents",
+          // Updated dynamically by DetentProvider
+          sheetAllowedDetents: [0],
           sheetGrabberVisible: true,
           headerShown: false,
         }} />
@@ -92,14 +93,6 @@ export default function RootLayout() {
           // Updated dynamically by DetentProvider
           sheetAllowedDetents: [0.1, 0.5, 1],
           sheetGrabberVisible: true,
-        }} />
-        <Stack.Screen name="route/navigate" options={{
-          presentation: "formSheet",
-          sheetLargestUndimmedDetentIndex: "last",
-          // Updated dynamically by DetentProvider
-          sheetAllowedDetents: [0],
-          sheetGrabberVisible: true,
-          headerShown: false,
         }} />
         <Stack.Screen name="markers/index" options={{
           presentation: "formSheet",

@@ -1,6 +1,5 @@
 import { useSheetReporter } from "@/hooks/useSheetPosition";
-import { type StyleProp, type ViewStyle } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, type StyleProp, type ViewStyle } from "react-native";
 import { DetentProvider } from "./Detent";
 
 type Props = {
@@ -25,9 +24,8 @@ export default function SheetView({ id, style, gap, initialDetentIndex, headerDe
   const usesDetentProvider = gap != null || headerDetent || additionalDetents != null;
 
   return (
-    <SafeAreaView
+    <View
       ref={ref}
-      edges={gap != null ? ["bottom"] : []}
       onLayout={reportLayout}
       style={style ?? { flex: 1 }}
     >
@@ -43,6 +41,6 @@ export default function SheetView({ id, style, gap, initialDetentIndex, headerDe
       ) : (
         children
       )}
-    </SafeAreaView>
+    </View>
   );
 }
