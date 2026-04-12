@@ -1,3 +1,4 @@
+import { deleteMBTilesFile } from "@/lib/charts/mbtiles";
 import { LocationObject } from "expo-location";
 import * as SQLite from "expo-sqlite";
 
@@ -655,7 +656,6 @@ export async function updateChart(
 }
 
 export async function deleteChart(id: number): Promise<void> {
-  const { deleteMBTilesFile } = await import("@/lib/charts/mbtiles");
   const db = await getDatabase();
 
   // Clean up local MBTiles files before cascade-deleting sources
