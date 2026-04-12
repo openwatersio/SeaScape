@@ -4,7 +4,9 @@ import {
   useChartSources,
   useViewOptions,
 } from "@/hooks/useViewOptions";
+import type { ChartSource, MBTilesOptions } from "@/lib/chartSources";
 import { deleteChartSource } from "@/lib/database";
+import { deleteMBTilesFile } from "@/lib/mbtiles";
 import {
   Button,
   ContextMenu,
@@ -20,7 +22,8 @@ export default function Charts() {
   const mapStyleId = useViewOptions((s) => s.mapStyleId);
   const sources = useChartSources();
 
-  function confirmDelete(id: number, name: string) {
+  function confirmDelete(source: ChartSource) {
+    const { id, name, type, options } = source;
     const selected =
       id === mapStyleId || (mapStyleId == null && id === sources[0]?.id);
     Alert.alert("Delete Chart Source", `Delete "${name}"?`, [
@@ -29,6 +32,15 @@ export default function Charts() {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
+          if (type === "mbtiles") {
+            try {
+              const opts = JSON.parse(options) as MBTilesOptions;
+              deleteMBTilesFile(opts.path);
+            } catch {
+              // If parsing or deletion fails, proceed with the DB delete
+              // anyway so we don't end up with an un-deletable row.
+            }
+          }
           await deleteChartSource(id);
           if (selected) {
             setViewOptions({ mapStyleId: undefined });
@@ -58,7 +70,8 @@ export default function Charts() {
         <VStack alignment="leading">
           <List>
             <Section>
-              {sources.map(({ id, name, isBuiltin }) => {
+              {sources.map((source) => {
+                const { id, name, isBuiltin } = source;
                 const selected =
                   id === mapStyleId ||
                   (mapStyleId == null && id === sources[0]?.id);
@@ -91,7 +104,7 @@ export default function Charts() {
                           label="Delete"
                           systemImage="trash"
                           role="destructive"
-                          onPress={() => confirmDelete(id, name)}
+                          onPress={() => confirmDelete(source)}
                         />
                       )}
                     </ContextMenu.Items>

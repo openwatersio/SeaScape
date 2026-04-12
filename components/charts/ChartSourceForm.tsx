@@ -9,10 +9,11 @@ import {
   Section,
   Text,
   TextField,
+  type TextFieldRef,
 } from "@expo/ui/swift-ui";
 import { pickerStyle, tag } from "@expo/ui/swift-ui/modifiers";
 import { router, Stack } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 type ChartSourceFormProps = {
   name?: string;
@@ -30,12 +31,24 @@ export default function ChartSourceForm({
   const [type, setType] = useState<FormType>(initialType);
   const [name, setName] = useState(initialName);
   const [options, setOptions] = useState<string | null>(initialOptions);
+  const nameFieldRef = useRef<TextFieldRef>(null);
 
   const handleSave = useCallback(() => {
     const trimmedName = name.trim();
     if (!trimmedName || !options) return;
     onSave(trimmedName, type, options);
   }, [name, options, type, onSave]);
+
+  // Pre-fill the name from a sub-form suggestion (e.g. MBTiles metadata)
+  // only when the user hasn't already typed something.
+  const handleNameSuggestion = useCallback(
+    (suggested: string) => {
+      if (name.trim().length > 0) return;
+      setName(suggested);
+      nameFieldRef.current?.setText(suggested);
+    },
+    [name],
+  );
 
   const canSave = name.trim().length > 0 && options != null;
   const TypeForm = FORM_COMPONENTS[type];
@@ -62,6 +75,7 @@ export default function ChartSourceForm({
         <Form>
           <Section>
             <TextField
+              ref={nameFieldRef}
               placeholder="Name"
               defaultValue={name}
               onChangeText={setName}
@@ -78,11 +92,16 @@ export default function ChartSourceForm({
             >
               <Text modifiers={[tag("raster")]}>Raster</Text>
               <Text modifiers={[tag("style")]}>Style URL</Text>
+              <Text modifiers={[tag("mbtiles")]}>MBTiles</Text>
               <Text modifiers={[tag("custom")]}>Custom Style</Text>
             </Picker>
           </Section>
 
-          <TypeForm options={options} onOptionsChange={setOptions} />
+          <TypeForm
+            options={options}
+            onOptionsChange={setOptions}
+            onNameSuggestion={handleNameSuggestion}
+          />
         </Form>
       </Host>
     </>

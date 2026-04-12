@@ -1,10 +1,13 @@
 import useTheme from "@/hooks/useTheme";
 import type {
   ChartSourceType,
+  MBTilesOptions,
   RasterOptions,
   StyleOptions,
 } from "@/lib/chartSources";
+import { importMBTilesFile } from "@/lib/mbtiles";
 import {
+  Button,
   Picker,
   Section,
   Stepper,
@@ -12,18 +15,22 @@ import {
   TextField,
 } from "@expo/ui/swift-ui";
 import {
+  disabled,
   foregroundStyle,
   frame,
   pickerStyle,
   tag,
 } from "@expo/ui/swift-ui/modifiers";
+import { File } from "expo-file-system";
 import { useCallback, useState } from "react";
 
-export type FormType = Exclude<ChartSourceType, "mbtiles">;
+export type FormType = ChartSourceType;
 
 export type OptionsFormProps = {
   options: string | null;
   onOptionsChange: (options: string | null) => void;
+  /** Called when the form has a suggested name (e.g. from MBTiles metadata). */
+  onNameSuggestion?: (name: string) => void;
 };
 
 function StyleUrlForm({ options, onOptionsChange }: OptionsFormProps) {
@@ -241,11 +248,107 @@ function CustomForm({ options, onOptionsChange }: OptionsFormProps) {
   );
 }
 
+function MBTilesForm({
+  options,
+  onOptionsChange,
+  onNameSuggestion,
+}: OptionsFormProps) {
+  const theme = useTheme();
+  const [error, setError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  const existing: MBTilesOptions | null = options
+    ? (JSON.parse(options) as MBTilesOptions)
+    : null;
+
+  const handlePick = useCallback(async () => {
+    setError(null);
+    setImporting(true);
+    try {
+      // MBTiles files have no system MIME type. We register a UTI for the
+      // .mbtiles extension in app.json (UTImportedTypeDeclarations); passing
+      // no MIME type here means the picker uses UTType.item, which now
+      // matches our declared UTI so .mbtiles files are selectable.
+      const picked = await File.pickFileAsync();
+      const source = Array.isArray(picked) ? picked[0] : picked;
+      if (!source) {
+        setImporting(false);
+        return;
+      }
+      if (!source.name.toLowerCase().endsWith(".mbtiles")) {
+        setError("File must have a .mbtiles extension");
+        setImporting(false);
+        return;
+      }
+      const { options: imported, metadata } = await importMBTilesFile(
+        source.uri,
+      );
+      onOptionsChange(JSON.stringify(imported));
+      if (metadata.name && onNameSuggestion) {
+        onNameSuggestion(metadata.name);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to import MBTiles file");
+    } finally {
+      setImporting(false);
+    }
+  }, [onOptionsChange, onNameSuggestion]);
+
+  return (
+    <>
+      <Section
+        footer={
+          <Text>
+            Select a local .mbtiles file. It will be copied into the app.
+          </Text>
+        }
+      >
+        <Button
+          systemImage={
+            existing ? "arrow.triangle.2.circlepath" : "square.and.arrow.down"
+          }
+          label={
+            importing ? "Importing…" : existing ? "Replace file" : "Choose file…"
+          }
+          onPress={handlePick}
+          modifiers={[disabled(importing)]}
+        />
+      </Section>
+
+      {existing ? (
+        <Section>
+          <Text>Format: {existing.format}</Text>
+          {existing.minZoom != null && existing.maxZoom != null ? (
+            <Text>
+              Zoom: {existing.minZoom}–{existing.maxZoom}
+            </Text>
+          ) : null}
+          {existing.bounds ? (
+            <Text>
+              Bounds: {existing.bounds.map((n) => n.toFixed(3)).join(", ")}
+            </Text>
+          ) : null}
+          {existing.attribution ? (
+            <Text>Attribution: {existing.attribution}</Text>
+          ) : null}
+        </Section>
+      ) : null}
+
+      {error ? (
+        <Section>
+          <Text modifiers={[foregroundStyle(theme.danger)]}>{error}</Text>
+        </Section>
+      ) : null}
+    </>
+  );
+}
+
 export const FORM_COMPONENTS: Record<
   FormType,
   React.ComponentType<OptionsFormProps>
 > = {
   style: StyleUrlForm,
   raster: RasterForm,
+  mbtiles: MBTilesForm,
   custom: CustomForm,
 };

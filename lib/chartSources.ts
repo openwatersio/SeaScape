@@ -16,7 +16,17 @@ export type RasterOptions = {
   attribution?: string;
 };
 
-export type ChartSourceType = "style" | "raster" | "custom";
+export type MBTilesOptions = {
+  path: string; // absolute path under documentDirectory/mbtiles/
+  format: "png" | "jpg" | "jpeg" | "webp" | "pbf";
+  tileSize?: number;
+  minZoom?: number;
+  maxZoom?: number;
+  bounds?: [number, number, number, number];
+  attribution?: string;
+};
+
+export type ChartSourceType = "style" | "raster" | "mbtiles" | "custom";
 
 export type ChartSource = Omit<ChartSourceRow, "is_builtin" | "type"> & {
   type: ChartSourceType;
@@ -53,6 +63,29 @@ export function buildMapStyle(
             tileSize: opts.tileSize ?? 256,
             ...(opts.minZoom != null && { minzoom: opts.minZoom }),
             ...(opts.maxZoom != null && { maxzoom: opts.maxZoom }),
+            ...(opts.attribution && { attribution: opts.attribution }),
+          },
+        },
+        layers: [{ id: "chart", type: "raster", source: "chart" }],
+      } as StyleSpecification;
+    }
+
+    case "mbtiles": {
+      const opts = JSON.parse(source.options) as MBTilesOptions;
+      // MapLibre Native iOS has built-in support for the mbtiles:// URL scheme.
+      // The URL goes in `url` (not `tiles`) and points at the file itself —
+      // MapLibre queries the SQLite db directly for tiles, so no {z}/{x}/{y}
+      // template. Paths are absolute and prefixed with `mbtiles://`.
+      return {
+        version: 8,
+        sources: {
+          chart: {
+            type: "raster",
+            url: `mbtiles://${opts.path}`,
+            tileSize: opts.tileSize ?? 256,
+            ...(opts.minZoom != null && { minzoom: opts.minZoom }),
+            ...(opts.maxZoom != null && { maxzoom: opts.maxZoom }),
+            ...(opts.bounds && { bounds: opts.bounds }),
             ...(opts.attribution && { attribution: opts.attribution }),
           },
         },
