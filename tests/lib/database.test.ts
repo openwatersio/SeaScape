@@ -19,11 +19,19 @@ import {
   deleteRoute,
   getRoutePoints,
   replaceRoutePoints,
+  insertChart,
+  getAllCharts,
+  getChartSources,
+  getChartWithSources,
+  getAllChartsWithSources,
+  insertSource,
+  updateChart,
+  deleteChart,
 } from "@/lib/database";
 
 // Mock expo-sqlite with an in-memory implementation
-const rows: Record<string, any[]> = { tracks: [], track_points: [], markers: [], routes: [], route_points: [] };
-let autoIncrement: Record<string, number> = { tracks: 0, track_points: 0, markers: 0, routes: 0, route_points: 0 };
+const rows: Record<string, any[]> = { tracks: [], track_points: [], markers: [], routes: [], route_points: [], charts: [], sources: [] };
+let autoIncrement: Record<string, number> = { tracks: 0, track_points: 0, markers: 0, routes: 0, route_points: 0, charts: 0, sources: 0 };
 let userVersion = 0;
 
 const mockDb = {
@@ -55,6 +63,18 @@ const mockDb = {
       const id = args[0];
       return rows.route_points.find((p) => p.id === id) ?? null;
     }
+    if (sql.includes("FROM charts WHERE id")) {
+      const id = args[0];
+      return rows.charts.find((c) => c.id === id) ?? null;
+    }
+    if (sql.includes("FROM sources WHERE id")) {
+      const id = args[0];
+      return rows.sources.find((s) => s.id === id) ?? null;
+    }
+    if (sql.includes("COUNT") && sql.includes("charts")) {
+      // Return non-zero to skip catalog seeding in tests
+      return { count: 1 };
+    }
     return null;
   }),
   getAllAsync: jest.fn(async (sql: string, ...args: any[]) => {
@@ -84,6 +104,16 @@ const mockDb = {
       return rows.route_points
         .filter((p) => p.route_id === routeId)
         .sort((a: any, b: any) => a.order - b.order);
+    }
+    if (sql.includes("FROM charts ORDER BY")) {
+      return [...rows.charts];
+    }
+    if (sql.includes("FROM sources WHERE chart_id")) {
+      const chartId = args[0];
+      return rows.sources.filter((s) => s.chart_id === chartId);
+    }
+    if (sql.includes("FROM sources ORDER BY")) {
+      return [...rows.sources];
     }
     return [];
   }),
@@ -210,6 +240,55 @@ const mockDb = {
       rows.routes = rows.routes.filter((r) => r.id !== args[0]);
       return { changes: 0 };
     }
+    if (sql.includes("INSERT INTO charts")) {
+      const id = ++autoIncrement.charts;
+      rows.charts.push({
+        id,
+        name: args[0],
+        catalog_entry_id: args[1] ?? null,
+      });
+      return { lastInsertRowId: id };
+    }
+    if (sql.includes("INSERT INTO sources")) {
+      const id = ++autoIncrement.sources;
+      rows.sources.push({
+        id,
+        chart_id: args[0],
+        title: args[1],
+        type: args[2],
+        url: args[3],
+        tiles: args[4],
+        bounds: args[5],
+        minzoom: args[6],
+        maxzoom: args[7],
+        attribution: args[8],
+        tile_size: args[9],
+        scheme: args[10],
+      });
+      return { lastInsertRowId: id };
+    }
+    if (sql.match(/UPDATE charts SET .+ WHERE id/)) {
+      const id = args[args.length - 1];
+      const chart = rows.charts.find((c) => c.id === id);
+      if (chart) {
+        const setMatch = sql.match(/SET (.+) WHERE/);
+        if (setMatch) {
+          const keys = setMatch[1].split(", ").map((s) => s.replace(" = ?", "").trim());
+          keys.forEach((key, i) => { chart[key] = args[i]; });
+        }
+      }
+      return { changes: chart ? 1 : 0 };
+    }
+    if (sql.includes("DELETE FROM sources WHERE chart_id")) {
+      rows.sources = rows.sources.filter((s) => s.chart_id !== args[0]);
+      return { changes: 0 };
+    }
+    if (sql.includes("DELETE FROM charts WHERE id")) {
+      const id = args[0];
+      rows.sources = rows.sources.filter((s) => s.chart_id !== id);
+      rows.charts = rows.charts.filter((c) => c.id !== id);
+      return { changes: 0 };
+    }
     return { lastInsertRowId: 0, changes: 0 };
   }),
   withTransactionAsync: jest.fn(async (task: () => Promise<void>) => {
@@ -221,13 +300,20 @@ jest.mock("expo-sqlite", () => ({
   openDatabaseAsync: jest.fn(async () => mockDb),
 }));
 
+jest.mock("@/lib/charts/mbtiles", () => ({
+  deleteMBTilesFile: jest.fn(),
+}));
+
+
 beforeEach(() => {
   rows.tracks = [];
   rows.track_points = [];
   rows.markers = [];
   rows.routes = [];
   rows.route_points = [];
-  autoIncrement = { tracks: 0, track_points: 0, markers: 0, routes: 0, route_points: 0 };
+  rows.charts = [];
+  rows.sources = [];
+  autoIncrement = { tracks: 0, track_points: 0, markers: 0, routes: 0, route_points: 0, charts: 0, sources: 0 };
 });
 
 describe("database", () => {
@@ -463,6 +549,131 @@ describe("database", () => {
 
       const points = await getRoutePoints(routeId);
       expect(points).toHaveLength(0);
+    });
+  });
+
+  describe("charts", () => {
+    it("inserts a chart and returns it", async () => {
+      const chart = await insertChart("NOAA Raster");
+      expect(chart.id).toBe(1);
+      expect(chart.name).toBe("NOAA Raster");
+      expect(chart.catalog_entry_id).toBeNull();
+    });
+
+    it("inserts a chart with a catalog entry id", async () => {
+      const chart = await insertChart("OpenSeaMap", "openseamap");
+      expect(chart.catalog_entry_id).toBe("openseamap");
+    });
+
+    it("lists all charts", async () => {
+      await insertChart("Chart A");
+      await insertChart("Chart B");
+
+      const charts = await getAllCharts();
+      expect(charts).toHaveLength(2);
+    });
+
+    it("renames a chart", async () => {
+      const { id } = await insertChart("Old Name");
+      await updateChart(id, { name: "New Name" });
+
+      const charts = await getAllCharts();
+      const chart = charts.find((c) => c.id === id);
+      expect(chart!.name).toBe("New Name");
+    });
+
+    it("deletes a chart and its sources", async () => {
+      const chart = await insertChart("To Delete");
+      await insertSource(chart.id, {
+        title: "WMS",
+        type: "raster",
+        tiles: ["https://example.com/{z}/{x}/{y}.png"],
+      });
+
+      await deleteChart(chart.id);
+
+      const charts = await getAllCharts();
+      expect(charts).toHaveLength(0);
+
+      const sources = await getChartSources(chart.id);
+      expect(sources).toHaveLength(0);
+    });
+  });
+
+  describe("sources", () => {
+    it("inserts a source for a chart", async () => {
+      const chart = await insertChart("Test Chart");
+      const source = await insertSource(chart.id, {
+        title: "Raster Tiles",
+        type: "raster",
+        tiles: ["https://example.com/{z}/{x}/{y}.png"],
+        minzoom: 4,
+        maxzoom: 16,
+        attribution: "Test",
+      });
+
+      expect(source.id).toBe(1);
+      expect(source.chart_id).toBe(chart.id);
+      expect(source.title).toBe("Raster Tiles");
+      expect(source.type).toBe("raster");
+      expect(source.tiles).toBe(JSON.stringify(["https://example.com/{z}/{x}/{y}.png"]));
+      expect(source.minzoom).toBe(4);
+      expect(source.maxzoom).toBe(16);
+      expect(source.attribution).toBe("Test");
+    });
+
+    it("retrieves sources for a chart", async () => {
+      const chart = await insertChart("Multi Source");
+      await insertSource(chart.id, { title: "Base", type: "raster", tiles: ["https://a/{z}/{x}/{y}.png"] });
+      await insertSource(chart.id, { title: "Overlay", type: "raster", tiles: ["https://b/{z}/{x}/{y}.png"] });
+
+      const sources = await getChartSources(chart.id);
+      expect(sources).toHaveLength(2);
+      expect(sources[0].title).toBe("Base");
+      expect(sources[1].title).toBe("Overlay");
+    });
+
+    it("getChartWithSources returns chart with nested sources", async () => {
+      const chart = await insertChart("With Sources", "noaa-raster");
+      await insertSource(chart.id, { title: "WMS", type: "raster" });
+      await insertSource(chart.id, { title: "MBTiles", type: "mbtiles", url: "/path/to/file.mbtiles" });
+
+      const result = await getChartWithSources(chart.id);
+      expect(result).not.toBeNull();
+      expect(result!.name).toBe("With Sources");
+      expect(result!.catalog_entry_id).toBe("noaa-raster");
+      expect(result!.sources).toHaveLength(2);
+    });
+
+    it("getChartWithSources returns null for non-existent chart", async () => {
+      const result = await getChartWithSources(999);
+      expect(result).toBeNull();
+    });
+
+    it("getAllChartsWithSources groups sources by chart", async () => {
+      const c1 = await insertChart("Chart A");
+      const c2 = await insertChart("Chart B");
+      await insertSource(c1.id, { title: "S1", type: "raster" });
+      await insertSource(c1.id, { title: "S2", type: "mbtiles" });
+      await insertSource(c2.id, { title: "S3", type: "style", url: "https://example.com/style.json" });
+
+      const all = await getAllChartsWithSources();
+      expect(all).toHaveLength(2);
+      expect(all[0].sources).toHaveLength(2);
+      expect(all[1].sources).toHaveLength(1);
+    });
+
+    it("inserts a style source with url", async () => {
+      const chart = await insertChart("VectorCharts");
+      const source = await insertSource(chart.id, {
+        title: "VectorCharts Base",
+        type: "style",
+        url: "https://api.vectorcharts.com/style.json",
+      });
+
+      expect(source.type).toBe("style");
+      expect(source.url).toBe("https://api.vectorcharts.com/style.json");
+      expect(source.tiles).toBeNull();
     });
   });
 });

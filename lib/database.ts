@@ -1,3 +1,4 @@
+import { deleteMBTilesFile } from "@/lib/charts/mbtiles";
 import { LocationObject } from "expo-location";
 import * as SQLite from "expo-sqlite";
 
@@ -7,7 +8,9 @@ let db: SQLite.SQLiteDatabase | null = null;
 
 export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
-  db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+  db = await SQLite.openDatabaseAsync(DATABASE_NAME, {
+    enableChangeListener: true,
+  });
   await migrate(db);
   return db;
 }
@@ -85,11 +88,73 @@ async function migrate(db: SQLite.SQLiteDatabase): Promise<void> {
   }
 
   if (currentVersion < 4) {
+    const columns = await db.getAllAsync<{ name: string }>(
+      "PRAGMA table_info(routes)",
+    );
+    if (!columns.some((c) => c.name === "distance")) {
+      await db.execAsync(
+        "ALTER TABLE routes ADD COLUMN distance REAL NOT NULL DEFAULT 0;",
+      );
+    }
+    // Intentionally ignore DROP COLUMN errors (e.g. column already absent
+    // or SQLite version doesn't support DROP COLUMN).
+    await db
+      .execAsync("ALTER TABLE route_points DROP COLUMN name;")
+      .catch(() => {});
+    await db.execAsync("PRAGMA user_version = 4;");
+  }
+
+  if (currentVersion < 7) {
+    // Create new tables (individual statements to avoid nested transaction
+    // issues — execAsync with multiple statements auto-wraps in a transaction)
     await db.execAsync(`
-      ALTER TABLE routes ADD COLUMN distance REAL NOT NULL DEFAULT 0;
-      ALTER TABLE route_points DROP COLUMN name;
-      PRAGMA user_version = 4;
+      CREATE TABLE IF NOT EXISTS charts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        catalog_entry_id TEXT
+      );
     `);
+
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS sources (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        chart_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        type TEXT NOT NULL,
+        url TEXT,
+        tiles TEXT,
+        bounds TEXT,
+        minzoom INTEGER,
+        maxzoom INTEGER,
+        attribution TEXT,
+        tile_size INTEGER,
+        scheme TEXT,
+        FOREIGN KEY (chart_id) REFERENCES charts(id) ON DELETE CASCADE
+      );
+    `);
+
+    await db.execAsync(
+      "CREATE INDEX IF NOT EXISTS idx_sources_chart_id ON sources(chart_id);",
+    );
+
+    await db.execAsync("PRAGMA user_version = 7;");
+  }
+
+  // Seed default charts if the database is empty (first launch)
+  const chartCount = await db.getFirstAsync<{ count: number }>(
+    "SELECT COUNT(*) as count FROM charts;",
+  );
+  if (chartCount?.count === 0) {
+    const { default: loadCatalog } = await import("@/catalog");
+    const { installCatalogEntry } = await import("@/lib/charts/catalog");
+    const defaultIds = new Set(["noaa-raster", "openseamap", "google-earth"]);
+    const catalog = await loadCatalog();
+
+    for (const entry of catalog) {
+      if (defaultIds.has(entry.id)) {
+        await installCatalogEntry(entry);
+      }
+    }
   }
 }
 
@@ -441,4 +506,172 @@ export async function getAllTimeSpeedStats(): Promise<SpeedStats> {
     avgSpeed: row?.avg_speed ?? 0,
     maxSpeed: row?.max_speed ?? 0,
   };
+}
+
+// -- Chart operations --
+
+export type ChartRow = {
+  id: number;
+  name: string;
+  catalog_entry_id: string | null;
+};
+
+export type SourceRow = {
+  id: number;
+  chart_id: number;
+  title: string;
+  type: string;
+  url: string | null;
+  tiles: string | null;
+  bounds: string | null;
+  minzoom: number | null;
+  maxzoom: number | null;
+  attribution: string | null;
+  tile_size: number | null;
+  scheme: string | null;
+};
+
+export async function getAllCharts(): Promise<ChartRow[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<ChartRow>("SELECT * FROM charts ORDER BY id ASC");
+}
+
+export async function getChartSources(chartId: number): Promise<SourceRow[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SourceRow>(
+    "SELECT * FROM sources WHERE chart_id = ? ORDER BY id ASC",
+    chartId,
+  );
+}
+
+export async function getChartWithSources(
+  chartId: number,
+): Promise<(ChartRow & { sources: SourceRow[] }) | null> {
+  const db = await getDatabase();
+  const chart = await db.getFirstAsync<ChartRow>(
+    "SELECT * FROM charts WHERE id = ?",
+    chartId,
+  );
+  if (!chart) return null;
+  const sources = await db.getAllAsync<SourceRow>(
+    "SELECT * FROM sources WHERE chart_id = ? ORDER BY id ASC",
+    chartId,
+  );
+  return { ...chart, sources };
+}
+
+export async function getAllChartsWithSources(): Promise<
+  (ChartRow & { sources: SourceRow[] })[]
+> {
+  const db = await getDatabase();
+  const charts = await db.getAllAsync<ChartRow>(
+    "SELECT * FROM charts ORDER BY id ASC",
+  );
+  const sources = await db.getAllAsync<SourceRow>(
+    "SELECT * FROM sources ORDER BY chart_id ASC, id ASC",
+  );
+
+  const sourcesByChart = new Map<number, SourceRow[]>();
+  for (const s of sources) {
+    const list = sourcesByChart.get(s.chart_id) ?? [];
+    list.push(s);
+    sourcesByChart.set(s.chart_id, list);
+  }
+
+  return charts.map((c) => ({
+    ...c,
+    sources: sourcesByChart.get(c.id) ?? [],
+  }));
+}
+
+export async function insertChart(
+  name: string,
+  catalogEntryId?: string,
+): Promise<ChartRow> {
+  const db = await getDatabase();
+  const result = await db.runAsync(
+    "INSERT INTO charts (name, catalog_entry_id) VALUES (?, ?)",
+    name,
+    catalogEntryId ?? null,
+  );
+  const row = await db.getFirstAsync<ChartRow>(
+    "SELECT * FROM charts WHERE id = ?",
+    result.lastInsertRowId,
+  );
+  return row!;
+}
+
+export async function insertSource(
+  chartId: number,
+  fields: {
+    title: string;
+    type: string;
+    url?: string | null;
+    tiles?: string[] | null;
+    bounds?: number[] | null;
+    minzoom?: number | null;
+    maxzoom?: number | null;
+    attribution?: string | null;
+    tileSize?: number | null;
+    scheme?: string | null;
+  },
+): Promise<SourceRow> {
+  const db = await getDatabase();
+  const result = await db.runAsync(
+    `INSERT INTO sources (chart_id, title, type, url, tiles, bounds, minzoom, maxzoom, attribution, tile_size, scheme)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    chartId,
+    fields.title,
+    fields.type,
+    fields.url ?? null,
+    fields.tiles ? JSON.stringify(fields.tiles) : null,
+    fields.bounds ? JSON.stringify(fields.bounds) : null,
+    fields.minzoom ?? null,
+    fields.maxzoom ?? null,
+    fields.attribution ?? null,
+    fields.tileSize ?? null,
+    fields.scheme ?? null,
+  );
+  const row = await db.getFirstAsync<SourceRow>(
+    "SELECT * FROM sources WHERE id = ?",
+    result.lastInsertRowId,
+  );
+  return row!;
+}
+
+export async function updateChart(
+  id: number,
+  fields: Partial<Pick<ChartRow, "name">>,
+): Promise<void> {
+  const db = await getDatabase();
+  const entries = Object.entries(fields).filter(([, v]) => v !== undefined);
+  if (entries.length === 0) return;
+  const setClauses = entries.map(([k]) => `${k} = ?`).join(", ");
+  const values = entries.map(([, v]) => v);
+  await db.runAsync(
+    `UPDATE charts SET ${setClauses} WHERE id = ?`,
+    ...values,
+    id,
+  );
+}
+
+export async function deleteChart(id: number): Promise<void> {
+  const db = await getDatabase();
+
+  // Clean up local MBTiles files before cascade-deleting sources
+  const sources = await db.getAllAsync<SourceRow>(
+    "SELECT * FROM sources WHERE chart_id = ?",
+    id,
+  );
+  for (const source of sources) {
+    if (source.type === "mbtiles" && source.url) {
+      try {
+        deleteMBTilesFile(source.url);
+      } catch {
+        // Proceed with delete even if file cleanup fails
+      }
+    }
+  }
+
+  await db.runAsync("DELETE FROM charts WHERE id = ?", id);
 }
